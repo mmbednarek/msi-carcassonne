@@ -1,0 +1,6 @@
+#ifndef MSI_CARCASSONNE_GRAPHICS_H
+#define MSI_CARCASSONNE_GRAPHICS_H
+
+// Game render stuff
+
+#endif //MSI_CARCASSONNE_GRAPHICS_H
