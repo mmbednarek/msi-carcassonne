@@ -18,4 +18,13 @@ void SDLContext::draw_line(int x1, int y1, int x2, int y2) const {
    SDL_RenderDrawLine(m_renderer, x1, y1, x2, y2);
 }
 
+void SDLContext::draw(const Texture &tex, int x, int y, int w, int h) const {
+   SDL_Rect rect;
+   rect.x = x;
+   rect.y = y;
+   rect.w = w;
+   rect.h = h;
+   SDL_RenderCopy(m_renderer, tex.raw(), nullptr, &rect);
+}
+
 }// namespace msi::graphics
