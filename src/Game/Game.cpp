@@ -2,10 +2,9 @@
 
 namespace msi::game {
 
-void Game::run() {
-   while (m_running) {
+Game::Game() : m_event_manager(*this), m_render(*this) {}
 
-   }
+void Game::update() {
 }
 
 }

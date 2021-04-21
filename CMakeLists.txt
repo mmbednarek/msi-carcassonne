@@ -7,8 +7,18 @@ find_package(SDL2 REQUIRED)
 find_package(fmt REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
+include(FetchContent)
+
+FetchContent_Declare(
+        libmb
+        GIT_REPOSITORY https://github.com/mmbednarek/mb
+        GIT_TAG libmb-0.0.16
+)
+FetchContent_MakeAvailable(libmb)
+
 include_directories(include)
 
 add_subdirectory(src/Graphics)
+add_subdirectory(src/Input)
 add_subdirectory(src/Game)
 add_subdirectory(src/bin/carcassonne)

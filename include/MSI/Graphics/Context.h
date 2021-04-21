@@ -1,20 +1,17 @@
 #ifndef MSI_CARCASSONNE_CONTEXT_H
 #define MSI_CARCASSONNE_CONTEXT_H
-#include <SDL2/SDL_render.h>
+#include <cstdint>
 
 namespace msi::graphics {
 
-class Context {
-   SDL_Renderer *m_renderer = nullptr;// reference
+class IContext {
  public:
-   explicit Context(SDL_Renderer *renderer);
-
-   void set_draw_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) const;
-   void clear() const;
-   void draw_line(int x1, int y1, int x2, int y2) const;
-   void present() const;
+   virtual void set_draw_color(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) const = 0;
+   virtual void clear() const = 0;
+   virtual void draw_line(int x1, int y1, int x2, int y2) const = 0;
+   virtual void present() const = 0;
 };
 
-}
+}// namespace msi::graphics
 
 #endif//MSI_CARCASSONNE_CONTEXT_H
