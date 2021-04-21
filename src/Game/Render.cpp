@@ -1,30 +1,32 @@
 #include <MSI/Game/Game.h>
 #include <MSI/Game/Render.h>
+#include <MSI/Graphics/Resource.h>
 #include <mb/int.h>
 
 namespace msi::game {
 
+using graphics::TextureResource;
+
 Render::Render(Game &game) : m_game(game) {}
 
 void Render::render(const graphics::IContext &ctx) const noexcept {
-   ctx.set_draw_color(0, 0, 0, 255);
+   ctx.set_draw_color(81, 170, 162, 255);
    ctx.clear();
 
-   constexpr auto w = 100;
-   constexpr auto h = 100;
+   constexpr auto w = 96;
+   constexpr auto h = 96;
 
    auto &block_pos = m_game.block_pos();
    auto x = static_cast<mb::i32>(block_pos.x);
    auto y = static_cast<mb::i32>(block_pos.y);
 
-   ctx.set_draw_color(255, 255, 0, 255);
-   ctx.draw_line(x, y, x+w, y);
-   ctx.set_draw_color(255, 0, 255, 255);
-   ctx.draw_line(x+w, y, x+w, y+h);
-   ctx.set_draw_color(0, 0, 255, 255);
-   ctx.draw_line(x+w, y+h, x, y+h);
-   ctx.set_draw_color(0, 255, 255, 255);
-   ctx.draw_line(x, y+h, x, y);
+   ctx.set_draw_color(214, 203, 108, 255);
+   ctx.draw_line(x, y, x + w, y);
+   ctx.draw_line(x + w, y, x + w, y + h);
+   ctx.draw_line(x + w, y + h, x, y + h);
+   ctx.draw_line(x, y + h, x, y);
+
+   ctx.draw(graphics::ResourceManager::texture(TextureResource::YellowFigure), x, y, w, h);
 
    ctx.present();
 }

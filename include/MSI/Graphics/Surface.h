@@ -32,6 +32,10 @@ class Surface {
    }
 
    static mb::result<Surface> create(const Config &conf);
+
+   [[nodiscard]] constexpr SDL_Renderer *raw() const {
+      return m_renderer;
+   }
 };
 
 }// namespace msi::graphics

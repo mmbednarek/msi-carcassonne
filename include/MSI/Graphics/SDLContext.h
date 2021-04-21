@@ -14,6 +14,7 @@ class SDLContext : public IContext {
    void clear() const override;
    void draw_line(int x1, int y1, int x2, int y2) const override;
    void present() const override;
+   void draw(const Texture &tex, int x, int y, int w, int h) const override;
 };
 
 }// namespace msi::graphics

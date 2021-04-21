@@ -1,4 +1,5 @@
 #include <MSI/Game/Game.h>
+#include <MSI/Graphics/Resource.h>
 #include <MSI/Graphics/Surface.h>
 #include <MSI/Input/Input.h>
 #include <fmt/core.h>
@@ -17,6 +18,12 @@ int main() {
       return 1;
    }
    auto surface = surface_re.unwrap();
+
+   auto resource_re = msi::graphics::ResourceManager::the().load_resources(surface);
+   if (!resource_re.ok()) {
+      fmt::print(stderr, "could not load all resources: {}", resource_re.msg());
+      return 1;
+   }
 
    msi::game::Game game;
    while (game.status() != Status::Quitting) {
