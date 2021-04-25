@@ -1,5 +1,5 @@
-#include <MSI/Input/Input.h>
+#include <Carcassonne/Input/Input.h>
 
-namespace msi::input {
+namespace carcassonne::input {
 
 }

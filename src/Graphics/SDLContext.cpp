@@ -1,6 +1,6 @@
-#include <MSI/Graphics/SDLContext.h>
+#include <Carcassonne/Graphics/SDLContext.h>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 void SDLContext::set_draw_color(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) const {
    SDL_SetRenderDrawColor(m_renderer, r, g, b, a);
@@ -27,4 +27,4 @@ void SDLContext::draw(const Texture &tex, int x, int y, int w, int h) const {
    SDL_RenderCopy(m_renderer, tex.raw(), nullptr, &rect);
 }
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics

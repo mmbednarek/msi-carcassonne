@@ -4,7 +4,7 @@
 #include "Render.h"
 #include <mb/int.h>
 
-namespace msi::game {
+namespace carcassonne::game {
 
 enum class Status {
    Init,
@@ -48,6 +48,6 @@ class Game {
     }
 };
 
-}// namespace msi::game
+}// namespace carcassonne::game
 
 #endif//MSI_CARCASSONNE_GAME_H

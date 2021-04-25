@@ -1,9 +1,9 @@
-#include <MSI/Graphics/Surface.h>
-#include <MSI/Graphics/Texture.h>
+#include <Carcassonne/Graphics/Surface.h>
+#include <Carcassonne/Graphics/Texture.h>
 #include <SDL2/SDL_image.h>
 #include <fmt/core.h>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 Texture::~Texture() {
    if (m_texture != nullptr) {
@@ -37,4 +37,4 @@ Texture &Texture::operator=(Texture &&other) noexcept {
    return *this;
 }
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics

@@ -1,12 +1,12 @@
 #ifndef MSI_CARCASSONNE_RESOURCE_H
 #define MSI_CARCASSONNE_RESOURCE_H
-#include <MSI/Graphics/Surface.h>
-#include <MSI/Graphics/Texture.h>
+#include <Carcassonne/Graphics/Surface.h>
+#include <Carcassonne/Graphics/Texture.h>
 #include <array>
 #include <mb/int.h>
 #include <string_view>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 enum class TextureResource : mb::u32 {
    YellowFigure,
@@ -41,6 +41,6 @@ class ResourceManager {
    }
 };
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics
 
 #endif//MSI_CARCASSONNE_RESOURCE_H

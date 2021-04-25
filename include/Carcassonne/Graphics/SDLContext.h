@@ -3,7 +3,7 @@
 #include "Context.h"
 #include <SDL2/SDL_render.h>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 class SDLContext : public IContext {
    SDL_Renderer *m_renderer = nullptr;// reference
@@ -17,6 +17,6 @@ class SDLContext : public IContext {
    void draw(const Texture &tex, int x, int y, int w, int h) const override;
 };
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics
 
 #endif//MSI_CARCASSONNE_SDLCONTEXT_H

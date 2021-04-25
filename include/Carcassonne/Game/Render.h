@@ -1,8 +1,8 @@
 #ifndef MSI_CARCASSONNE_GRAPHICS_H
 #define MSI_CARCASSONNE_GRAPHICS_H
-#include <MSI/Graphics/Context.h>
+#include <Carcassonne/Graphics/Context.h>
 
-namespace msi::game {
+namespace carcassonne::game {
 
 class Game;
 
@@ -15,6 +15,6 @@ class Render {
    void render(const graphics::IContext &ctx) const noexcept;
 };
 
-}// namespace msi::game
+}// namespace carcassonne::game
 
 #endif//MSI_CARCASSONNE_GRAPHICS_H

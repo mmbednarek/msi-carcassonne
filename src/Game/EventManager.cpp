@@ -1,7 +1,7 @@
-#include <MSI/Game/EventManager.h>
-#include <MSI/Game/Game.h>
+#include <Carcassonne/Game/EventManager.h>
+#include <Carcassonne/Game/Game.h>
 
-namespace msi::game {
+namespace carcassonne::game {
 
 EventManager::EventManager(Game &game) : m_game(game) {}
 
@@ -41,4 +41,4 @@ void EventManager::on_button_up(std::uint8_t button) {
 void EventManager::on_mousemove(int x, int y) {
 }
 
-}// namespace msi::game
+}// namespace carcassonne::game

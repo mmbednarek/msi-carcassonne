@@ -1,9 +1,9 @@
-#include <MSI/Game/Game.h>
-#include <MSI/Game/Render.h>
-#include <MSI/Graphics/Resource.h>
+#include <Carcassonne/Game/Game.h>
+#include <Carcassonne/Game/Render.h>
+#include <Carcassonne/Graphics/Resource.h>
 #include <mb/int.h>
 
-namespace msi::game {
+namespace carcassonne::game {
 
 using graphics::TextureResource;
 
@@ -31,4 +31,4 @@ void Render::render(const graphics::IContext &ctx) const noexcept {
    ctx.present();
 }
 
-}// namespace msi::game
+}// namespace carcassonne::game

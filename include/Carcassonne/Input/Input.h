@@ -2,7 +2,7 @@
 #define MSI_CARCASSONNE_INPUT_H
 #include <SDL2/SDL.h>
 
-namespace msi::input {
+namespace carcassonne::input {
 
 using KeyCode = int;
 

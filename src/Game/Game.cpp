@@ -1,6 +1,6 @@
-#include <MSI/Game/Game.h>
+#include <Carcassonne/Game/Game.h>
 
-namespace msi::game {
+namespace carcassonne::game {
 
 Game::Game() : m_event_manager(*this), m_render(*this) {}
 

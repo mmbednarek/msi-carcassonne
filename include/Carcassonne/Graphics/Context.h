@@ -3,7 +3,7 @@
 #include "Texture.h"
 #include <cstdint>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 class IContext {
  public:
@@ -14,6 +14,6 @@ class IContext {
    virtual void draw(const Texture &tex, int x, int y, int w, int h) const = 0;
 };
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics
 
 #endif//MSI_CARCASSONNE_CONTEXT_H

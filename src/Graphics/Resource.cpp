@@ -1,7 +1,7 @@
-#include <MSI/Graphics/Resource.h>
+#include <Carcassonne/Graphics/Resource.h>
 #include <array>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 std::array<ResourcePath, 1> g_paths{
         {TextureResource::YellowFigure, "resource/yellow.png"},
@@ -16,4 +16,4 @@ mb::result<mb::empty> ResourceManager::load_resources(Surface &surface) {
    return mb::ok;
 }
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics

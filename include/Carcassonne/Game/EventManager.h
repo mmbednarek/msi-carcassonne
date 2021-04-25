@@ -1,9 +1,9 @@
 #ifndef MSI_CARCASSONNE_EVENTMANAGER_H
 #define MSI_CARCASSONNE_EVENTMANAGER_H
-#include <MSI/Input/Input.h>
+#include <Carcassonne/Input/Input.h>
 #include <cstdint>
 
-namespace msi::game {
+namespace carcassonne::game {
 
 class Game;
 

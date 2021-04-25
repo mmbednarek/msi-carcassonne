@@ -7,7 +7,7 @@
 #include <mb/int.h>
 #include <mb/result.h>
 
-namespace msi::graphics {
+namespace carcassonne::graphics {
 
 struct Config {
    mb::i32 width;
@@ -38,6 +38,6 @@ class Surface {
    }
 };
 
-}// namespace msi::graphics
+}// namespace carcassonne::graphics
 
 #endif//MSI_CARCASSONNE_SURFACE_H
