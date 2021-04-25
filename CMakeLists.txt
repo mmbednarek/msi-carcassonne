@@ -20,5 +20,6 @@ include_directories(include)
 
 add_subdirectory(src/Graphics)
 add_subdirectory(src/Input)
-add_subdirectory(src/Game)
+add_subdirectory(src/Carcassonne/Game)
+add_subdirectory(src/Carcassonne/Frontend)
 add_subdirectory(src/bin/carcassonne)

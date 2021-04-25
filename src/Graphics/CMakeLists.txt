@@ -1,3 +1,3 @@
-project(msi_carcassonne_graphics)
-add_library(msi_carcassonne_graphics Surface.cpp SDLContext.cpp Texture.cpp Resource.cpp)
-target_link_libraries(msi_carcassonne_graphics PUBLIC SDL2 SDL2_image libmb)
+project(msi_graphics)
+add_library(msi_graphics Surface.cpp Context.cpp Texture.cpp)
+target_link_libraries(msi_graphics PUBLIC SDL2 SDL2_image libmb)

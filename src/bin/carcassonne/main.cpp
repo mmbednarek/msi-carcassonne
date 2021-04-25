@@ -1,35 +1,38 @@
-#include <MSI/Game/Game.h>
-#include <MSI/Graphics/Resource.h>
-#include <MSI/Graphics/Surface.h>
-#include <MSI/Input/Input.h>
+#include <Carcassonne/Frontend/GameView.h>
+#include <Carcassonne/Frontend/Resource.h>
+#include <Carcassonne/Game/Game.h>
+#include <Graphics/Surface.h>
+#include <Input/Input.h>
 #include <fmt/core.h>
 #include <mb/core.h>
 
 int main() {
-   using msi::game::Status;
+   using carcassonne::frontend::Status;
 
-   msi::graphics::Config cfg{
+   graphics::Config cfg{
            .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("800")),
            .height = std::stoi(mb::getenv("WND_HEIGHT").unwrap("600")),
    };
-   auto surface_re = msi::graphics::Surface::create(cfg);
+   auto surface_re = graphics::Surface::create(cfg);
    if (!surface_re.ok()) {
       fmt::print(stderr, "could not initialise graphic API: {}", surface_re.msg());
       return 1;
    }
    auto surface = surface_re.unwrap();
 
-   auto resource_re = msi::graphics::ResourceManager::the().load_resources(surface);
+   auto resource_re = carcassonne::frontend::ResourceManager::the().load_resources(surface);
    if (!resource_re.ok()) {
       fmt::print(stderr, "could not load all resources: {}", resource_re.msg());
       return 1;
    }
 
-   msi::game::Game game;
-   while (game.status() != Status::Quitting) {
+   carcassonne::game::Game game;
+   carcassonne::frontend::GameView view(game);
+
+   while (view.status() != Status::Quitting) {
       game.update();// TODO: Add fixed timestep
-      game.render().render(surface.context());
-      msi::input::handle_events(game.event_manager());
+      view.render(surface.context());
+      input::handle_events(view);
    }
    return 0;
 }

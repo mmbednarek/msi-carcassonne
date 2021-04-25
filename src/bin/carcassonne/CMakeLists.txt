@@ -1,3 +1,3 @@
 project(msi_carcassonne_bin)
 add_executable(msi_carcassonne_bin main.cpp)
-target_link_libraries(msi_carcassonne_bin fmt msi_carcassonne_graphics msi_carcassonne_input msi_carcassonne_game)
+target_link_libraries(msi_carcassonne_bin fmt msi_carcassonne_frontend msi_carcassonne_game)

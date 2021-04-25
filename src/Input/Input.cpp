@@ -1,5 +1,5 @@
-#include <MSI/Input/Input.h>
+#include <Input/Input.h>
 
-namespace msi::input {
+namespace input {
 
 }
