@@ -1,8 +1,8 @@
-#include <Carcassonne/Graphics/Surface.h>
+#include <Graphics/Surface.h>
 #include <SDL2/SDL.h>
 #include <utility>
 
-namespace carcassonne::graphics {
+namespace graphics {
 
 Surface::~Surface() {
    if (m_renderer != nullptr) {
@@ -40,4 +40,4 @@ mb::result<Surface> Surface::create(const Config &conf) {
    return Surface(renderer, window);
 }
 
-}// namespace carcassonne::graphics
+}// namespace graphics

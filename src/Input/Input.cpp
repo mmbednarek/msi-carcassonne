@@ -1,5 +1,5 @@
-#include <Carcassonne/Input/Input.h>
+#include <Input/Input.h>
 
-namespace carcassonne::input {
+namespace input {
 
 }

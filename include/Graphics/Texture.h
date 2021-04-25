@@ -4,7 +4,7 @@
 #include <mb/result.h>
 #include <string_view>
 
-namespace carcassonne::graphics {
+namespace graphics {
 
 class Surface;
 
@@ -29,6 +29,6 @@ class Texture {
    };
 };
 
-}// namespace carcassonne::graphics
+}// namespace graphics
 
 #endif//MSI_CARCASSONNE_TEXTURE_H

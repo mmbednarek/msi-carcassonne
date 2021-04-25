@@ -1,13 +1,13 @@
 #ifndef MSI_CARCASSONNE_SURFACE_H
 #define MSI_CARCASSONNE_SURFACE_H
-#include "SDLContext.h"
+#include "Context.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <cstdint>
 #include <mb/int.h>
 #include <mb/result.h>
 
-namespace carcassonne::graphics {
+namespace graphics {
 
 struct Config {
    mb::i32 width;
@@ -27,8 +27,8 @@ class Surface {
    Surface(Surface &&other) noexcept;
    Surface &operator=(Surface &&other) noexcept;
 
-   [[nodiscard]] constexpr SDLContext context() const {
-      return SDLContext(m_renderer);
+   [[nodiscard]] constexpr Context context() const {
+      return Context(m_renderer);
    }
 
    static mb::result<Surface> create(const Config &conf);
@@ -38,6 +38,6 @@ class Surface {
    }
 };
 
-}// namespace carcassonne::graphics
+}// namespace graphics
 
 #endif//MSI_CARCASSONNE_SURFACE_H
