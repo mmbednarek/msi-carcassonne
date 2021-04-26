@@ -2,14 +2,35 @@
 #include <Carcassonne/Frontend/Resource.h>
 #include <Carcassonne/Game/Game.h>
 #include <mb/int.h>
+#include <random>
 
 namespace carcassonne::frontend {
 
-GameView::GameView(IGame &game) : m_game(game) {}
+std::array<std::pair<int, int>, 100> g_board{};
+
+GameView::GameView(IGame &game) : m_game(game) {
+   std::random_device rd;
+   std::mt19937_64 gen(rd());
+   std::uniform_int_distribution<int> dis;
+
+   for (int y = 0; y < 10; ++y) {
+      for (int x = 0; x < 10; ++x) {
+         g_board[x + y * 10] = std::make_pair(dis(gen) % 4, dis(gen) % 6);
+      }
+   }
+}
+
 
 void GameView::render(const graphics::Context &ctx) const noexcept {
    ctx.set_draw_color(81, 170, 162, 255);
    ctx.clear();
+
+   for (int y = 0; y < 10; ++y) {
+      for (int x = 0; x < 10; ++x) {
+         auto tile = g_board[x + y * 10];
+         ctx.draw(ResourceManager::texture(TextureResource::Tiles), 96 * tile.first, 96 * tile.second, 96, 96, 96 * x, 96 * y, 96, 96, 0);
+      }
+   }
 
    constexpr auto w = 96;
    constexpr auto h = 96;
