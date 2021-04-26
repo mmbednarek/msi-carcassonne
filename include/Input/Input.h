@@ -14,6 +14,7 @@ concept EventManager = requires(T t) {
    {t.on_button_down(static_cast<uint>(0))};
    {t.on_button_up(static_cast<uint>(0))};
    {t.on_mousemove(0, 0)};
+   {t.on_mouse_wheel(-1)};
 };
 
 void handle_events(EventManager auto &em) {
@@ -37,6 +38,9 @@ void handle_events(EventManager auto &em) {
          break;
       case SDL_MOUSEMOTION:
          em.on_mousemove(event.motion.x, event.motion.y);
+         break;
+      case SDL_MOUSEWHEEL:
+         em.on_mouse_wheel(event.wheel.y);
          break;
       }
    }
