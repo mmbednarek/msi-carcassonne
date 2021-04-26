@@ -6,7 +6,7 @@
 
 namespace carcassonne::frontend {
 
-std::array<std::pair<int, int>, 100> g_board{};
+std::array<std::tuple<int, int, double>, 100> g_board{};
 
 GameView::GameView(IGame &game) : m_game(game) {
    std::random_device rd;
@@ -15,7 +15,7 @@ GameView::GameView(IGame &game) : m_game(game) {
 
    for (int y = 0; y < 10; ++y) {
       for (int x = 0; x < 10; ++x) {
-         g_board[x + y * 10] = std::make_pair(dis(gen) % 4, dis(gen) % 6);
+         g_board[x + y * 10] = std::make_tuple(dis(gen) % 4, dis(gen) % 6, (dis(gen) % 4) * 90);
       }
    }
 }
@@ -28,7 +28,7 @@ void GameView::render(const graphics::Context &ctx) const noexcept {
    for (int y = 0; y < 10; ++y) {
       for (int x = 0; x < 10; ++x) {
          auto tile = g_board[x + y * 10];
-         ctx.draw(ResourceManager::texture(TextureResource::Tiles), 96 * tile.first, 96 * tile.second, 96, 96, 96 * x, 96 * y, 96, 96, 0);
+         ctx.draw(ResourceManager::texture(TextureResource::Tiles), 96 * std::get<0>(tile), 96 * std::get<1>(tile), 96, 96, 96 * x, 96 * y, 96, 96, std::get<2>(tile));
       }
    }
 
