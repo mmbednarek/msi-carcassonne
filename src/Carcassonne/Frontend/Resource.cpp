@@ -3,8 +3,9 @@
 
 namespace carcassonne::frontend {
 
-std::array<ResourcePath, 1> g_paths{
-        {TextureResource::YellowFigure, "resource/yellow.png"},
+std::array<ResourcePath, 2> g_paths{
+        ResourcePath{TextureResource::YellowFigure, "resource/yellow.png"},
+        {TextureResource::Tiles, "resource/tiles.png"},
 };
 
 ResourceManager g_resource_manager_instance;
@@ -16,4 +17,4 @@ mb::result<mb::empty> ResourceManager::load_resources(graphics::Surface &surface
    return mb::ok;
 }
 
-}// namespace graphics
+}// namespace carcassonne::frontend

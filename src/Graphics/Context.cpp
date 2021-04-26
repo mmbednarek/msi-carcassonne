@@ -27,4 +27,18 @@ void Context::draw(const Texture &tex, int x, int y, int w, int h) const {
    SDL_RenderCopy(m_renderer, tex.raw(), nullptr, &rect);
 }
 
+void Context::draw(const Texture &tex, int tx, int ty, int tw, int th, int x, int y, int w, int h, double angle) const {
+   SDL_Rect src_rect;
+   src_rect.x = tx;
+   src_rect.y = ty;
+   src_rect.w = tw;
+   src_rect.h = th;
+   SDL_Rect dst_rect;
+   dst_rect.x = x;
+   dst_rect.y = y;
+   dst_rect.w = w;
+   dst_rect.h = h;
+   SDL_RenderCopyEx(m_renderer, tex.raw(), &src_rect, &dst_rect, angle, nullptr, SDL_FLIP_NONE);
+}
+
 }// namespace graphics
