@@ -3,8 +3,15 @@
 #include <Carcassonne/Game/Game.h>
 #include <Graphics/Surface.h>
 #include <Input/Input.h>
+#include <chrono>
 #include <fmt/core.h>
 #include <mb/core.h>
+
+uint64_t now_milis() {
+   return std::chrono::duration_cast<std::chrono::milliseconds>(
+                  std::chrono::system_clock::now().time_since_epoch())
+           .count();
+}
 
 int main() {
    using carcassonne::frontend::Status;
@@ -29,8 +36,21 @@ int main() {
    carcassonne::game::Game game;
    carcassonne::frontend::GameView view(game);
 
+   constexpr double dt = 1.0 / 60.0;
+   auto prev_time = static_cast<double>(now_milis());
+   auto dt_accum = 0.0;
+
    while (view.status() != Status::Quitting) {
-      game.update();// TODO: Add fixed timestep
+      auto now = static_cast<double>(now_milis());
+      auto diff = now - prev_time;
+      prev_time = now;
+
+      dt_accum += diff;
+      while (dt_accum > dt) {
+         dt_accum -= dt;
+         view.update(dt);
+      }
+
       view.render(surface.context());
       input::handle_events(view);
    }

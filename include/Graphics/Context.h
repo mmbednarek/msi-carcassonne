@@ -16,6 +16,7 @@ class Context {
    void present() const;
    void draw(const Texture &tex, int x, int y, int w, int h) const;
    void draw(const Texture &tex, int tx, int ty, int tw, int th, int x, int y, int w, int h, double angle) const;
+   void draw_box(int x, int y, int w, int h) const;
 };
 
 }// namespace graphics

@@ -24,6 +24,7 @@ class GameView {
  public:
    explicit GameView(IGame &game);
 
+   void update(double dt);
    void render(const graphics::Context &ctx) const noexcept;
 
    void on_quit();
