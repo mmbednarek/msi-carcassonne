@@ -1,5 +1,6 @@
 #ifndef MSI_CARCASSONNE_CORE_H
 #define MSI_CARCASSONNE_CORE_H
+#include <algorithm>
 #include <array>
 #include <mb/int.h>
 
@@ -26,8 +27,34 @@ enum class Connection : mb::u32 {
    All = 0x3f,
 };
 
-constexpr Connection operator|(Connection left, Connection right) {
+[[nodiscard]] constexpr Connection operator|(Connection left, Connection right) {
    return static_cast<Connection>(static_cast<mb::u32>(left) | static_cast<mb::u32>(right));
+}
+
+constexpr Connection &operator|=(Connection &left, Connection right) {
+   left = left | right;
+   return left;
+}
+
+[[nodiscard]] constexpr bool operator&(Connection left, Connection right) {
+   return (static_cast<mb::u32>(left) & static_cast<mb::u32>(right)) != 0;
+}
+
+[[nodiscard]] constexpr Connection rotate_connection(Connection c) {
+   Connection result{};
+   if (c & Connection::NorthEast)
+      result |= Connection::SouthEast;
+   if (c & Connection::SouthEast)
+      result |= Connection::SouthWest;
+   if (c & Connection::SouthWest)
+      result |= Connection::NorthWest;
+   if (c & Connection::NorthWest)
+      result |= Connection::NorthEast;
+   if (c & Connection::NorthSouth)
+      result |= Connection::WestEast;
+   if (c & Connection::WestEast)
+      result |= Connection::NorthSouth;
+   return result;
 }
 
 struct Tile {
@@ -35,13 +62,22 @@ struct Tile {
    Connection connections = Connection::None;
    bool monastery = false;
    bool pennant = false;
-};
 
-using TileType = mb::u8;
+   [[nodiscard]] constexpr Tile rotate(mb::size count) const {
+      Connection rotated = connections;
+      for (mb::size i = 0; i < count; ++i)
+         rotated = rotate_connection(rotated);
 
-struct TilePlacement {
-   TileType type = 0;
-   mb::u8 rotation = 0;
+      Tile result{
+              .connections = rotated,
+              .monastery = monastery,
+              .pennant = pennant,
+      };
+
+      std::copy(edges.begin(), edges.end(), result.edges.begin());
+      std::rotate(result.edges.begin(), result.edges.end() - count, result.edges.end());
+      return result;
+   }
 };
 
 constexpr std::array<Tile, 25> g_tiles{
@@ -50,7 +86,7 @@ constexpr std::array<Tile, 25> g_tiles{
         },
         {
                 .edges{EdgeType::Path, EdgeType::Town, EdgeType::Path, EdgeType::Grass},
-                .connections = Connection::NorthWest,
+                .connections = Connection::NorthSouth,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
@@ -117,12 +153,12 @@ constexpr std::array<Tile, 25> g_tiles{
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
         {
-                .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
+                .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
                 .pennant = true,
         },
         {
-                .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
+                .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
         {
@@ -146,6 +182,17 @@ constexpr std::array<Tile, 25> g_tiles{
         },
 };
 
+using TileType = mb::u8;
+
+struct TilePlacement {
+   TileType type = 0;
+   mb::u8 rotation = 0;
+
+   [[nodiscard]] constexpr Tile tile() const {
+      return g_tiles[type].rotate(rotation);
+   }
+};
+
 /*
  The maximal board size is 141x141
  Starting tile is at x = 70, y = 70
@@ -157,6 +204,7 @@ class IBoard {
    [[nodiscard]] virtual int max_x() const noexcept = 0;
    [[nodiscard]] virtual int max_y() const noexcept = 0;
    [[nodiscard]] virtual TilePlacement tile_at(int x, int y) const noexcept = 0;
+   [[nodiscard]] virtual bool can_place_at(int x, int y, TileType t, mb::u8 rotation) const noexcept = 0;
    virtual void set_tile(int x, int y, TileType t, mb::u8 rotation) noexcept = 0;
 };
 

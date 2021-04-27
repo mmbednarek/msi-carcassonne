@@ -4,6 +4,7 @@ project(msi_carcassonne)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(SDL2 REQUIRED)
+find_package(GTest REQUIRED)
 find_package(fmt REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
@@ -23,3 +24,4 @@ add_subdirectory(src/Input)
 add_subdirectory(src/Carcassonne/Game)
 add_subdirectory(src/Carcassonne/Frontend)
 add_subdirectory(src/bin/carcassonne)
+add_subdirectory(src/Test)
