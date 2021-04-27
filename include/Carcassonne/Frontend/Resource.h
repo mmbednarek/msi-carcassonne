@@ -19,12 +19,11 @@ struct ResourcePath {
    std::string_view path;
 };
 
-class ResourceManager;
-extern ResourceManager g_resource_manager_instance;
-
 // Singleton resource class
 class ResourceManager {
    std::array<graphics::Texture, static_cast<std::size_t>(TextureResource::MaxValue)> m_textures;
+
+   static ResourceManager s_instance;
 
  public:
    [[nodiscard]] mb::result<mb::empty> load_resources(graphics::Surface &surface);
@@ -34,7 +33,7 @@ class ResourceManager {
    }
 
    [[nodiscard]] static constexpr ResourceManager &the() {
-      return g_resource_manager_instance;
+      return s_instance;
    }
 
    [[nodiscard]] static constexpr const graphics::Texture &texture(TextureResource t) {
@@ -42,6 +41,6 @@ class ResourceManager {
    }
 };
 
-}// namespace graphics
+}// namespace carcassonne::frontend
 
 #endif//MSI_CARCASSONNE_RESOURCE_H
