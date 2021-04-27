@@ -1,9 +1,11 @@
 #ifndef MSI_CARCASSONNE_GRAPHICS_H
 #define MSI_CARCASSONNE_GRAPHICS_H
 #include "BoardView.h"
+#include "PlaceTileView.h"
 #include <Carcassonne/Core.h>
 #include <Graphics/Context.h>
 #include <Input/Input.h>
+#include <random>
 
 namespace carcassonne::frontend {
 
@@ -16,10 +18,16 @@ enum class Status {
 class GameView {
    IGame &m_game;
    Status m_status = Status::Init;
+   Camera m_camera;
    BoardView m_board_view;
+   PlaceTileView m_place_tile_view;
    bool m_middle_button_pressed = false;
    int m_last_mouse_x = 0;
    int m_last_mouse_y = 0;
+
+   std::random_device m_random_device;
+   std::mt19937_64 m_random_generator;
+   std::uniform_int_distribution<unsigned long long> m_random_distribution;
 
  public:
    explicit GameView(IGame &game);

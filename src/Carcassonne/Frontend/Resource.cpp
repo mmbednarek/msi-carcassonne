@@ -8,7 +8,8 @@ std::array<ResourcePath, 2> g_paths{
         {TextureResource::Tiles, "resource/tiles.png"},
 };
 
-ResourceManager g_resource_manager_instance;
+
+ResourceManager ResourceManager::s_instance;
 
 mb::result<mb::empty> ResourceManager::load_resources(graphics::Surface &surface) {
    for (const auto &path : g_paths) {
