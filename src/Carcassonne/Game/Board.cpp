@@ -56,27 +56,36 @@ bool Board::can_place_at(int x, int y, TileType t, mb::u8 rotation) const noexce
    if (x < 0 || y < 0 || x >= g_board_width || y >= g_board_height)
       return false;
 
+   if (tile_at(x, y).type != 0)
+      return false;
+
+   int zeros = 0;
+
    auto main_tile = g_tiles[t].rotate(rotation);
    if (auto placement = tile_at(x, y-1); placement.type != 0) {
       auto tile = placement.tile();
       if (main_tile.edges[0] != tile.edges[2])
          return false;
-   }
+   } else ++zeros;
    if (auto placement = tile_at(x, y+1); placement.type != 0) {
       auto tile = placement.tile();
       if (main_tile.edges[2] != tile.edges[0])
          return false;
-   }
+   } else ++zeros;
    if (auto placement = tile_at(x-1, y); placement.type != 0) {
       auto tile = placement.tile();
       if (main_tile.edges[3] != tile.edges[1])
          return false;
-   }
+   } else ++zeros;
    if (auto placement = tile_at(x+1, y); placement.type != 0) {
       auto tile = placement.tile();
       if (main_tile.edges[1] != tile.edges[3])
          return false;
-   }
+   } else ++zeros;
+
+   if (zeros == 4)
+      return false;
+
    return true;
 }
 

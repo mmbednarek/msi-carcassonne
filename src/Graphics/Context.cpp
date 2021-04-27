@@ -41,4 +41,13 @@ void Context::draw(const Texture &tex, int tx, int ty, int tw, int th, int x, in
    SDL_RenderCopyEx(m_renderer, tex.raw(), &src_rect, &dst_rect, angle, nullptr, SDL_FLIP_NONE);
 }
 
+void Context::draw_box(int x, int y, int w, int h) const {
+   SDL_Rect rect;
+   rect.x = x;
+   rect.y = y;
+   rect.w = w;
+   rect.h = h;
+   SDL_RenderFillRect(m_renderer, &rect);
+}
+
 }// namespace graphics

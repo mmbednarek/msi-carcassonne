@@ -37,6 +37,8 @@ mb::result<Surface> Surface::create(const Config &conf) {
       return mb::error("could not init window or renderer");
    }
 
+   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
    return Surface(renderer, window);
 }
 
