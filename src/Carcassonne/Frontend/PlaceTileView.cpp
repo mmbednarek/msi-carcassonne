@@ -3,8 +3,8 @@
 
 namespace carcassonne::frontend {
 
-PlaceTileView::PlaceTileView(IBoard &board, Camera &camera) : m_board(board),
-                                                              m_camera(camera) {}
+PlaceTileView::PlaceTileView(IBoard &board, const Camera &camera) : m_board(board),
+                                                                    m_camera(camera) {}
 
 void PlaceTileView::render(const graphics::Context &ctx) const {
    render_tile(ctx, m_camera, m_tile_x, m_tile_y, m_tile_type, m_rotation);
@@ -13,7 +13,7 @@ void PlaceTileView::render(const graphics::Context &ctx) const {
       ctx.set_draw_color(67, 182, 76, 90 + static_cast<int>(m_flicker));
    } else {
       ctx.set_draw_color(182, 67, 83, 120 + static_cast<int>(m_flicker));
-   };
+   }
 
    ctx.draw_box(static_cast<int>(m_camera.translate_x(m_tile_x)),
                 static_cast<int>(m_camera.translate_y(m_tile_y)),

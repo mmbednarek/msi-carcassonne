@@ -4,7 +4,7 @@
 
 namespace carcassonne::frontend {
 
-BoardView::BoardView(IBoard &board, Camera &camera) : m_board(board), m_camera(camera) {}
+BoardView::BoardView(const IBoard &board, const Camera &camera) : m_board(board), m_camera(camera) {}
 
 void BoardView::render(const graphics::Context &ctx) const noexcept {
    for (int y = m_board.min_y(); y < m_board.max_y(); ++y) {

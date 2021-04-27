@@ -7,8 +7,8 @@
 namespace carcassonne::frontend {
 
 class BoardView {
-   IBoard &m_board;
-   Camera &m_camera;
+   const IBoard &m_board;
+   const Camera &m_camera;
    TileType m_current_tile = 1;
    mb::u8 m_rotation = 0;
    int m_selected_tile_x = 0;
@@ -18,7 +18,7 @@ class BoardView {
    bool m_light_down = false;
 
  public:
-   BoardView(IBoard &board, Camera &camera);
+   BoardView(const IBoard &board, const Camera &camera);
 
    void update(double dt);
    void render(const graphics::Context &ctx) const noexcept;

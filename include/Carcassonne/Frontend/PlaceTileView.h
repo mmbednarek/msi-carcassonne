@@ -8,7 +8,7 @@ namespace carcassonne::frontend {
 
 class PlaceTileView {
    IBoard &m_board;
-   Camera &m_camera;
+   const Camera &m_camera;
 
    TileType m_tile_type = 0;
    mb::u8 m_rotation = 0;
@@ -22,7 +22,7 @@ class PlaceTileView {
    bool m_flicker_raising = false;
 
  public:
-   PlaceTileView(IBoard &board, Camera &camera);
+   PlaceTileView(IBoard &board, const Camera &camera);
 
    void render(const graphics::Context &ctx) const;
    void update(double dt);
