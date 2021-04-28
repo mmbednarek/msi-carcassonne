@@ -12,6 +12,7 @@ namespace graphics {
 struct Config {
    mb::i32 width;
    mb::i32 height;
+   std::string title;
 };
 
 class Surface {

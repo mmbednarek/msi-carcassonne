@@ -31,10 +31,14 @@ mb::result<Surface> Surface::create(const Config &conf) {
       return mb::error("could not init sdl");
    }
 
-   SDL_Renderer *renderer;
-   SDL_Window *window;
-   if (SDL_CreateWindowAndRenderer(conf.width, conf.height, 0, &window, &renderer) != 0) {
-      return mb::error("could not init window or renderer");
+   auto window = SDL_CreateWindow(conf.title.c_str(), -1, -1, conf.width, conf.height, 0);
+   if (window == nullptr) {
+      return mb::error("could not init window");
+   }
+
+   auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+   if (renderer == nullptr) {
+      return mb::error("could not init renderer");
    }
 
    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
