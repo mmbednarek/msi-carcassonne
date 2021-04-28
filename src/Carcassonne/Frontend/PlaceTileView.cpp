@@ -38,6 +38,7 @@ bool PlaceTileView::place_tile() {
       return false;
 
    m_board.set_tile(m_tile_x, m_tile_y, m_tile_type, m_rotation);
+   m_selection_ok = false;
    return true;
 }
 
