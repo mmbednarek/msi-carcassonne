@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(SDL2 REQUIRED)
 find_package(GTest REQUIRED)
-find_package(fmt REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 include(FetchContent)
@@ -16,6 +15,13 @@ FetchContent_Declare(
         GIT_TAG libmb-0.0.16
 )
 FetchContent_MakeAvailable(libmb)
+
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt
+        GIT_TAG 7.1.3
+)
+FetchContent_MakeAvailable(fmt)
 
 include_directories(include)
 
