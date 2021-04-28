@@ -19,6 +19,7 @@ int main() {
    graphics::Config cfg{
            .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("800")),
            .height = std::stoi(mb::getenv("WND_HEIGHT").unwrap("600")),
+           .title = "Carcassonne",
    };
    auto surface_re = graphics::Surface::create(cfg);
    if (!surface_re.ok()) {
@@ -50,7 +51,6 @@ int main() {
          dt_accum -= dt;
          view.update(dt);
       }
-
       view.render(surface.context());
       input::handle_events(view);
       SDL_Delay(dt);
