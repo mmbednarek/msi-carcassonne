@@ -53,7 +53,6 @@ int main() {
       }
       view.render(surface.context());
       input::handle_events(view);
-      SDL_Delay(dt);
    }
    return 0;
 }
