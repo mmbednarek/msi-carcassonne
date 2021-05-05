@@ -7,10 +7,10 @@
 namespace carcassonne::frontend {
 
 class PlaceTileView {
-   IBoard &m_board;
+   const IBoard &m_board;
    const Camera &m_camera;
 
-   TileType m_tile_type = 0;
+   std::unique_ptr<IMove> &m_move;
    mb::u8 m_rotation = 0;
 
    int m_tile_x = 0;
@@ -22,7 +22,7 @@ class PlaceTileView {
    bool m_flicker_raising = false;
 
  public:
-   PlaceTileView(IBoard &board, const Camera &camera);
+   PlaceTileView(const IBoard &board, const Camera &camera, std::unique_ptr<IMove> &move);
 
    void render(const graphics::Context &ctx) const;
    void update(double dt);
@@ -30,7 +30,6 @@ class PlaceTileView {
    bool place_tile();
    void rotate_tile();
    void select_tile(double x, double y);
-   void set_tile_type(TileType t);
 };
 
 }// namespace carcassonne::frontend

@@ -1,9 +1,11 @@
+#include <Carcassonne/Core.h>
+#include <Carcassonne/Frontend/Object.h>
 #include <Carcassonne/Frontend/Resource.h>
-#include <Carcassonne/Frontend/Tile.h>
 
 namespace carcassonne::frontend {
 
 constexpr auto g_tile_size = 96;
+constexpr auto g_figure_size = 96;
 
 void render_tile(const graphics::Context &ctx, const Camera &cam, int x, int y, TileType type, mb::u8 rotation) {
    const auto palette_x = (type - 1) % 4;
@@ -18,6 +20,19 @@ void render_tile(const graphics::Context &ctx, const Camera &cam, int x, int y, 
             static_cast<int>(cam.scale(1.0)),
             static_cast<int>(cam.scale(1.0)),
             90.0 * rotation);
+}
+
+void render_figure(const graphics::Context &ctx, const Camera &cam, double x, double y, Player p) {
+   ctx.draw(ResourceManager::texture(TextureResource::Figures),
+            g_figure_size * player_to_int(p),
+            0,
+            g_figure_size,
+            g_figure_size,
+            static_cast<int>(cam.translate_x(x - 0.25)),
+            static_cast<int>(cam.translate_y(y - 0.25)),
+            static_cast<int>(cam.scale(0.5)),
+            static_cast<int>(cam.scale(0.5)),
+            0.0);
 }
 
 }// namespace carcassonne::frontend

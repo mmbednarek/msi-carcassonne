@@ -1,13 +1,16 @@
+#include <Carcassonne/Frontend/Object.h>
 #include <Carcassonne/Frontend/PlaceTileView.h>
-#include <Carcassonne/Frontend/Tile.h>
 
 namespace carcassonne::frontend {
 
-PlaceTileView::PlaceTileView(IBoard &board, const Camera &camera) : m_board(board),
-                                                                    m_camera(camera) {}
+PlaceTileView::PlaceTileView(const IBoard &board, const Camera &camera, std::unique_ptr<IMove> &move) : m_board(board),
+                                                                                                        m_camera(camera),
+                                                                                                        m_move(move) {}
 
 void PlaceTileView::render(const graphics::Context &ctx) const {
-   render_tile(ctx, m_camera, m_tile_x, m_tile_y, m_tile_type, m_rotation);
+   auto tile_type = m_move->tile_type();
+
+   render_tile(ctx, m_camera, m_tile_x, m_tile_y, tile_type, m_rotation);
 
    if (m_selection_ok) {
       ctx.set_draw_color(67, 182, 76, 90 + static_cast<int>(m_flicker));
@@ -37,14 +40,14 @@ bool PlaceTileView::place_tile() {
    if (!m_selection_ok)
       return false;
 
-   m_board.set_tile(m_tile_x, m_tile_y, m_tile_type, m_rotation);
+   m_move->place_tile(m_tile_x, m_tile_y, m_rotation);
    m_selection_ok = false;
    return true;
 }
 
 void PlaceTileView::rotate_tile() {
    m_rotation = (m_rotation + 1) % 4;
-   m_selection_ok = m_board.can_place_at(m_tile_x, m_tile_y, m_tile_type, m_rotation);
+   m_selection_ok = m_board.can_place_at(m_tile_x, m_tile_y, m_move->tile_type(), m_rotation);
 }
 
 void PlaceTileView::select_tile(double x, double y) {
@@ -53,13 +56,8 @@ void PlaceTileView::select_tile(double x, double y) {
    if (board_x != m_tile_x || board_y != m_tile_y) {
       m_tile_x = board_x;
       m_tile_y = board_y;
-      m_selection_ok = m_board.can_place_at(board_x, board_y, m_tile_type, m_rotation);
+      m_selection_ok = m_board.can_place_at(board_x, board_y, m_move->tile_type(), m_rotation);
    }
-}
-
-void PlaceTileView::set_tile_type(TileType t) {
-   m_tile_type = t;
-   m_rotation = 0;
 }
 
 }// namespace carcassonne::frontend

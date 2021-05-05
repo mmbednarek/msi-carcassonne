@@ -1,6 +1,6 @@
 #include <Carcassonne/Frontend/BoardView.h>
+#include <Carcassonne/Frontend/Object.h>
 #include <Carcassonne/Frontend/Resource.h>
-#include <Carcassonne/Frontend/Tile.h>
 
 namespace carcassonne::frontend {
 
