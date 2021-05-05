@@ -11,6 +11,7 @@ namespace carcassonne::frontend {
 enum class TextureResource : mb::u32 {
    YellowFigure,
    Tiles,
+   Figures,
    MaxValue
 };
 

@@ -5,9 +5,6 @@
 
 namespace carcassonne::game {
 
-constexpr mb::size g_board_width = 141;
-constexpr mb::size g_board_height = 141;
-
 class Board : public IBoard {
    std::array<TilePlacement, g_board_width * g_board_height> m_board{};
    int m_min_x = 70;

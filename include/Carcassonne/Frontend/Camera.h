@@ -5,12 +5,12 @@
 namespace carcassonne::frontend {
 
 class Camera {
-   IBoard &m_board;
+   const IBoard &m_board;
    double m_scale = 96.0;
    double m_x = 67.0;
    double m_y = 67.0;
 public:
-  constexpr explicit Camera(IBoard &board) : m_board(board) {}
+  constexpr explicit Camera(const IBoard &board) : m_board(board) {}
 
    constexpr void scale_up(double amount) {
       if (amount > 0.0 && m_scale > 256.0)

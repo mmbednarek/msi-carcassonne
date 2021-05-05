@@ -3,9 +3,10 @@
 
 namespace carcassonne::frontend {
 
-std::array<ResourcePath, 2> g_paths{
+std::array<ResourcePath, 3> g_paths{
         ResourcePath{TextureResource::YellowFigure, "resource/yellow.png"},
         {TextureResource::Tiles, "resource/tiles.png"},
+        {TextureResource::Figures, "resource/figures.png"},
 };
 
 
