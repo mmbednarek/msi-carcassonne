@@ -200,6 +200,7 @@ struct Tile {
 
       std::rotate(result.edges.begin(), result.edges.end() - count, result.edges.end());
       std::rotate(result.field_edges.begin(), result.field_edges.end() - count, result.field_edges.end());
+      std::rotate(result.field_edges.begin(), result.field_edges.end() - count, result.field_edges.end());
       
       return result;
    }
@@ -276,17 +277,17 @@ constexpr std::array<Tile, 25> g_tiles{
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
-                .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town},
+                .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthYX | Connection::SouthYY | Connection::EastXX | Connection::EastXY | Connection::CrossEastXY | Connection::SouthEastXY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
-                .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town},
+                .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY | Connection::SouthEastXY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
-                .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town},
+                .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY | Connection::SouthEastXY,
                 .pennant = true,
         },
