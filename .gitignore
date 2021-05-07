@@ -2,4 +2,5 @@
 cmake-build-debug
 out
 cmake-install
+.vscode
 *.sh
