@@ -474,49 +474,49 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
       return std::make_tuple(c - Connection::NorthYY, Direction::NorthWest, Direction::NorthEast);
 
    if (c & Connection::EastXX)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
+      return std::make_tuple(c - Connection::EastXX, Direction::NorthEast, Direction::SouthEast);
    if (c & Connection::EastXY)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
+      return std::make_tuple(c - Connection::EastXY, Direction::NorthEast, Direction::SouthEast);
    if (c & Connection::EastYX)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
+      return std::make_tuple(c - Connection::EastYX, Direction::NorthEast, Direction::SouthEast);
    if (c & Connection::EastYY)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
+      return std::make_tuple(c - Connection::EastYY, Direction::NorthEast, Direction::SouthEast);
 
    if (c & Connection::SouthXX)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::SouthXX, Direction::SouthWest, Direction::SouthEast);
    if (c & Connection::SouthXY)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::SouthXY, Direction::SouthWest, Direction::SouthEast);
    if (c & Connection::SouthYX)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::SouthYX, Direction::SouthWest, Direction::SouthEast);
    if (c & Connection::SouthYY)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::SouthYY, Direction::SouthWest, Direction::SouthEast);
 
    if (c & Connection::WestXX)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
+      return std::make_tuple(c - Connection::WestXX, Direction::NorthWest, Direction::SouthWest);
    if (c & Connection::WestXY)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
+      return std::make_tuple(c - Connection::WestXY, Direction::NorthWest, Direction::SouthWest);
    if (c & Connection::WestYX)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
+      return std::make_tuple(c - Connection::WestYX, Direction::NorthWest, Direction::SouthWest);
    if (c & Connection::WestYY)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
+      return std::make_tuple(c - Connection::WestYY, Direction::NorthWest, Direction::SouthWest);
 
    if (c & Connection::CrossWestXX)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::CrossWestXX, Direction::NorthWest, Direction::SouthEast);
    if (c & Connection::CrossWestXY)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::CrossWestXY, Direction::NorthWest, Direction::SouthEast);
    if (c & Connection::CrossWestYX)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::CrossWestYX, Direction::NorthWest, Direction::SouthEast);
    if (c & Connection::CrossWestYY)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
+      return std::make_tuple(c - Connection::CrossWestYY, Direction::NorthWest, Direction::SouthEast);
 
    if (c & Connection::CrossEastXX)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
+      return std::make_tuple(c - Connection::CrossEastXX, Direction::NorthEast, Direction::SouthWest);
    if (c & Connection::CrossEastXY)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
+      return std::make_tuple(c - Connection::CrossEastXY, Direction::NorthEast, Direction::SouthWest);
    if (c & Connection::CrossEastYX)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
+      return std::make_tuple(c - Connection::CrossEastYX, Direction::NorthEast, Direction::SouthWest);
    if (c & Connection::CrossEastYY)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
+      return std::make_tuple(c - Connection::CrossEastYY, Direction::NorthEast, Direction::SouthWest);
    
    return std::make_tuple(Connection::None, Direction::Middle, Direction::Middle);
 }

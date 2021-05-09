@@ -50,15 +50,18 @@ TEST(Tile, RotateAllConnection) {
    }
 }
 
-TEST(Tile, Rotate2Connections) {
+TEST(Tile, Rotate4Connections) {
    using carcassonne::EdgeType;
+   using carcassonne::CornerType;
    using carcassonne::Connection;
    auto tile = carcassonne::g_tiles[14];
 
    carcassonne::Tile rotated = tile.rotate(1);
-   std::array<EdgeType, 4> expected_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
-   ASSERT_EQ(rotated.edges, expected_rotation);
-   ASSERT_EQ(rotated.connections, Connection::NorthEast | Connection::SouthWest);
+   std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
+   std::array<CornerType, 4> expected_corners_rotation{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Grass};
+   ASSERT_EQ(rotated.edges, expected_edges_rotation);
+   ASSERT_EQ(rotated.corners, expected_corners_rotation);
+   ASSERT_EQ(rotated.connections, Connection::NorthEast | Connection::SouthWest | Connection::CrossWestYX | Connection::SouthEastY);// | Connection::SouthWestXY | Connection::NorthWestX);
    ASSERT_EQ(rotated.monastery, false);
    ASSERT_EQ(rotated.pennant, false);
 }
