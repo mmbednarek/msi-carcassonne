@@ -44,7 +44,7 @@ TEST(Tile, RotateAllConnection) {
       carcassonne::Tile rotated = tile.rotate(1);
       std::array<EdgeType, 4> expected_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town};
       ASSERT_EQ(rotated.edges, expected_rotation);
-      ASSERT_EQ(rotated.connections, Connection::All);
+      ASSERT_EQ(rotated.connections, Connection::AllEdges);
       ASSERT_EQ(rotated.monastery, false);
       ASSERT_EQ(rotated.pennant, true);
    }
