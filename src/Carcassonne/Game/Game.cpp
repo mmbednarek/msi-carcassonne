@@ -4,7 +4,8 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(m_random_device()) {}
+// Game::Game() : m_random_generator(m_random_device()) {}
+Game::Game() : m_random_generator(0) {}
 
 const IBoard &Game::board() const noexcept {
    return m_board;

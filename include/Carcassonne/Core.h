@@ -22,70 +22,58 @@ enum class CornerType {
    Town
 };
 
-enum class Connection : mb::u32 {
-   None = 0,
-   NorthXX = 1 << 0,
-   NorthXY = 1 << 1,
-   NorthYX = 1 << 2,
-   NorthYY = 1 << 3,
-   North = 0x0000000f,
-   EastXX = 1 << 4,
-   EastXY = 1 << 5,
-   EastYX = 1 << 6, 
-   EastYY = 1 << 7, 
-   East = 0x000000f0,
-   SouthXX = 1 << 8, 
-   SouthXY = 1 << 9, 
-   SouthYX = 1 << 10,
-   SouthYY = 1 << 11,
-   South  = 0x00000f00,
-   WestXX = 1 << 12,
-   WestXY = 1 << 13,
-   WestYX = 1 << 14,
-   WestYY = 1 << 15,
-   West = 0x0000f000,
+enum class Connection : mb::u64 {
+   None        = 0,
+   NorthXX     = 1 << 0,
+   NorthXY     = 1 << 1,
+   NorthYX     = 1 << 2,
+   NorthYY     = 1 << 3,
+   North       = 0x00c300000f,
+   EastXX      = 1 << 4,
+   EastXY      = 1 << 5,
+   EastYX      = 1 << 6, 
+   EastYY      = 1 << 7, 
+   East        = 0x000f0000f0,
+   SouthXX     = 1 << 8, 
+   SouthXY     = 1 << 9, 
+   SouthYX     = 1 << 10,
+   SouthYY     = 1 << 11,
+   South       = 0x003c000f00,
+   WestXX      = 1 << 12,
+   WestXY      = 1 << 13,
+   WestYX      = 1 << 14,
+   WestYY      = 1 << 15,
+   West        = 0x00f000f000,
    CrossWestXX = 1 << 16,
    CrossWestXY = 1 << 17,
    CrossWestYX = 1 << 18,
    CrossWestYY = 1 << 19,
-   CrossWest = 0x000f0000,
+   CrossWest   = 0x00000f0000,
    CrossEastXX = 1 << 20,
    CrossEastXY = 1 << 21,
    CrossEastYX = 1 << 22,
    CrossEastYY = 1 << 23,
-   CrossEast = 0x00f00000,
-   NorthXYiX = 0x00000005,
-   NorthXYiY = 0x0000000a,
-   NorthXiXY = 0x00000003,
-   NorthYiXY = 0x0000000c,
-   EastXYiX = 0x00000050,
-   EastXYiY = 0x000000a0,
-   EastXiXY = 0x00000030,
-   EastYiXY = 0x000000c0,
-   SouthXYiX = 0x00000500,
-   SouthXYiY = 0x00000a00,
-   SouthXiXY = 0x00000300,
-   SouthYiXY = 0x00000c00,
-   WestXYiX = 0x00005000,
-   WestXYiY = 0x0000a000,
-   WestXiXY = 0x00003000,
-   WestYiXY = 0x0000c000,
-   CrossWestXYiX = 0x0050000,
-   CrossWestXYiY = 0x00a0000,
-   CrossWestXiXY = 0x0030000,
-   CrossWestYiXY = 0x00c0000,
-   CrossEastXYiX = 0x00500000,
-   CrossEastXYiY = 0x00a00000,
-   CrossEastXiXY = 0x00300000,
-   CrossEastYiXY = 0x00c00000,
-   AllCorners = 0x00ffffff,
-   NorthEast  = 1 << 24,
-   NorthSouth = 1 << 25,
-   NorthWest  = 1 << 26,
-   SouthEast  = 1 << 27,
-   SouthWest  = 1 << 28,
-   WestEast   = 1 << 29,
-   AllEdges   = 0x3f000000,
+   CrossEast   = 0x0000f00000,
+   NorthEastX  = 1 << 24,
+   NorthEastY  = 1 << 25,
+   NorthEastXY = 0x0003000000,
+   SouthEastX  = 1 << 26,
+   SouthEastY  = 1 << 27,
+   SouthEastXY = 0x000c000000,
+   SouthWestX  = 1 << 28,
+   SouthWestY  = 1 << 29,
+   SouthWestXY = 0x0030000000,
+   NorthWestX  = 1 << 30,
+   NorthWestY  = 0x0080000000,
+   NorthWestXY = 0x00c0000000,
+   AllCorners  = 0x00ffffffff,
+   NorthEast   = 0x0100000000,
+   NorthSouth  = 0x0200000000,
+   NorthWest   = 0x0400000000,
+   SouthEast   = 0x0800000000,
+   SouthWest   = 0x1000000000,
+   WestEast    = 0x2000000000,
+   AllEdges    = 0x3f00000000,
 };
 
 [[nodiscard]] constexpr Connection operator|(Connection left, Connection right) {
@@ -177,59 +165,32 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
    if (c & Connection::CrossEastXX)
       result |= Connection::CrossWestYY;
 
-   if (c & Connection::NorthXYiX)
-      result |= Connection::EastXYiY;
-   if (c & Connection::EastXYiY)
-      result |= Connection::SouthXiXY;
-   if (c & Connection::SouthXiXY)
-      result |= Connection::WestYiXY;
-   if (c & Connection::WestYiXY)
-      result |= Connection::NorthXYiX;
+   if (c & Connection::NorthEastX)
+      result |= Connection::SouthEastY;
+   if (c & Connection::SouthEastY)
+      result |= Connection::SouthWestX;
+   if (c & Connection::SouthWestX)
+      result |= Connection::NorthWestY;
+   if (c & Connection::NorthWestY)
+      result |= Connection::NorthEastX;
 
-   if (c & Connection::NorthXYiY)
-      result |= Connection::EastXYiX;
-   if (c & Connection::EastXYiX)
-      result |= Connection::SouthYiXY;
-   if (c & Connection::SouthYiXY)
-      result |= Connection::WestXiXY;
-   if (c & Connection::WestXiXY)
-      result |= Connection::NorthXYiY;
+   if (c & Connection::NorthEastY)
+      result |= Connection::SouthEastX;
+   if (c & Connection::SouthEastX)
+      result |= Connection::SouthWestY;
+   if (c & Connection::SouthWestY)
+      result |= Connection::NorthWestX;
+   if (c & Connection::NorthWestX)
+      result |= Connection::NorthEastY;
 
-   if (c & Connection::NorthXiXY)
-      result |= Connection::EastYiXY;
-   if (c & Connection::EastYiXY)
-      result |= Connection::SouthXYiX;
-   if (c & Connection::SouthXYiX)
-      result |= Connection::WestXYiY;
-   if (c & Connection::WestXYiY)
-      result |= Connection::NorthXiXY;
-
-   if (c & Connection::NorthYiXY)
-      result |= Connection::EastXiXY;
-   if (c & Connection::EastXiXY)
-      result |= Connection::SouthXYiY;
-   if (c & Connection::SouthXYiY)
-      result |= Connection::WestXYiX;
-   if (c & Connection::WestXYiX)
-      result |= Connection::NorthYiXY;
-
-   if (c & Connection::CrossWestXYiX)
-      result |= Connection::CrossEastXYiY;
-   if (c & Connection::CrossEastXYiY)
-      result |= Connection::CrossWestXiXY;
-   if (c & Connection::CrossWestXiXY)
-      result |= Connection::CrossEastYiXY;
-   if (c & Connection::CrossEastYiXY)
-      result |= Connection::CrossWestXYiX;
-
-   if (c & Connection::CrossWestXYiY)
-      result |= Connection::CrossEastXYiX;
-   if (c & Connection::CrossEastXYiX)
-      result |= Connection::CrossWestYiXY;
-   if (c & Connection::CrossWestYiXY)
-      result |= Connection::CrossEastXiXY;
-   if (c & Connection::CrossEastXiXY)
-      result |= Connection::CrossWestXYiY;
+   if (c & Connection::NorthEastXY)
+      result |= Connection::SouthEastXY;
+   if (c & Connection::SouthEastXY)
+      result |= Connection::SouthWestXY;
+   if (c & Connection::SouthWestXY)
+      result |= Connection::NorthWestXY;
+   if (c & Connection::NorthWestXY)
+      result |= Connection::NorthEastXY;
    
    return result;
 }
@@ -256,8 +217,8 @@ struct Tile {
       std::copy(corners.begin(), corners.end(), result.corners.begin());
 
       std::rotate(result.edges.begin(), result.edges.end() - count, result.edges.end());
-      return result;
       std::rotate(result.corners.begin(), result.corners.end() - count, result.corners.end());
+      
       return result;
    }
 };
@@ -275,17 +236,18 @@ constexpr std::array<Tile, 25> g_tiles{
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthXX | Connection::EastXiXY | Connection::South | Connection::WestXiXY | Connection::CrossWestXiXY | Connection::CrossEastXiXY,
+               //  .connections = Connection::NorthXX | Connection::EastXiXY | Connection::South | Connection::WestXiXY | Connection::CrossWestXiXY | Connection::CrossEastXiXY,
+                .connections = Connection::NorthXX | Connection::EastXX | Connection::EastXY | Connection::South | Connection::WestXX | Connection::WestXY | Connection::NorthEastX | Connection::NorthWestX | Connection::CrossWestXX | Connection::CrossWestXY | Connection::CrossEastXX | Connection::CrossEastXY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthSouth | Connection::EastXX | Connection::WestXX,
+                .connections = Connection::NorthSouth | Connection::EastXX | Connection::WestXX | Connection::NorthEastX | Connection::SouthEastX | Connection::SouthWestX | Connection::NorthWestX,
         },
         {
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthYY | Connection::SouthYY | Connection::CrossWestYY | Connection::CrossEastYY,
+                .connections = Connection::NorthYY | Connection::SouthYY | Connection::CrossWestYY | Connection::CrossEastYY | Connection::NorthEastY | Connection::SouthEastY | Connection::SouthWestY | Connection::NorthWestY,
         },
         {
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
@@ -302,7 +264,8 @@ constexpr std::array<Tile, 25> g_tiles{
         {
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Town, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthXYiY | Connection::WestXYiX | Connection::CrossEastYX,
+               //  .connections = Connection::NorthXYiY | Connection::WestXYiX | Connection::CrossEastYX,
+                .connections = Connection::NorthXY | Connection::NorthYY | Connection::WestXX | Connection::WestYX | Connection::CrossEastYX | Connection::NorthEastY | Connection::SouthWestX | Connection::NorthWestXY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town},
@@ -313,85 +276,91 @@ constexpr std::array<Tile, 25> g_tiles{
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::SouthEast | Connection::WestXiXY | Connection::CrossEastXiXY,
+               //  .connections = Connection::SouthEast | Connection::NorthXX | Connection::WestXiXY | Connection::CrossEastXiXY,
+                .connections = Connection::SouthEast | Connection::NorthXX | Connection::WestXX | Connection::WestXY | Connection::CrossEastXX | Connection::CrossEastXY | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestX,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::SouthWest | Connection::EastXiXY | Connection::CrossWestXiXY,
+               //  .connections = Connection::SouthWest | Connection::NorthXX | Connection::EastXiXY | Connection::CrossWestXiXY,
+                .connections = Connection::SouthWest | Connection::NorthXX | Connection::EastXX | Connection::EastXY | Connection::CrossWestXX | Connection::CrossWestXY | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestX,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthXX,
+                .connections = Connection::NorthXX | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestX,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthWest | Connection::SouthYiXY | Connection::EastXiXY | Connection::CrossEastXY,
+               //  .connections = Connection::NorthWest | Connection::SouthYiXY | Connection::EastXiXY | Connection::CrossEastXY,
+                .connections = Connection::NorthWest | Connection::SouthYX | Connection::SouthYY | Connection::EastXX | Connection::EastXY | Connection::CrossEastXY | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestY,
                 .pennant = true,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthWest | Connection::SouthYiXY | Connection::EastXiXY | Connection::CrossEastXY,
+               //  .connections = Connection::NorthWest | Connection::SouthYiXY | Connection::EastXiXY | Connection::CrossEastXY,
+                .connections = Connection::NorthWest | Connection::SouthYX | Connection::SouthYY | Connection::EastXX | Connection::EastXY | Connection::CrossEastXY | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY,
+               //  .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY,
+                .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY,
+                .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY | Connection::NorthEastX | Connection::SouthEastXY | Connection::SouthWestY,
                 .pennant = true,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .corners{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthYY,
+                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthYY | Connection::SouthEastY | Connection::SouthWestY,
                 .pennant = true,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .corners{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthYY,
+                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthYY | Connection::SouthEastY | Connection::SouthWestY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .corners{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
+                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthEastY | Connection::SouthWestY,
                 .pennant = true,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .corners{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Town},
-                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
+                .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthEastY | Connection::SouthWestY,
         },
         {
                 .edges{EdgeType::Path, EdgeType::Grass, EdgeType::Path, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthSouth | Connection::West | Connection::East,
+                .connections = Connection::NorthSouth | Connection::West | Connection::East | Connection::CrossEastXY | Connection::NorthEastXY | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestXY,
         },
         {
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::SouthWest | Connection::North | Connection::East | Connection::CrossWest,
+                .connections = Connection::SouthWest | Connection::North | Connection::East | Connection::CrossWest | Connection::NorthEastXY | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestXY,
         },
         {
                 .edges{EdgeType::Grass, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::North,
+                .connections = Connection::North | Connection::NorthEastXY | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestXY,
         },
         {
                 .edges{EdgeType::Path, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
+                .connections = Connection::NorthEastXY | Connection::SouthEastXY | Connection::SouthWestXY | Connection::NorthWestXY
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::NorthSouth | Connection::WestXX | Connection::EastXX,
+                .connections = Connection::NorthSouth | Connection::WestXX | Connection::EastXX | Connection::NorthEastX | Connection::SouthEastX | Connection::SouthWestX | Connection::NorthWestX,
                 .pennant = true,
         },
 };
@@ -422,6 +391,14 @@ enum class Direction {
    NorthWest,
    SouthWest,
    SouthEast,
+   // NorthEastX,
+   // NorthEastY,
+   // SouthEastX,
+   // SouthEastY,
+   // SouthWestX,
+   // SouthWestY,
+   // NorthWestX,
+   // NorthWestY
 };
 
 constexpr std::array<Direction, 9> g_directions{
@@ -495,14 +472,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
       return std::make_tuple(c - Connection::NorthYX, Direction::NorthWest, Direction::NorthEast);
    if (c & Connection::NorthYY)
       return std::make_tuple(c - Connection::NorthYY, Direction::NorthWest, Direction::NorthEast);
-   if (c & Connection::NorthXYiX)
-      return std::make_tuple(c - Connection::North, Direction::NorthWest, Direction::NorthEast);
-   if (c & Connection::NorthXYiY)
-      return std::make_tuple(c - Connection::North, Direction::NorthWest, Direction::NorthEast);
-   if (c & Connection::NorthXiXY)
-      return std::make_tuple(c - Connection::North, Direction::NorthWest, Direction::NorthEast);
-   if (c & Connection::NorthYiXY)
-      return std::make_tuple(c - Connection::North, Direction::NorthWest, Direction::NorthEast);
 
    if (c & Connection::EastXX)
       return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
@@ -511,14 +480,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::EastYX)
       return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
    if (c & Connection::EastYY)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
-   if (c & Connection::EastXYiX)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
-   if (c & Connection::EastXYiY)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
-   if (c & Connection::EastXiXY)
-      return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
-   if (c & Connection::EastYiXY)
       return std::make_tuple(c - Connection::East, Direction::NorthEast, Direction::SouthEast);
 
    if (c & Connection::SouthXX)
@@ -529,14 +490,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
       return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
    if (c & Connection::SouthYY)
       return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
-   if (c & Connection::SouthXYiX)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
-   if (c & Connection::SouthXYiY)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
-   if (c & Connection::SouthXiXY)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
-   if (c & Connection::SouthYiXY)
-      return std::make_tuple(c - Connection::South, Direction::SouthWest, Direction::SouthEast);
 
    if (c & Connection::WestXX)
       return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
@@ -545,14 +498,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::WestYX)
       return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
    if (c & Connection::WestYY)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
-   if (c & Connection::WestXYiX)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
-   if (c & Connection::WestXYiY)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
-   if (c & Connection::WestXiXY)
-      return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
-   if (c & Connection::WestYiXY)
       return std::make_tuple(c - Connection::West, Direction::NorthWest, Direction::SouthWest);
 
    if (c & Connection::CrossWestXX)
@@ -563,14 +508,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
       return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
    if (c & Connection::CrossWestYY)
       return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
-   if (c & Connection::CrossWestXYiX)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
-   if (c & Connection::CrossWestXYiY)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
-   if (c & Connection::CrossWestXiXY)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
-   if (c & Connection::CrossWestYiXY)
-      return std::make_tuple(c - Connection::CrossWest, Direction::NorthWest, Direction::SouthEast);
 
    if (c & Connection::CrossEastXX)
       return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
@@ -579,14 +516,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::CrossEastYX)
       return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
    if (c & Connection::CrossEastYY)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
-   if (c & Connection::CrossEastXYiX)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
-   if (c & Connection::CrossEastXYiY)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
-   if (c & Connection::CrossEastXiXY)
-      return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
-   if (c & Connection::CrossEastYiXY)
       return std::make_tuple(c - Connection::CrossEast, Direction::NorthEast, Direction::SouthWest);
    
    return std::make_tuple(Connection::None, Direction::Middle, Direction::Middle);
