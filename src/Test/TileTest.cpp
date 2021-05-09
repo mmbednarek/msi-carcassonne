@@ -53,6 +53,7 @@ TEST(Tile, RotateAllConnection) {
 TEST(Tile, Rotate4Connections) {
    using carcassonne::EdgeType;
    using carcassonne::EdgeType;
+   using carcassonne::CornerType;
    using carcassonne::Connection;
    auto tile = carcassonne::g_tiles[14];
 
