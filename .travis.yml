@@ -16,7 +16,7 @@ matrix:
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
-        packages: ['g++-9', 'cmake-3.17']
+        packages: ['g++-9']
 
 install:
   - make deps
