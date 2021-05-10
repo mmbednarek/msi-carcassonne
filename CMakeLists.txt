@@ -1,21 +1,29 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.17)
 project(msi_carcassonne)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_compile_options(-fconcepts)
+find_package(SDL2 REQUIRED)
+find_package(GTest REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
 
-include(FindPkgConfig)
-pkg_search_module(SDL2 REQUIRED sdl2)
-pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+include(FetchContent)
+
+FetchContent_Declare(
+        libmb
+        GIT_REPOSITORY https://github.com/mmbednarek/mb
+        GIT_TAG libmb-0.0.16
+)
+FetchContent_MakeAvailable(libmb)
+
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt
+        GIT_TAG 7.1.3
+)
+FetchContent_MakeAvailable(fmt)
 
 include_directories(include)
-
-set(BUILD_GMOCK OFF)
-
-add_subdirectory(deps/gtest)
-add_subdirectory(deps/mb)
-add_subdirectory(deps/fmt)
 
 add_subdirectory(src/Graphics)
 add_subdirectory(src/Input)
