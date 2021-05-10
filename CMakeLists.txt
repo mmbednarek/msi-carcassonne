@@ -3,14 +3,13 @@ project(msi_carcassonne)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(GTest REQUIRED)
-
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
 include_directories(include)
 
+add_subdirectory(deps/googletest)
 add_subdirectory(deps/mb)
 add_subdirectory(deps/fmt)
 
