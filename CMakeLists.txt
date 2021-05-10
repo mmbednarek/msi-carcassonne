@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(msi_carcassonne)
 
-
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
