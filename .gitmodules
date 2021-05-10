@@ -1,0 +1,3 @@
+[submodule "deps/mb"]
+	path = deps/mb
+	url = https://github.com/mmbednarek/mb

@@ -18,7 +18,7 @@ matrix:
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
-        packages: ['g++-9']
+        packages: ['g++-9', 'libsdl2-2.0-0', 'libsdl2-image-2.0-0', 'libsdl2-dev', 'libsdl2-image-dev', 'libgtest-dev', 'libfmt-dev']
 
 install:
   - make deps
