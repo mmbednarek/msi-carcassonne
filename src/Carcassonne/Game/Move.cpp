@@ -81,6 +81,28 @@ bool Move::is_free(Direction d) const noexcept {
    if (d == Direction::Middle) {
       return m_game.board().tile_at(m_x, m_y).tile().monastery;
    }
+   
+   for (mb::u8 i = 0; i < 8; i++) {
+      if (m_game.board().tile_at(m_x, m_y).tile().field_edges[i] != EdgeType::Grass) {
+         if (d == Direction::NorthEastY && i == 0) return false;
+         if (d == Direction::NorthEastX && i == 1) return false;
+         if (d == Direction::SouthEastX && i == 2) return false;
+         if (d == Direction::SouthEastY && i == 3) return false;
+         if (d == Direction::SouthWestY && i == 4) return false;
+         if (d == Direction::SouthWestX && i == 5) return false;
+         if (d == Direction::NorthWestX && i == 6) return false;
+         if (d == Direction::NorthWestY && i == 7) return false;
+      }
+   }
+   for (mb::u8 i = 0; i < 4; i++) {
+      if (m_game.board().tile_at(m_x, m_y).tile().edges[i] == EdgeType::Grass) {
+         if (d == Direction::North && i == 0) return false;
+         if (d == Direction::East  && i == 1) return false;
+         if (d == Direction::South && i == 2) return false;
+         if (d == Direction::West  && i == 3) return false;
+      }
+   }
+
    return m_game.groups().is_free(make_edge(m_x, m_y, d));
 }
 
