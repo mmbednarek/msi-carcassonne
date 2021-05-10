@@ -82,38 +82,25 @@ bool Move::is_free(Direction d) const noexcept {
       return m_game.board().tile_at(m_x, m_y).tile().monastery;
    }
    
-   if (d == Direction::NorthEast) {
-      if (m_game.board().tile_at(m_x, m_y).tile().corners[0] != CornerType::Grass)
-         return false;
+   for (mb::u8 i = 0; i < 8; i++) {
+      if (m_game.board().tile_at(m_x, m_y).tile().field_edges[i] != EdgeType::Grass) {
+         if (d == Direction::NorthEastY && i == 0) return false;
+         if (d == Direction::NorthEastX && i == 1) return false;
+         if (d == Direction::SouthEastX && i == 2) return false;
+         if (d == Direction::SouthEastY && i == 3) return false;
+         if (d == Direction::SouthWestY && i == 4) return false;
+         if (d == Direction::SouthWestX && i == 5) return false;
+         if (d == Direction::NorthWestX && i == 6) return false;
+         if (d == Direction::NorthWestY && i == 7) return false;
+      }
    }
-   if (d == Direction::SouthEast) {
-      if (m_game.board().tile_at(m_x, m_y).tile().corners[1] != CornerType::Grass)
-         return false;
-   }
-   if (d == Direction::SouthWest) {
-      if (m_game.board().tile_at(m_x, m_y).tile().corners[2] != CornerType::Grass)
-         return false;
-   }
-   if (d == Direction::NorthWest) {
-      if (m_game.board().tile_at(m_x, m_y).tile().corners[3] != CornerType::Grass)
-         return false;
-   }
-   
-   if (d == Direction::North) {
-      if (m_game.board().tile_at(m_x, m_y).tile().edges[0] == EdgeType::Grass)
-         return false;
-   }
-   if (d == Direction::East) {
-      if (m_game.board().tile_at(m_x, m_y).tile().edges[1] == EdgeType::Grass)
-         return false;
-   }
-   if (d == Direction::South) {
-      if (m_game.board().tile_at(m_x, m_y).tile().edges[2] == EdgeType::Grass)
-         return false;
-   }
-   if (d == Direction::West) {
-      if (m_game.board().tile_at(m_x, m_y).tile().edges[3] == EdgeType::Grass)
-         return false;
+   for (mb::u8 i = 0; i < 4; i++) {
+      if (m_game.board().tile_at(m_x, m_y).tile().edges[i] == EdgeType::Grass) {
+         if (d == Direction::North && i == 0) return false;
+         if (d == Direction::East  && i == 1) return false;
+         if (d == Direction::South && i == 2) return false;
+         if (d == Direction::West  && i == 3) return false;
+      }
    }
 
    return m_game.groups().is_free(make_edge(m_x, m_y, d));

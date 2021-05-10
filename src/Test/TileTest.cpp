@@ -52,13 +52,13 @@ TEST(Tile, RotateAllConnection) {
 
 TEST(Tile, Rotate4Connections) {
    using carcassonne::EdgeType;
-   using carcassonne::CornerType;
+   using carcassonne::EdgeType;
    using carcassonne::Connection;
    auto tile = carcassonne::g_tiles[14];
 
    carcassonne::Tile rotated = tile.rotate(1);
    std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
-   std::array<CornerType, 4> expected_corners_rotation{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Grass};
+   std::array<EdgeType, 4> expected_corners_rotation{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass};
    ASSERT_EQ(rotated.edges, expected_edges_rotation);
    ASSERT_EQ(rotated.connections, Connection::NorthEast | Connection::SouthWest);
    ASSERT_EQ(rotated.monastery, false);
