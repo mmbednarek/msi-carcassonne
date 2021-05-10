@@ -9,27 +9,36 @@ TEST(Tile, RotateBasic) {
    // SINGLE ROTATION
    {
       carcassonne::Tile rotated = tile.rotate(1);
-      std::array<EdgeType, 4> expected_rotation{EdgeType::Grass, EdgeType::Path, EdgeType::Town, EdgeType::Path};
-      ASSERT_EQ(rotated.edges, expected_rotation);
-      ASSERT_EQ(rotated.connections, Connection::WestEast);
+      std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Grass, EdgeType::Path, EdgeType::Town, EdgeType::Path};
+      std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass};
+      Connection expected_connection_rotation{Connection::WestEast | Connection::SouthXX | Connection::North};
+      ASSERT_EQ(rotated.edges, expected_edges_rotation);
+      ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
+      ASSERT_EQ(rotated.connections, expected_connection_rotation);
       ASSERT_EQ(rotated.monastery, false);
       ASSERT_EQ(rotated.pennant, false);
    }
    // DOUBLE ROTATION
    {
       carcassonne::Tile rotated = tile.rotate(2);
-      std::array<EdgeType, 4> expected_rotation{EdgeType::Path, EdgeType::Grass, EdgeType::Path, EdgeType::Town};
-      ASSERT_EQ(rotated.edges, expected_rotation);
-      ASSERT_EQ(rotated.connections, Connection::NorthSouth);
+      std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Path, EdgeType::Grass, EdgeType::Path, EdgeType::Town};
+      std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass};
+      Connection expected_connection_rotation{Connection::NorthSouth | Connection::WestYY | Connection::East};
+      ASSERT_EQ(rotated.edges, expected_edges_rotation);
+      ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
+      ASSERT_EQ(rotated.connections, expected_connection_rotation);
       ASSERT_EQ(rotated.monastery, false);
       ASSERT_EQ(rotated.pennant, false);
    }
    // TRIPLE ROTATION
    {
       carcassonne::Tile rotated = tile.rotate(3);
-      std::array<EdgeType, 4> expected_rotation{EdgeType::Town, EdgeType::Path, EdgeType::Grass, EdgeType::Path};
-      ASSERT_EQ(rotated.edges, expected_rotation);
-      ASSERT_EQ(rotated.connections, Connection::WestEast);
+      std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Path, EdgeType::Grass, EdgeType::Path};
+      std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town};
+      Connection expected_connection_rotation{Connection::WestEast | Connection::NorthXX | Connection::South};
+      ASSERT_EQ(rotated.edges, expected_edges_rotation);
+      ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
+      ASSERT_EQ(rotated.connections, expected_connection_rotation);
       ASSERT_EQ(rotated.monastery, false);
       ASSERT_EQ(rotated.pennant, false);
    }
@@ -59,9 +68,12 @@ TEST(Tile, Rotate4Connections) {
 
    carcassonne::Tile rotated = tile.rotate(1);
    std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
-   std::array<EdgeType, 4> expected_corners_rotation{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass};
+   std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town};
+   Connection expected_connection_rotation{Connection::NorthEast | Connection::SouthWest | Connection::CrossWestYX | Connection::SouthWestXY};
+
    ASSERT_EQ(rotated.edges, expected_edges_rotation);
-   ASSERT_EQ(rotated.connections, Connection::NorthEast | Connection::SouthWest);
+   ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
+   ASSERT_EQ(rotated.connections, expected_connection_rotation);
    ASSERT_EQ(rotated.monastery, false);
    ASSERT_EQ(rotated.pennant, false);
 }
