@@ -1,0 +1,28 @@
+language: cpp
+
+dist: trusty
+sudo: required
+group: edge
+
+compiler:
+  - gcc
+
+matrix:
+  - os: linux
+    compiler: gcc
+    env:
+      - COMPILER=g++-9
+      - CC=/usr/bin/gcc-9
+      - CXX=/usr/bin/g++-9
+      - CXXFLAGS=-std=c++2a -fconcepts
+    addons:
+      apt:
+        sources: ['ubuntu-toolchain-r-test']
+        packages: ['g++-9', 'libsdl2-2.0-0', 'libsdl2-image-2.0-0', 'libsdl2-dev', 'libsdl2-image-dev', 'libgtest-dev']
+
+install:
+  - make deps
+
+script:
+  - make build
+  - make test
