@@ -1,3 +1,6 @@
 [submodule "deps/mb"]
 	path = deps/mb
 	url = https://github.com/mmbednarek/mb
+[submodule "deps/fmt"]
+	path = deps/fmt
+	url = https://github.com/fmtlib/fmt
