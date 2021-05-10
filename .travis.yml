@@ -1,0 +1,25 @@
+language: cpp
+
+dist: trusty
+sudo: required
+group: edge
+
+compiler:
+  - gcc
+
+matrix:
+  - os: linux
+    compiler: gcc
+    env:
+      - COMPILER=g++-9
+      - CXXFLAGS=-std=c++2a
+    addons:
+      apt:
+        sources: ['ubuntu-toolchain-r-test']
+        packages: ['g++-9', 'cmake']
+
+install:
+  - make deps
+
+script:
+  - make build
