@@ -14,7 +14,7 @@ matrix:
       - COMPILER=g++-9
       - CC=/usr/bin/gcc-9
       - CXX=/usr/bin/g++-9
-      - CXXFLAGS=-std=c++2a
+      - CXXFLAGS=-std=c++2a -fconcepts
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -22,6 +22,17 @@ matrix:
 
 install:
   - make deps
+  - cd /usr/src/googletest/googletest
+  - sudo mkdir build
+  - cd build
+  - sudo cmake ..
+  - sudo make
+  - sudo cp libgtest* /usr/lib/
+  - cd ..
+  - sudo rm -rf build
+  - sudo mkdir /usr/local/lib/googletest
+  - sudo ln -s /usr/lib/libgtest.a /usr/local/lib/googletest/libgtest.a
+  - sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a
 
 script:
   - make build
