@@ -169,6 +169,9 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
    if (c & Connection::CrossEastXX)
       result |= Connection::CrossWestYY;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> added corners rotation list
 
    if (c & Connection::NorthEastXY)
       result |= Connection::SouthEastXY;
@@ -178,8 +181,11 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
       result |= Connection::NorthWestXY;
    if (c & Connection::NorthWestXY)
       result |= Connection::NorthEastXY;
+<<<<<<< HEAD
 =======
 >>>>>>> added field_edges
+=======
+>>>>>>> added corners rotation list
    
    return result;
 }
@@ -552,8 +558,12 @@ constexpr auto g_middle_edges = g_west_east_edges + (g_board_width + 1) + g_boar
 constexpr auto g_east_edges = g_middle_edges + g_board_width * g_board_height;
 constexpr auto g_west_edges = g_east_edges + g_board_width + (g_board_height + 1);
 constexpr auto g_north_edges = g_west_edges + g_board_width + (g_board_height + 1);
+<<<<<<< HEAD
 constexpr auto g_south_edges = g_west_edges + (g_board_width + 1) + g_board_height;
 >>>>>>> added field_edges
+=======
+constexpr auto g_south_edges = g_north_edges + (g_board_width + 1) + g_board_height;
+>>>>>>> added corners rotation list
 
 constexpr Edge make_edge(int x, int y, Direction d) {
    switch (d) {
