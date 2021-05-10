@@ -48,7 +48,11 @@ enum class Connection : mb::u64 {
    CrossEastXY = 1 << 21,
    CrossEastYX = 1 << 22,
    CrossEastYY = 1 << 23,
+<<<<<<< HEAD
    CrossEast   = 0x0005f00000,
+=======
+   CrossEast   = 0x0000f00000,
+>>>>>>> added field_edges
    NorthEastXY  = 1 << 24,
    SouthEastXY  = 1 << 25,
    SouthWestXY  = 1 << 26,
@@ -164,6 +168,7 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
       result |= Connection::CrossEastXX;
    if (c & Connection::CrossEastXX)
       result |= Connection::CrossWestYY;
+<<<<<<< HEAD
 
    if (c & Connection::NorthEastXY)
       result |= Connection::SouthEastXY;
@@ -173,6 +178,8 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
       result |= Connection::NorthWestXY;
    if (c & Connection::NorthWestXY)
       result |= Connection::NorthEastXY;
+=======
+>>>>>>> added field_edges
    
    return result;
 }
@@ -200,7 +207,10 @@ struct Tile {
 
       std::rotate(result.edges.begin(), result.edges.end() - count, result.edges.end());
       std::rotate(result.field_edges.begin(), result.field_edges.end() - count, result.field_edges.end());
+<<<<<<< HEAD
       std::rotate(result.field_edges.begin(), result.field_edges.end() - count, result.field_edges.end());
+=======
+>>>>>>> added field_edges
       
       return result;
    }
@@ -277,17 +287,29 @@ constexpr std::array<Tile, 25> g_tiles{
         },
         {
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+<<<<<<< HEAD
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+=======
+                .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town},
+>>>>>>> added field_edges
                 .connections = Connection::NorthWest | Connection::SouthYX | Connection::SouthYY | Connection::EastXX | Connection::EastXY | Connection::CrossEastXY | Connection::SouthEastXY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
+<<<<<<< HEAD
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+=======
+                .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town},
+>>>>>>> added field_edges
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY | Connection::SouthEastXY,
         },
         {
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
+<<<<<<< HEAD
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+=======
+                .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town},
+>>>>>>> added field_edges
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::CrossEastXY | Connection::SouthEastXY,
                 .pennant = true,
         },
@@ -502,7 +524,11 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::NorthEastXY)
       return std::make_tuple(c - Connection::NorthEastXY, Direction::NorthEastX, Direction::NorthEastY);
    if (c & Connection::SouthEastXY)
+<<<<<<< HEAD
       return std::make_tuple(c - Connection::SouthEastXY, Direction::SouthEastX, Direction::SouthEastY);
+=======
+      return std::make_tuple(c - Connection::SouthEastXY, Direction::SouthEastY, Direction::SouthEastY);
+>>>>>>> added field_edges
    if (c & Connection::SouthWestXY)
       return std::make_tuple(c - Connection::SouthWestXY, Direction::SouthWestX, Direction::SouthWestY);
    if (c & Connection::NorthWestXY)
@@ -513,12 +539,21 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
 
 using Edge = int;
 
+<<<<<<< HEAD
 constexpr auto g_west_east_edges = g_board_width * (g_board_height + 1);
 constexpr auto g_middle_edges = g_west_east_edges + (g_board_width + 1) * g_board_height;
 constexpr auto g_east_edges = g_middle_edges + g_board_width * g_board_height;
 constexpr auto g_west_edges = g_east_edges + g_board_width * (g_board_height + 1);
 constexpr auto g_north_edges = g_west_edges + g_board_width * (g_board_height + 1);
 constexpr auto g_south_edges = g_north_edges + (g_board_width + 1) * g_board_height;
+=======
+constexpr auto g_west_east_edges = g_board_width + (g_board_height + 1);
+constexpr auto g_middle_edges = g_west_east_edges + (g_board_width + 1) + g_board_height;
+constexpr auto g_east_edges = g_middle_edges + g_board_width * g_board_height;
+constexpr auto g_west_edges = g_east_edges + g_board_width + (g_board_height + 1);
+constexpr auto g_north_edges = g_west_edges + g_board_width + (g_board_height + 1);
+constexpr auto g_south_edges = g_west_edges + (g_board_width + 1) + g_board_height;
+>>>>>>> added field_edges
 
 constexpr Edge make_edge(int x, int y, Direction d) {
    switch (d) {

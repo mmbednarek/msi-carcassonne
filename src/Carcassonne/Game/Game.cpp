@@ -6,10 +6,14 @@ namespace carcassonne::game {
 
 // Game::Game() : m_random_generator(m_random_device()) {}
 <<<<<<< HEAD
+<<<<<<< HEAD
 Game::Game() : m_random_generator(6) {}
 =======
 Game::Game() : m_random_generator(3) {}
 >>>>>>> added connection middle-N/E/S/W
+=======
+Game::Game() : m_random_generator(6) {}
+>>>>>>> added field_edges
 
 const IBoard &Game::board() const noexcept {
    return m_board;
