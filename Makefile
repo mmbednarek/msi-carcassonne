@@ -4,5 +4,9 @@ deps:
 	echo dependencies
 
 build:
-	mkdir -p build && cd build
-	cmake .. && cmake --build .
+	mkdir -p build
+	cmake -B build .
+	cmake --build build
+
+test:
+	./build/src/Test/msi_test
