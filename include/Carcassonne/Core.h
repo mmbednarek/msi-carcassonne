@@ -74,10 +74,14 @@ enum class Connection : mb::u64 {
    SouthWest   = 0x1000000000,
    WestEast    = 0x2000000000,
    AllEdges    = 0x3f00000000,
+   MiddleNorth = 0x04000000000,
+   MiddleEast  = 0x08000000000,
+   MiddleSouth = 0x10000000000,
+   MiddleWest  = 0x20000000000,
 };
 
 [[nodiscard]] constexpr Connection operator|(Connection left, Connection right) {
-   return static_cast<Connection>(static_cast<mb::u32>(left) | static_cast<mb::u32>(right));
+   return static_cast<Connection>(static_cast<mb::u64>(left) | static_cast<mb::u64>(right));
 }
 
 constexpr Connection &operator|=(Connection &left, Connection right) {
@@ -86,11 +90,11 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
 }
 
 [[nodiscard]] constexpr bool operator&(Connection left, Connection right) {
-   return (static_cast<mb::u32>(left) & static_cast<mb::u32>(right)) != 0;
+   return (static_cast<mb::u64>(left) & static_cast<mb::u64>(right)) != 0;
 }
 
 [[nodiscard]] constexpr Connection operator-(Connection left, Connection right) {
-   return static_cast<Connection>(static_cast<mb::u32>(left) & (~static_cast<mb::u32>(right)));
+   return static_cast<Connection>(static_cast<mb::u64>(left) & (~static_cast<mb::u64>(right)));
 }
 
 [[nodiscard]] constexpr Connection rotate_connection(Connection c) {
@@ -108,6 +112,15 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
       result |= Connection::WestEast;
    if (c & Connection::WestEast)
       result |= Connection::NorthSouth;
+
+   if (c & Connection::MiddleNorth)
+      result |= Connection::MiddleEast;
+   if (c & Connection::MiddleEast)
+      result |= Connection::MiddleSouth;
+   if (c & Connection::MiddleSouth)
+      result |= Connection::MiddleWest;
+   if (c & Connection::MiddleWest)
+      result |= Connection::MiddleNorth;
 
    if (c & Connection::NorthXX)
       result |= Connection::EastYY;
@@ -258,7 +271,7 @@ constexpr std::array<Tile, 25> g_tiles{
         {
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Path, EdgeType::Grass},
                 .corners{CornerType::Grass, CornerType::Grass, CornerType::Grass, CornerType::Grass},
-                .connections = Connection::AllCorners,
+                .connections = Connection::MiddleSouth | Connection::AllCorners,
                 .monastery = true,
         },
         {
@@ -451,6 +464,16 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
       return std::make_tuple(c - Connection::SouthWest, Direction::South, Direction::West);
    if (c & Connection::WestEast)
       return std::make_tuple(c - Connection::WestEast, Direction::West, Direction::East);
+
+   if (c & Connection::MiddleNorth)
+      return std::make_tuple(c - Connection::MiddleNorth, Direction::Middle, Direction::North);
+   if (c & Connection::MiddleEast)
+      return std::make_tuple(c - Connection::MiddleEast, Direction::Middle, Direction::East);
+   if (c & Connection::MiddleSouth)
+      return std::make_tuple(c - Connection::MiddleSouth, Direction::Middle, Direction::South);
+   if (c & Connection::MiddleWest)
+      return std::make_tuple(c - Connection::MiddleWest, Direction::Middle, Direction::West);
+
    if (c & Connection::North)
       return std::make_tuple(c - Connection::North, Direction::NorthWest, Direction::NorthEast);
    if (c & Connection::West)

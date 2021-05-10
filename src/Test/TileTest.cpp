@@ -60,8 +60,7 @@ TEST(Tile, Rotate4Connections) {
    std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
    std::array<CornerType, 4> expected_corners_rotation{CornerType::Town, CornerType::Grass, CornerType::Grass, CornerType::Grass};
    ASSERT_EQ(rotated.edges, expected_edges_rotation);
-   ASSERT_EQ(rotated.corners, expected_corners_rotation);
-   ASSERT_EQ(rotated.connections, Connection::NorthEast | Connection::SouthWest | Connection::CrossWestYX | Connection::SouthEastY);// | Connection::SouthWestXY | Connection::NorthWestX);
+   ASSERT_EQ(rotated.connections, Connection::NorthEast | Connection::SouthWest);
    ASSERT_EQ(rotated.monastery, false);
    ASSERT_EQ(rotated.pennant, false);
 }
