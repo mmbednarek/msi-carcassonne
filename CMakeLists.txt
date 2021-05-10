@@ -9,7 +9,7 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
 include_directories(include)
 
-add_subdirectory(deps/googletest)
+add_subdirectory(deps/gtest)
 add_subdirectory(deps/mb)
 add_subdirectory(deps/fmt)
 
