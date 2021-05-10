@@ -68,7 +68,7 @@ struct Tile {
    bool monastery = false;
    bool pennant = false;
 
-   [[nodiscard]] constexpr Tile rotate(mb::size count) const {
+   [[nodiscard]] inline Tile rotate(mb::size count) const {
       Connection rotated = connections;
       for (mb::size i = 0; i < count; ++i)
          rotated = rotate_connection(rotated);
@@ -193,7 +193,7 @@ struct TilePlacement {
    TileType type = 0;
    mb::u8 rotation = 0;
 
-   [[nodiscard]] constexpr Tile tile() const {
+   [[nodiscard]] inline Tile tile() const {
       return g_tiles[type].rotate(rotation);
    }
 };

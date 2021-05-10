@@ -1,0 +1,9 @@
+[submodule "deps/mb"]
+	path = deps/mb
+	url = https://github.com/mmbednarek/mb
+[submodule "deps/fmt"]
+	path = deps/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "deps/gtest"]
+	path = deps/gtest
+	url = https://github.com/google/googletest.git

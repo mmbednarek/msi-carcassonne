@@ -17,7 +17,8 @@ concept EventManager = requires(T t) {
    {t.on_mouse_wheel(-1)};
 };
 
-void handle_events(EventManager auto &em) {
+template<EventManager E>
+void handle_events(E &em) {
    SDL_Event event;
    while (SDL_PollEvent(&event)) {
       switch (event.type) {
