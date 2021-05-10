@@ -43,12 +43,12 @@ enum class Connection : mb::u64 {
    CrossWestXY = 1 << 17,
    CrossWestYX = 1 << 18,
    CrossWestYY = 1 << 19,
-   CrossWest   = 0x00000f0000,
+   CrossWest   = 0x000a0f0000,
    CrossEastXX = 1 << 20,
    CrossEastXY = 1 << 21,
    CrossEastYX = 1 << 22,
    CrossEastYY = 1 << 23,
-   CrossEast   = 0x0000f00000,
+   CrossEast   = 0x0005f00000,
    NorthEastXY  = 1 << 24,
    SouthEastXY  = 1 << 25,
    SouthWestXY  = 1 << 26,
@@ -501,7 +501,7 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::NorthEastXY)
       return std::make_tuple(c - Connection::NorthEastXY, Direction::NorthEastX, Direction::NorthEastY);
    if (c & Connection::SouthEastXY)
-      return std::make_tuple(c - Connection::SouthEastXY, Direction::SouthEastY, Direction::SouthEastY);
+      return std::make_tuple(c - Connection::SouthEastXY, Direction::SouthEastX, Direction::SouthEastY);
    if (c & Connection::SouthWestXY)
       return std::make_tuple(c - Connection::SouthWestXY, Direction::SouthWestX, Direction::SouthWestY);
    if (c & Connection::NorthWestXY)
@@ -512,12 +512,12 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
 
 using Edge = int;
 
-constexpr auto g_west_east_edges = g_board_width + (g_board_height + 1);
-constexpr auto g_middle_edges = g_west_east_edges + (g_board_width + 1) + g_board_height;
+constexpr auto g_west_east_edges = g_board_width * (g_board_height + 1);
+constexpr auto g_middle_edges = g_west_east_edges + (g_board_width + 1) * g_board_height;
 constexpr auto g_east_edges = g_middle_edges + g_board_width * g_board_height;
-constexpr auto g_west_edges = g_east_edges + g_board_width + (g_board_height + 1);
-constexpr auto g_north_edges = g_west_edges + g_board_width + (g_board_height + 1);
-constexpr auto g_south_edges = g_north_edges + (g_board_width + 1) + g_board_height;
+constexpr auto g_west_edges = g_east_edges + g_board_width * (g_board_height + 1);
+constexpr auto g_north_edges = g_west_edges + g_board_width * (g_board_height + 1);
+constexpr auto g_south_edges = g_north_edges + (g_board_width + 1) * g_board_height;
 
 constexpr Edge make_edge(int x, int y, Direction d) {
    switch (d) {
