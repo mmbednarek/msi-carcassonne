@@ -8,8 +8,10 @@ TEST(Util, Groups) {
          EXPECT_EQ(g.group_of(i), i);
       }
 
-      g.assign(2, 3);
+      g.assign(2, carcassonne::Player::Yellow);
       EXPECT_TRUE(g.is_free(0));
+
+      g.set_type(0, carcassonne::EdgeType::Town);
 
       g.join(0, 1);
       g.join(2, 3);
@@ -20,6 +22,7 @@ TEST(Util, Groups) {
 
       for (mb::size i = 0; i < 4; ++i) {
          EXPECT_EQ(g.group_of(i), 0);
+         EXPECT_EQ(g.type_of(i), carcassonne::EdgeType::Town);
       }
    }
    {
@@ -28,7 +31,7 @@ TEST(Util, Groups) {
          EXPECT_EQ(g.group_of(i), i);
       }
 
-      g.assign(5, 5);
+      g.assign(5, carcassonne::Player::Red);
 
       auto last = 0;
       auto current = 1;

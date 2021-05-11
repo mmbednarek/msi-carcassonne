@@ -155,129 +155,129 @@ constexpr std::array<Tile, 25> g_tiles{
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
         },
-        {
+        { // 1
                 .edges{EdgeType::Path, EdgeType::Town, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthSouth | Connection::EastX | Connection::West,
         },
-        {
+        { // 2
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::EastY | Connection::South | Connection::WestY,
         },
-        {
+        { // 3
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::NorthSouth | Connection::EastY | Connection::WestY,
         },
-        {
+        { // 4
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
                 .connections = Connection::NorthX | Connection::SouthX | Connection::WestX | Connection::EastX,
         },
-        {
+        { // 5
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::AllFieldEdges,
                 .monastery = true,
         },
-        {
+        { // 6
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::AllFieldEdges,
                 .monastery = true,
         },
-        {
+        { // 7
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthWestCorner | Connection::NorthX | Connection::WestY,
         },
-        {
+        { // 8
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::AllEdges,
                 .pennant = true,
         },
-        {
+        { // 9
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::SouthEast | Connection::WestY | Connection::SouthWestCorner | Connection::NorthY | Connection::SouthEastCorner,
         },
-        {
+        { // 10
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::SouthWest | Connection::EastY | Connection::SouthWestCorner | Connection::NorthY | Connection::SouthEastCorner,
         },
-        {
+        { // 11
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::NorthY | Connection::SouthEastCorner | Connection::SouthWestCorner,
         },
-        {
+        { // 12
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthX | Connection::EastY | Connection::SouthEastCorner,
                 .pennant = true,
         },
-        {
+        { // 13
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthX | Connection::EastY | Connection::SouthEastCorner,
         },
-        {
+        { // 14
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
         },
-        {
+        { // 15
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
                 .pennant = true,
         },
-        {
+        { // 16
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthX,
                 .pennant = true,
         },
-        {
+        { // 17
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthX,
         },
-        {
+        { // 18
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
                 .pennant = true,
         },
-        {
+        { // 19
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
-        {
+        { // 20
                 .edges{EdgeType::Path, EdgeType::Grass, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthSouth | Connection::West | Connection::East,
         },
-        {
+        { // 21
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::SouthWest | Connection::North | Connection::East | Connection::SouthWestCorner,
         },
-        {
+        { // 22
                 .edges{EdgeType::Grass, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::North | Connection::SouthEastCorner | Connection::SouthWestCorner,
         },
-        {
+        { // 23
                 .edges{EdgeType::Path, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthEastCorner | Connection::SouthEastCorner | Connection::SouthWestCorner | Connection::NorthWestCorner,
         },
-        {
+        { // 24
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::NorthSouth | Connection::WestY | Connection::EastY,
@@ -301,20 +301,20 @@ struct TilePosition {
 };
 
 
-enum class Direction {
-   North,
-   East,
-   South,
-   West,
-   Middle,
-   NorthEast,
-   EastNorth,
-   SouthEast,
-   EastSouth,
-   SouthWest,
-   WestSouth,
-   NorthWest,
-   WestNorth
+enum class Direction : mb::u8 {
+   North = 0,
+   East = 1,
+   South = 2,
+   West = 3,
+   Middle = 4,
+   NorthEast = 5,
+   EastNorth = 6,
+   EastSouth = 7,
+   SouthEast = 8,
+   SouthWest = 9,
+   WestSouth = 10,
+   WestNorth = 11,
+   NorthWest = 12
 };
 
 constexpr std::array<Direction, 13> g_directions{

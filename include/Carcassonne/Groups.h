@@ -1,18 +1,22 @@
 #ifndef MSI_CARCASSONNE_GROUPS_H
 #define MSI_CARCASSONNE_GROUPS_H
+#include <Carcassonne/Core.h>
 #include <array>
 #include <mb/int.h>
 #include <numeric>
 
 namespace carcassonne {
 
+using Group = mb::size;
+
 constexpr mb::size g_empty = std::numeric_limits<mb::size>::max();
 
 template<mb::size S>
 class Groups {
-   std::array<mb::size, S> m_group{};
+   std::array<Group, S> m_group{};
    std::array<mb::size, S> m_backtrack{};
-   std::array<mb::u8, S> m_assignments{};
+   std::array<Player, S> m_assignments{};
+   std::array<EdgeType, S> m_types{};
 
  public:
    constexpr Groups() {
@@ -20,19 +24,27 @@ class Groups {
       std::fill(m_backtrack.begin(), m_backtrack.end(), g_empty);
    }
 
-   [[nodiscard]] constexpr mb::size group_of(mb::size id) const {
+   [[nodiscard]] constexpr Group group_of(Edge id) const {
       return m_group[id];
    }
 
-   [[nodiscard]] constexpr bool is_free(mb::size id) const {
-      return m_assignments[m_group[id]] == 0;
+   [[nodiscard]] constexpr bool is_free(Edge id) const {
+      return static_cast<mb::u8>(m_assignments[m_group[id]]) == 0;
    }
 
-   constexpr void assign(mb::size id, mb::u8 owner) {
+   [[nodiscard]] constexpr EdgeType type_of(Edge id) const {
+      return m_types[m_group[id]];
+   }
+
+   constexpr void set_type(Edge id, EdgeType tt) {
+      m_types[m_group[id]] = tt;
+   }
+
+   constexpr void assign(Edge id, Player owner) {
       m_assignments[m_group[id]] |= owner;
    }
 
-   constexpr mb::size join(mb::size a, mb::size b) {
+   constexpr Group join(Edge a, Edge b) {
       const auto target_group = m_group[a];
       auto join_id = a;
       while (m_backtrack[join_id] != g_empty)
@@ -56,6 +68,6 @@ class Groups {
    }
 };
 
-}// namespace util
+}// namespace carcassonne
 
 #endif//MSI_CARCASSONNE_GROUPS_H

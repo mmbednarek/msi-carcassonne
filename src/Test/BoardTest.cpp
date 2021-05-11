@@ -26,6 +26,7 @@ TEST(Board, Basic) {
       auto path4 = carcassonne::make_edge(71, 70, carcassonne::Direction::East);
       ASSERT_EQ(path2, path3);
       assert_same_group(g, {path1, path2, path3, path4});
+      ASSERT_EQ(g.groups().type_of(path1), carcassonne::EdgeType::Path);
    }
    {
       auto path1 = carcassonne::make_edge(70, 70, carcassonne::Direction::WestNorth);
@@ -36,6 +37,7 @@ TEST(Board, Basic) {
       ASSERT_EQ(path2, path3);
       ASSERT_NE(path3, path4);
       assert_same_group(g, {path1, path2, path3, path4});
+      ASSERT_EQ(g.groups().type_of(path1), carcassonne::EdgeType::Grass);
    }
    {
       auto path1 = carcassonne::make_edge(70, 70, carcassonne::Direction::WestSouth);
@@ -55,6 +57,7 @@ TEST(Board, Basic) {
       ASSERT_NE(path7, path8);
       ASSERT_NE(g.groups().group_of(path7), g.groups().group_of(pathAbove));
       assert_same_group(g, {path1, path2, path3, path4, path5, path6, path7, path8});
+      ASSERT_EQ(g.groups().type_of(path1), carcassonne::EdgeType::Grass);
    }
    {
       auto path1 = carcassonne::make_edge(70, 69, carcassonne::Direction::NorthWest);
@@ -77,6 +80,7 @@ TEST(Board, Basic) {
       assert_same_group(g, {path1, path2, path3, path4,
                             path5, path6, path7, path8,
                             path9, path10, path11, path12});
+      ASSERT_EQ(g.groups().type_of(path1), carcassonne::EdgeType::Grass);
    }
    {
       auto path1 = carcassonne::make_edge(70, 70, carcassonne::Direction::North);
@@ -84,12 +88,15 @@ TEST(Board, Basic) {
       auto pathEast = carcassonne::make_edge(71, 69, carcassonne::Direction::South);
       ASSERT_EQ(path1, path2);
       ASSERT_NE(g.groups().group_of(path2), g.groups().group_of(pathEast));
+      ASSERT_EQ(g.groups().type_of(path1), carcassonne::EdgeType::Town);
    }
 }
 
 TEST(Board, Path) {
    carcassonne::game::Game g;
    g.apply_tile(71, 70, 9, 1);
+   auto edgeTown1 = carcassonne::make_edge(71, 70, carcassonne::Direction::EastNorth);
+   ASSERT_EQ(g.groups().type_of(edgeTown1), carcassonne::EdgeType::Town);
    g.apply_tile(72, 70, 4, 0);
    g.apply_tile(71, 71, 23, 0);
    g.apply_tile(72, 71, 21, 0);

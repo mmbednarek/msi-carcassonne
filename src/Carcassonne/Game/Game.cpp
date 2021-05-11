@@ -35,11 +35,19 @@ std::unique_ptr<IMove> Game::new_debug_move(Player p, TileType tt) noexcept {
 void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    m_board.set_tile(x, y, tt, rot);
 
-   auto connections = TilePlacement{.type = tt, .rotation = rot}.tile().connections;
+   auto tile = TilePlacement{.type = tt, .rotation = rot}.tile();
+   auto connections = tile.connections;
    while (connections != Connection::None) {
       Direction a, b;
       std::tie(connections, a, b) = read_directions(connections);
       m_groups.join(make_edge(x, y, a), make_edge(x, y, b));
+   }
+
+   for (int direction_id = 0; direction_id < 4; ++direction_id) {
+      m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.edges[direction_id]);
+   }
+   for (int direction_id = 5; direction_id < 13; ++direction_id) {
+      m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.field_edges[direction_id-5]);
    }
 }
 
