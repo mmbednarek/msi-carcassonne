@@ -2,13 +2,6 @@
 
 namespace carcassonne::game {
 
-Board::Board() {
-   m_board[70 + 70 * g_board_width] = TilePlacement{
-           .type = 1,
-           .rotation = 3,
-   };
-}
-
 int Board::min_x() const noexcept {
    return m_min_x;
 }

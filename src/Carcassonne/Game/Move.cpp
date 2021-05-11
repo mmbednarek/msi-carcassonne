@@ -19,14 +19,7 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
    m_y = y;
    m_phase = MovePhase::PlaceFigure;
 
-   m_game.mutable_board().set_tile(x, y, m_tile_type, rotation);
-
-   auto connections = TilePlacement{.type = m_tile_type, .rotation = rotation}.tile().connections;
-   while (connections != Connection::None) {
-      Direction a, b;
-      std::tie(connections, a, b) = read_directions(connections);
-      m_game.mutable_groups().join(make_edge(x, y, a), make_edge(x, y, b));
-   }
+   m_game.apply_tile(x, y, m_tile_type, rotation);
 
    bool all_occupied = true;
    for (const auto d : g_directions) {
@@ -57,7 +50,7 @@ void Move::place_figure(Direction d) noexcept {
            .y = py,
    });
 
-   m_game.mutable_groups().assign(make_edge(m_x, m_y, d), static_cast<mb::u8>(m_player));
+   m_game.mutable_groups().assign(make_edge(m_x, m_y, d), m_player);
    m_game.set_next_player();
    m_phase = MovePhase::Done;
 }
@@ -81,29 +74,32 @@ bool Move::is_free(Direction d) const noexcept {
    if (d == Direction::Middle) {
       return m_game.board().tile_at(m_x, m_y).tile().monastery;
    }
-   
-   for (mb::u8 i = 0; i < 8; i++) {
-      if (m_game.board().tile_at(m_x, m_y).tile().field_edges[i] != EdgeType::Grass) {
-         if (d == Direction::NorthEastY && i == 0) return false;
-         if (d == Direction::NorthEastX && i == 1) return false;
-         if (d == Direction::SouthEastX && i == 2) return false;
-         if (d == Direction::SouthEastY && i == 3) return false;
-         if (d == Direction::SouthWestY && i == 4) return false;
-         if (d == Direction::SouthWestX && i == 5) return false;
-         if (d == Direction::NorthWestX && i == 6) return false;
-         if (d == Direction::NorthWestY && i == 7) return false;
-      }
-   }
-   for (mb::u8 i = 0; i < 4; i++) {
-      if (m_game.board().tile_at(m_x, m_y).tile().edges[i] == EdgeType::Grass) {
-         if (d == Direction::North && i == 0) return false;
-         if (d == Direction::East  && i == 1) return false;
-         if (d == Direction::South && i == 2) return false;
-         if (d == Direction::West  && i == 3) return false;
-      }
+
+   auto edge = make_edge(m_x, m_y, d);
+   auto edge_type = m_game.groups().type_of(edge);
+
+   switch (d) {
+   case Direction::North:
+   case Direction::East:
+   case Direction::South:
+   case Direction::West:
+      if (edge_type == EdgeType::Grass)
+         return false;
+      break;
+   case Direction::EastNorth:
+   case Direction::NorthEast:
+   case Direction::SouthEast:
+   case Direction::EastSouth:
+   case Direction::WestSouth:
+   case Direction::SouthWest:
+   case Direction::NorthWest:
+   case Direction::WestNorth:
+      if (edge_type != EdgeType::Grass)
+         return false;
+      break;
    }
 
-   return m_game.groups().is_free(make_edge(m_x, m_y, d));
+   return m_game.groups().is_free(edge);
 }
 
 }// namespace carcassonne::game
