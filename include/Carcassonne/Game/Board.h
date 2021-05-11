@@ -13,8 +13,6 @@ class Board : public IBoard {
    int m_max_y = 71;
 
  public:
-   Board();
-
    [[nodiscard]] int min_x() const noexcept override;
    [[nodiscard]] int min_y() const noexcept override;
    [[nodiscard]] int max_x() const noexcept override;

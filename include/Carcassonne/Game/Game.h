@@ -10,7 +10,7 @@
 
 namespace carcassonne::game {
 
-using EdgeGroups = Groups<7 * g_board_width * g_board_height  + 3 * (g_board_width + g_board_height)>;
+using EdgeGroups = Groups<7 * g_board_width * g_board_height + 3 * (g_board_width + g_board_height)>;
 
 class Game : public IGame {
    Board m_board;
@@ -31,6 +31,7 @@ class Game : public IGame {
    [[nodiscard]] Player current_player() const noexcept override;
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
+   void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {
       return m_board;
@@ -49,6 +50,8 @@ class Game : public IGame {
    constexpr void set_next_player() noexcept {
       m_current_player = next_player(m_current_player, m_player_count);
    }
+
+   std::unique_ptr<IMove> new_debug_move(Player p, TileType tt) noexcept;
 };
 
 }// namespace carcassonne::game

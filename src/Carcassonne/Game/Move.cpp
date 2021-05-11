@@ -19,14 +19,7 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
    m_y = y;
    m_phase = MovePhase::PlaceFigure;
 
-   m_game.mutable_board().set_tile(x, y, m_tile_type, rotation);
-
-   auto connections = TilePlacement{.type = m_tile_type, .rotation = rotation}.tile().connections;
-   while (connections != Connection::None) {
-      Direction a, b;
-      std::tie(connections, a, b) = read_directions(connections);
-      m_game.mutable_groups().join(make_edge(x, y, a), make_edge(x, y, b));
-   }
+   m_game.apply_tile(x, y, m_tile_type, rotation);
 
    bool all_occupied = true;
    for (const auto d : g_directions) {
@@ -84,14 +77,14 @@ bool Move::is_free(Direction d) const noexcept {
    
    for (mb::u8 i = 0; i < 8; i++) {
       if (m_game.board().tile_at(m_x, m_y).tile().field_edges[i] != EdgeType::Grass) {
-         if (d == Direction::NorthEastY && i == 0) return false;
-         if (d == Direction::NorthEastX && i == 1) return false;
-         if (d == Direction::SouthEastX && i == 2) return false;
-         if (d == Direction::SouthEastY && i == 3) return false;
-         if (d == Direction::SouthWestY && i == 4) return false;
-         if (d == Direction::SouthWestX && i == 5) return false;
-         if (d == Direction::NorthWestX && i == 6) return false;
-         if (d == Direction::NorthWestY && i == 7) return false;
+         if (d == Direction::EastNorth && i == 0) return false;
+         if (d == Direction::NorthEast && i == 1) return false;
+         if (d == Direction::SouthEast && i == 2) return false;
+         if (d == Direction::EastSouth && i == 3) return false;
+         if (d == Direction::WestSouth && i == 4) return false;
+         if (d == Direction::SouthWest && i == 5) return false;
+         if (d == Direction::NorthWest && i == 6) return false;
+         if (d == Direction::WestNorth && i == 7) return false;
       }
    }
    for (mb::u8 i = 0; i < 4; i++) {
