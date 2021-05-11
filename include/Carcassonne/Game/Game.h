@@ -10,7 +10,7 @@
 
 namespace carcassonne::game {
 
-using EdgeGroups = Groups<2 * g_board_width * g_board_height + g_board_width + g_board_height>;
+using EdgeGroups = Groups<7 * g_board_width * g_board_height  + 3 * (g_board_width + g_board_height)>;
 
 class Game : public IGame {
    Board m_board;

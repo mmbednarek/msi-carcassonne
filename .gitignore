@@ -1,5 +1,7 @@
 .idea
+.vscode
 cmake-build-debug
 out
 cmake-install
-*.sh
+testRot.sh
+run.sh
