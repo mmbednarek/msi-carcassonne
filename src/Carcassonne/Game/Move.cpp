@@ -42,15 +42,23 @@ void Move::place_figure(Direction d) noexcept {
    if (!is_free(d))
       return;
 
+   auto edge = make_edge(m_x, m_y, d);
+
    double px{}, py{};
    std::tie(px, py) = direction_position(TilePosition{m_x, m_y}, d);
    m_game.add_figure(Figure{
            .player = m_player,
            .x = px,
            .y = py,
+           .edge = edge,
    });
 
    m_game.mutable_groups().assign(make_edge(m_x, m_y, d), m_player);
+
+   if (m_game.groups().is_completed(edge)) {
+      m_game.on_structure_completed(m_game.groups().group_of(edge));
+   }
+
    m_game.set_next_player();
    m_phase = MovePhase::Done;
 }

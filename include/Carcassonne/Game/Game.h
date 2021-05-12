@@ -3,6 +3,7 @@
 #include "Board.h"
 #include <Carcassonne/Core.h>
 #include <Carcassonne/Groups.h>
+#include <Carcassonne/ScoreBoard.h>
 #include <mb/int.h>
 #include <memory>
 #include <random>
@@ -19,6 +20,7 @@ class Game : public IGame {
    std::vector<Figure> m_figures;
 
    EdgeGroups m_groups;
+   ScoreBoard m_scores;
 
    std::random_device m_random_device;
    std::mt19937_64 m_random_generator;
@@ -32,7 +34,8 @@ class Game : public IGame {
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
-   void on_structure_completed(Group e);
+   void on_structure_completed(Group g);
+   [[nodiscard]] const ScoreBoard &scores() const noexcept override;
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {
       return m_board;

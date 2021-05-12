@@ -155,129 +155,153 @@ constexpr std::array<Tile, 25> g_tiles{
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
         },
-        { // 1
+        {
+                // 1
                 .edges{EdgeType::Path, EdgeType::Town, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthSouth | Connection::EastX | Connection::West,
         },
-        { // 2
+        {
+                // 2
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::EastY | Connection::South | Connection::WestY,
         },
-        { // 3
+        {
+                // 3
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::NorthSouth | Connection::EastY | Connection::WestY,
         },
-        { // 4
+        {
+                // 4
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
                 .connections = Connection::NorthX | Connection::SouthX | Connection::WestX | Connection::EastX,
         },
-        { // 5
+        {
+                // 5
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::AllFieldEdges,
                 .monastery = true,
         },
-        { // 6
+        {
+                // 6
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::AllFieldEdges,
                 .monastery = true,
         },
-        { // 7
+        {
+                // 7
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthWestCorner | Connection::NorthX | Connection::WestY,
         },
-        { // 8
+        {
+                // 8
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::AllEdges,
                 .pennant = true,
         },
-        { // 9
+        {
+                // 9
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::SouthEast | Connection::WestY | Connection::SouthWestCorner | Connection::NorthY | Connection::SouthEastCorner,
         },
-        { // 10
+        {
+                // 10
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::SouthWest | Connection::EastY | Connection::SouthWestCorner | Connection::NorthY | Connection::SouthEastCorner,
         },
-        { // 11
+        {
+                // 11
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::NorthY | Connection::SouthEastCorner | Connection::SouthWestCorner,
         },
-        { // 12
+        {
+                // 12
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthX | Connection::EastY | Connection::SouthEastCorner,
                 .pennant = true,
         },
-        { // 13
+        {
+                // 13
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthX | Connection::EastY | Connection::SouthEastCorner,
         },
-        { // 14
+        {
+                // 14
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
         },
-        { // 15
+        {
+                // 15
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
                 .pennant = true,
         },
-        { // 16
+        {
+                // 16
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthX,
                 .pennant = true,
         },
-        { // 17
+        {
+                // 17
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthX,
         },
-        { // 18
+        {
+                // 18
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
                 .pennant = true,
         },
-        { // 19
+        {
+                // 19
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
-        { // 20
+        {
+                // 20
                 .edges{EdgeType::Path, EdgeType::Grass, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthSouth | Connection::West | Connection::East,
         },
-        { // 21
+        {
+                // 21
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::SouthWest | Connection::North | Connection::East | Connection::SouthWestCorner,
         },
-        { // 22
+        {
+                // 22
                 .edges{EdgeType::Grass, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::North | Connection::SouthEastCorner | Connection::SouthWestCorner,
         },
-        { // 23
+        {
+                // 23
                 .edges{EdgeType::Path, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .connections = Connection::NorthEastCorner | Connection::SouthEastCorner | Connection::SouthWestCorner | Connection::NorthWestCorner,
         },
-        { // 24
+        {
+                // 24
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .connections = Connection::NorthSouth | Connection::WestY | Connection::EastY,
@@ -336,13 +360,13 @@ constexpr std::array<Direction, 13> g_directions{
 constexpr TilePosition neighbour_of(int x, int y, Direction d) {
    switch (d) {
    case Direction::North:
-      return TilePosition{x, y-1};
+      return TilePosition{x, y - 1};
    case Direction::East:
-      return TilePosition{x+1, y};
+      return TilePosition{x + 1, y};
    case Direction::South:
-      return TilePosition{x, y+1};
+      return TilePosition{x, y + 1};
    case Direction::West:
-      return TilePosition{x-1, y};
+      return TilePosition{x - 1, y};
    default:
       return TilePosition{x, y};
    }
@@ -484,50 +508,68 @@ constexpr Edge make_edge(int x, int y, Direction d) {
 }
 
 enum class Player : mb::u8 {
+   Black = 0,
+   Blue = 1,
+   Yellow = 2,
+   Red = 3,
+};
+
+enum class PlayerAssignment : mb::u8 {
+   None = 0,
    Black = 1 << 0,
    Blue = 1 << 1,
    Yellow = 1 << 2,
    Red = 1 << 3,
 };
 
-[[nodiscard]] constexpr int player_to_int(Player p) {
-   switch (p) {
-   case Player::Black:
-      return 0;
-   case Player::Blue:
-      return 1;
-   case Player::Yellow:
-      return 2;
-   case Player::Red:
-      return 3;
-   }
-   return 0;
+[[nodiscard]] constexpr PlayerAssignment player_to_assignment(Player p) {
+   return static_cast<PlayerAssignment>(1 << static_cast<mb::u8>(p));
 }
 
-struct Figure {
-   Player player;
-   double x, y;
-};
-
-constexpr Player next_player(Player player, mb::u8 player_count) {
-   auto current_player = static_cast<mb::u8>(player);
-   current_player <<= 1;
-   if (current_player >= (1 << player_count))
-      current_player = 1;
-   return static_cast<Player>(current_player);
+[[nodiscard]] constexpr PlayerAssignment operator|(PlayerAssignment left, PlayerAssignment right) {
+   return static_cast<PlayerAssignment>(static_cast<mb::u32>(left) | static_cast<mb::u32>(right));
 }
 
-[[nodiscard]] constexpr Player operator|(Player left, Player right) {
-   return static_cast<Player>(static_cast<mb::u32>(left) | static_cast<mb::u32>(right));
-}
-
-constexpr Player &operator|=(Player &left, Player right) {
+constexpr PlayerAssignment &operator|=(PlayerAssignment &left, PlayerAssignment right) {
    left = left | right;
    return left;
 }
 
-[[nodiscard]] constexpr bool operator&(Player left, Player right) {
+constexpr PlayerAssignment &operator|=(PlayerAssignment &left, Player right) {
+   left = left | player_to_assignment(right);
+   return left;
+}
+
+[[nodiscard]] constexpr bool operator&(PlayerAssignment left, PlayerAssignment right) {
    return (static_cast<mb::u32>(left) & static_cast<mb::u32>(right)) != 0;
+}
+
+[[nodiscard]] constexpr PlayerAssignment operator-(PlayerAssignment left, PlayerAssignment right) {
+   return static_cast<PlayerAssignment>(static_cast<mb::u64>(left) & (~static_cast<mb::u64>(right)));
+}
+
+[[nodiscard]] std::tuple<PlayerAssignment, Player> constexpr read_player_assignment(PlayerAssignment assignment) {
+   if (assignment & PlayerAssignment::Black)
+      return std::make_tuple(assignment - PlayerAssignment::Black, Player::Black);
+   if (assignment & PlayerAssignment::Blue)
+      return std::make_tuple(assignment - PlayerAssignment::Blue, Player::Blue);
+   if (assignment & PlayerAssignment::Yellow)
+      return std::make_tuple(assignment - PlayerAssignment::Yellow, Player::Yellow);
+   if (assignment & PlayerAssignment::Red)
+      return std::make_tuple(assignment - PlayerAssignment::Red, Player::Red);
+
+   return std::make_tuple(PlayerAssignment::None, Player::Black);
+}
+
+
+struct Figure {
+   Player player;
+   double x, y;
+   Edge edge;
+};
+
+constexpr Player next_player(Player player, mb::u8 player_count) {
+   return static_cast<Player>((static_cast<int>(player) + 1) % player_count);
 }
 
 enum class MovePhase {
@@ -535,6 +577,8 @@ enum class MovePhase {
    PlaceFigure,
    Done
 };
+
+class ScoreBoard;
 
 class IMove {
  public:
@@ -569,6 +613,7 @@ class IGame {
    [[nodiscard]] virtual Player current_player() const noexcept = 0;
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
    [[nodiscard]] virtual mb::view<Figure> figures() const noexcept = 0;
+   [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
 };
 
 }// namespace carcassonne

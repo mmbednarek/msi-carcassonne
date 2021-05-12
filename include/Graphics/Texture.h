@@ -1,6 +1,8 @@
 #ifndef MSI_CARCASSONNE_TEXTURE_H
 #define MSI_CARCASSONNE_TEXTURE_H
+#include "Font.h"
 #include <SDL2/SDL.h>
+#include <mb/int.h>
 #include <mb/result.h>
 #include <string_view>
 
@@ -22,12 +24,17 @@ class Texture {
    Texture(Texture &&other) noexcept;
    Texture &operator=(Texture &&other) noexcept;
 
-   [[nodiscard]] static mb::result<Texture> load(Surface &surface, std::string_view path);
+   [[nodiscard]] int width() const;
+   [[nodiscard]] int height() const;
+
+   [[nodiscard]] static mb::result<Texture> load(const Surface &surface, std::string_view path);
 
    [[nodiscard]] constexpr SDL_Texture *raw() const {
       return m_texture;
    };
 };
+
+Texture render_text(const Surface &surface, const Font &font, const std::string &text, mb::u8 r, mb::u8 g, mb::u8 b, mb::u8 a);
 
 }// namespace graphics
 

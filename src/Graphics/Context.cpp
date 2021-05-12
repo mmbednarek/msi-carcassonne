@@ -18,6 +18,15 @@ void Context::draw_line(int x1, int y1, int x2, int y2) const {
    SDL_RenderDrawLine(m_renderer, x1, y1, x2, y2);
 }
 
+void Context::draw(const Texture &tex, int x, int y) const {
+   SDL_Rect rect;
+   rect.x = x;
+   rect.y = y;
+   rect.w = 0;
+   rect.h = 0;
+   SDL_RenderCopy(m_renderer, tex.raw(), nullptr, &rect);
+}
+
 void Context::draw(const Texture &tex, int x, int y, int w, int h) const {
    SDL_Rect rect;
    rect.x = x;

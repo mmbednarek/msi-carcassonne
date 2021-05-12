@@ -24,7 +24,7 @@ void render_tile(const graphics::Context &ctx, const Camera &cam, int x, int y, 
 
 void render_figure(const graphics::Context &ctx, const Camera &cam, double x, double y, Player p) {
    ctx.draw(ResourceManager::texture(TextureResource::Figures),
-            g_figure_size * player_to_int(p),
+            g_figure_size * static_cast<int>(p),
             0,
             g_figure_size,
             g_figure_size,

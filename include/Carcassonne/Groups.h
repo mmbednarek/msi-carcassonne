@@ -15,7 +15,7 @@ template<mb::size S>
 class Groups {
    std::array<Group, S> m_group{};
    std::array<mb::size, S> m_backtrack{};
-   std::array<Player, S> m_assignments{};
+   std::array<PlayerAssignment, S> m_assignments{};
    std::array<EdgeType, S> m_types{};
    std::array<mb::u8, S> m_free_edges{};
    std::array<mb::u8, S> m_tile_count{};
@@ -50,6 +50,10 @@ class Groups {
       return m_tile_count[m_group[id]];
    }
 
+   [[nodiscard]] constexpr PlayerAssignment assigment(Edge id) const {
+      return m_assignments[m_group[id]];
+   }
+
    constexpr void set_type(Edge id, EdgeType tt) {
       m_types[m_group[id]] = tt;
    }
@@ -79,7 +83,7 @@ class Groups {
       auto at = m_group[b];
       const auto assigment_b = m_assignments[at];
       const auto free_edges_b = m_free_edges[at];
-      const auto tile_count_b = m_free_edges[at];
+      const auto tile_count_b = m_tile_count[at];
 
       if (target_group == at)
          return target_group;
@@ -90,7 +94,12 @@ class Groups {
          at = m_backtrack[at];
       }
       m_group[at] = target_group;
-      m_assignments[target_group] |= assigment_b;
+
+      if (m_assignments[target_group] & assigment_b) {
+         m_assignments[target_group] = assigment_b;
+      } else {
+         m_assignments[target_group] |= assigment_b;
+      }
       m_free_edges[target_group] += free_edges_b;
       m_tile_count[target_group] += tile_count_b;
 

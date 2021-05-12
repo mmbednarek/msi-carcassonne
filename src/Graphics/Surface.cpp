@@ -1,5 +1,6 @@
 #include <Graphics/Surface.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <utility>
 
 namespace graphics {
@@ -42,6 +43,7 @@ mb::result<Surface> Surface::create(const Config &conf) {
    }
 
    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+   TTF_Init();
 
    return Surface(renderer, window);
 }
