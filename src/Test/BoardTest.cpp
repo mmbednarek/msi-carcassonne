@@ -115,3 +115,33 @@ TEST(Board, Path) {
    ASSERT_NE(g.groups().group_of(edge1), g.groups().group_of(edgeDis2));
    ASSERT_NE(g.groups().group_of(edgeDis1), g.groups().group_of(edgeDis2));
 }
+
+TEST(Board, FreeEdges) {
+   carcassonne::game::Game g;
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(70, 70, carcassonne::Direction::East)), 2);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(70, 70, carcassonne::Direction::North)), 1);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(70, 70, carcassonne::Direction::East)), 1);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(70, 70, carcassonne::Direction::North)), 1);
+   g.apply_tile(72, 70, 6, 1);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(72, 70, carcassonne::Direction::West)), 1);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(70, 70, carcassonne::Direction::North)), 1);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(72, 70, carcassonne::Direction::West)), 1);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(70, 70, carcassonne::Direction::North)), 1);
+   g.apply_tile(71, 70, 20, 1);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(71, 70, carcassonne::Direction::East)), 1);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(71, 70, carcassonne::Direction::East)), 3);
+   g.apply_tile(69, 70, 22, 0);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(69, 70, carcassonne::Direction::East)), 0);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(69, 70, carcassonne::Direction::East)), 4);
+   ASSERT_TRUE(g.groups().is_completed(carcassonne::make_edge(69, 70, carcassonne::Direction::East)));
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(69, 70, carcassonne::Direction::West)), 1);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(69, 70, carcassonne::Direction::South)), 1);
+   g.apply_tile(70, 69, 17, 2);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(70, 69, carcassonne::Direction::East)), 2);
+   g.apply_tile(71, 69, 2, 3);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(71, 69, carcassonne::Direction::West)), 1);
+   g.apply_tile(69, 69, 2, 1);
+   ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(69, 69, carcassonne::Direction::East)), 0);
+   ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(69, 69, carcassonne::Direction::East)), 4);
+   ASSERT_TRUE(g.groups().is_completed(carcassonne::make_edge(69, 69, carcassonne::Direction::East)));
+}

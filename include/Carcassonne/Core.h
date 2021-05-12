@@ -333,6 +333,21 @@ constexpr std::array<Direction, 13> g_directions{
         Direction::WestNorth,
 };
 
+constexpr TilePosition neighbour_of(int x, int y, Direction d) {
+   switch (d) {
+   case Direction::North:
+      return TilePosition{x, y-1};
+   case Direction::East:
+      return TilePosition{x+1, y};
+   case Direction::South:
+      return TilePosition{x, y+1};
+   case Direction::West:
+      return TilePosition{x-1, y};
+   default:
+      return TilePosition{x, y};
+   }
+}
+
 constexpr std::tuple<double, double> direction_position(TilePosition tp, Direction d) {
    switch (d) {
    case Direction::North:
@@ -364,7 +379,6 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    }
    return std::make_tuple(static_cast<double>(tp.x), static_cast<double>(tp.y));
 }
-
 
 [[nodiscard]] constexpr std::tuple<Connection, Direction, Direction> read_directions(Connection c) {
    if (c & Connection::NorthEast)

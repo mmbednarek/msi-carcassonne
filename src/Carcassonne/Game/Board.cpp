@@ -82,4 +82,8 @@ bool Board::can_place_at(int x, int y, TileType t, mb::u8 rotation) const noexce
    return true;
 }
 
+TilePlacement Board::tile_at(TilePosition pos) const noexcept {
+   return tile_at(pos.x, pos.y);
+}
+
 }// namespace carcassonne::game

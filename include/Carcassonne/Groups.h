@@ -17,6 +17,8 @@ class Groups {
    std::array<mb::size, S> m_backtrack{};
    std::array<Player, S> m_assignments{};
    std::array<EdgeType, S> m_types{};
+   std::array<mb::u8, S> m_free_edges{};
+   std::array<mb::u8, S> m_tile_count{};
 
  public:
    constexpr Groups() {
@@ -36,12 +38,36 @@ class Groups {
       return m_types[m_group[id]];
    }
 
+   [[nodiscard]] constexpr bool is_completed(Edge id) const {
+      return m_free_edges[m_group[id]] == 0;
+   }
+
+   [[nodiscard]] constexpr mb::u8 free_edges(Edge id) const {
+      return m_free_edges[m_group[id]];
+   }
+
+   [[nodiscard]] constexpr mb::u8 tile_count(Edge id) const {
+      return m_tile_count[m_group[id]];
+   }
+
    constexpr void set_type(Edge id, EdgeType tt) {
       m_types[m_group[id]] = tt;
    }
 
    constexpr void assign(Edge id, Player owner) {
       m_assignments[m_group[id]] |= owner;
+   }
+
+   constexpr void inc_free_edges(Edge id) {
+      ++m_free_edges[m_group[id]];
+   }
+
+   constexpr void dec_free_edges(Edge id) {
+      --m_free_edges[m_group[id]];
+   }
+
+   constexpr void inc_tiles(Edge id) {
+      ++m_tile_count[m_group[id]];
    }
 
    constexpr Group join(Edge a, Edge b) {
@@ -52,6 +78,8 @@ class Groups {
 
       auto at = m_group[b];
       const auto assigment_b = m_assignments[at];
+      const auto free_edges_b = m_free_edges[at];
+      const auto tile_count_b = m_free_edges[at];
 
       if (target_group == at)
          return target_group;
@@ -63,6 +91,8 @@ class Groups {
       }
       m_group[at] = target_group;
       m_assignments[target_group] |= assigment_b;
+      m_free_edges[target_group] += free_edges_b;
+      m_tile_count[target_group] += tile_count_b;
 
       return target_group;
    }

@@ -32,6 +32,7 @@ class Game : public IGame {
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
+   void on_structure_completed(Group e);
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {
       return m_board;

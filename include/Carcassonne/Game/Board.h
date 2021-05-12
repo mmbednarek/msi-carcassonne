@@ -18,6 +18,7 @@ class Board : public IBoard {
    [[nodiscard]] int max_x() const noexcept override;
    [[nodiscard]] int max_y() const noexcept override;
    [[nodiscard]] TilePlacement tile_at(int x, int y) const noexcept override;
+   [[nodiscard]] TilePlacement tile_at(TilePosition pos) const noexcept;
    [[nodiscard]] bool can_place_at(int x, int y, TileType t, mb::u8 rotation) const noexcept override;
    void set_tile(int x, int y, TileType t, mb::u8 rotation) noexcept override;
 };

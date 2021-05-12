@@ -1,6 +1,9 @@
 #include <Carcassonne/Game/Game.h>
 #include <Carcassonne/Game/Move.h>
 #include <algorithm>
+#include <memory_resource>
+#include <fmt/core.h>
+#include <set>
 
 namespace carcassonne::game {
 
@@ -42,13 +45,47 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       std::tie(connections, a, b) = read_directions(connections);
       m_groups.join(make_edge(x, y, a), make_edge(x, y, b));
    }
+   mb::u8 buffer[sizeof(Group)*8];
+   std::pmr::monotonic_buffer_resource pool(std::data(buffer), std::size(buffer));
+   std::pmr::set<Group> tile_groups(&pool);
 
    for (int direction_id = 0; direction_id < 4; ++direction_id) {
-      m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.edges[direction_id]);
+      auto direction = static_cast<Direction>(direction_id);
+      auto edge = make_edge(x, y, direction);
+      tile_groups.insert(m_groups.group_of(edge));
+      if (m_board.tile_at(neighbour_of(x, y, direction)).type == 0) {
+         m_groups.inc_free_edges(edge);
+      } else {
+         m_groups.dec_free_edges(edge);
+      }
+      m_groups.set_type(edge, tile.edges[direction_id]);
    }
+
+   for (const auto group : tile_groups) {
+      m_groups.inc_tiles(group);
+   }
+
    for (int direction_id = 5; direction_id < 13; ++direction_id) {
       m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.field_edges[direction_id-5]);
    }
+
+   std::pmr::set<Group> free_edges(&pool);
+   for (int direction_id = 0; direction_id < 4; ++direction_id) {
+      auto direction = static_cast<Direction>(direction_id);
+      auto edge = make_edge(x, y, direction);
+      if (m_groups.type_of(edge) != EdgeType::Grass && m_groups.is_completed(edge)) {
+         free_edges.insert(m_groups.group_of(edge));
+      }
+   }
+
+   for (const auto edge : free_edges) {
+      on_structure_completed(edge);
+   }
+}
+
+void Game::on_structure_completed(Group e) {
+   // callback for structure completion
+   fmt::print("completed structure edge: {}\n", e);
 }
 
 }// namespace carcassonne::game
