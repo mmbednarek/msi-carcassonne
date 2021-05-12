@@ -12,7 +12,8 @@ GameView::GameView(IGame &game) : m_game(game),
                                   m_board_view(game.board(), m_camera),
                                   m_figures_view(game, m_camera),
                                   m_place_tile_view(game.board(), m_camera, m_move),
-                                  m_place_figure_view(m_camera, m_move) {
+                                  m_place_figure_view(m_camera, m_move),
+                                  m_score_board_view(game.scores()) {
 }
 
 void GameView::render(const graphics::Context &ctx) const noexcept {
@@ -32,6 +33,8 @@ void GameView::render(const graphics::Context &ctx) const noexcept {
    }
 
    m_figures_view.render(ctx);
+
+   m_score_board_view.render(ctx);
 
    ctx.present();
 }

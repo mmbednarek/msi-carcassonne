@@ -1,7 +1,8 @@
 #ifndef MSI_CARCASSONNE_CONTEXT_H
 #define MSI_CARCASSONNE_CONTEXT_H
 #include "Texture.h"
-#include <SDL2/SDL_render.h>
+#include <SDL2/SDL.h>
+#include <string_view>
 
 namespace graphics {
 
@@ -15,6 +16,7 @@ class Context {
    void draw_line(int x1, int y1, int x2, int y2) const;
    void present() const;
    void draw(const Texture &tex, int x, int y, int w, int h) const;
+   void draw(const Texture &tex, int x, int y) const;
    void draw(const Texture &tex, int tx, int ty, int tw, int th, int x, int y, int w, int h, double angle) const;
    void draw_box(int x, int y, int w, int h) const;
 };

@@ -51,7 +51,9 @@ int main() {
          dt_accum -= dt;
          view.update(dt);
       }
+      carcassonne::frontend::ResourceManager::the().pre_render_hook(surface);
       view.render(surface.context());
+      carcassonne::frontend::ResourceManager::the().post_render_hook();
       input::handle_events(view);
    }
    return 0;
