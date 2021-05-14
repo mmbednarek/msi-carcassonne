@@ -7,10 +7,11 @@
 #include <mb/int.h>
 #include <memory>
 #include <random>
-#include <unordered_set>
+#include <memory_resource>
 
 namespace carcassonne::game {
 
+using Towns = std::vector<std::pair<Group, Group>, std::pmr::polymorphic_allocator<std::pair<Group, Group>>>;
 using EdgeGroups = Groups<g_edges_max>;
 
 class Game : public IGame {
@@ -19,6 +20,7 @@ class Game : public IGame {
    mb::u8 m_player_count = 2;
    std::vector<Figure> m_figures;
 
+   Towns m_towns;
    EdgeGroups m_groups;
    ScoreBoard m_scores;
 

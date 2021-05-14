@@ -14,7 +14,7 @@ constexpr mb::size g_empty = std::numeric_limits<mb::size>::max();
 template<mb::size S>
 class Groups {
    std::array<Group, S> m_group{};
-   std::array<mb::size, S> m_backtrack{};
+   std::array<Group, S> m_backtrack{};
    std::array<PlayerAssignment, S> m_assignments{};
    std::array<EdgeType, S> m_types{};
    std::array<mb::u8, S> m_free_edges{};

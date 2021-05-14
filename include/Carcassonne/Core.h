@@ -17,6 +17,127 @@ enum class EdgeType {
    Town
 };
 
+enum class Contact : mb::u64 {
+   None = 0,
+   NorthNWX = 1 << 0,
+   NorthNEX = 1 << 1,
+   NorthSWX = 1 << 2,
+   NorthSWY = 1 << 3,
+   NorthSEX = 1 << 4,
+   NorthSEY = 1 << 5,
+   EastNEY = 1 << 6,
+   EastSEY = 1 << 7,
+   EastNWY = 1 << 8,
+   EastNWX = 1 << 9,
+   EastSWY = 1 << 10,
+   EastSWX = 1 << 11,
+   SouthSEX = 1 << 12,
+   SouthSWX = 1 << 13,
+   SouthNEX = 1 << 14,
+   SouthNEY = 1 << 15,
+   SouthNWX = 1 << 16,
+   SouthNWY = 1 << 17,
+   WestSWY = 1 << 18,
+   WestNWY = 1 << 19,
+   WestSEY = 1 << 20,
+   WestSEX = 1 << 21,
+   WestNEY = 1 << 22,
+   WestNEX = 1 << 23,
+   North = NorthNWX | NorthNEX | NorthSWX | NorthSWY | NorthSEX | NorthSEY,
+   East = EastNEY | EastSEY | EastNWY | EastNWX | EastSWY | EastSWX,
+   South = SouthSEX | SouthSWX | SouthNEX | SouthNEY | SouthNWX | SouthNWY,
+   West = WestSWY | WestNWY | WestSEY | WestSEX | WestNEY | WestNEX,
+   NorthW = NorthNWX | NorthSWX,
+   NorthE = NorthNEX | NorthSEX,
+   NorthS = NorthSWY | NorthSEY,
+   EastN = EastNEY | EastNWY,
+   EastS = EastSEY | EastSWY,
+   EastW = EastNWX | EastSWX,
+   SouthW = SouthSWX | SouthNWX,
+   SouthE = SouthSEX | SouthNEX,
+   SouthN = SouthNWY | SouthNEY,
+   WestS = WestSWY | WestSEY,
+   WestN = WestNWY | WestNEY,
+   WestE = WestNEX | WestSEX,
+};
+
+[[nodiscard]] constexpr Contact operator|(Contact left, Contact right) {
+   return static_cast<Contact>(static_cast<mb::u64>(left) | static_cast<mb::u64>(right));
+}
+
+constexpr Contact &operator|=(Contact &left, Contact right) {
+   left = left | right;
+   return left;
+}
+
+[[nodiscard]] constexpr bool operator&(Contact left, Contact right) {
+   return (static_cast<mb::u64>(left) & static_cast<mb::u64>(right)) != 0;
+}
+
+[[nodiscard]] constexpr Contact operator-(Contact left, Contact right) {
+   return static_cast<Contact>(static_cast<mb::u64>(left) & (~static_cast<mb::u64>(right)));
+}
+
+[[nodiscard]] constexpr Contact rotate_contact(Contact c) {
+   Contact result{};
+
+   if (c & Contact::NorthNWX)
+      result |= Contact::EastNEY;
+   if (c & Contact::EastNEY)
+      result |= Contact::SouthSEX;
+   if (c & Contact::SouthSEX)
+      result |= Contact::WestSWY;
+   if (c & Contact::WestSWY)
+      result |= Contact::NorthNWX;
+
+   if (c & Contact::NorthNEX)
+      result |= Contact::EastSEY;
+   if (c & Contact::EastSEY)
+      result |= Contact::SouthSWX;
+   if (c & Contact::SouthSWX)
+      result |= Contact::WestNWY;
+   if (c & Contact::WestNWY)
+      result |= Contact::NorthNEX;
+
+   if (c & Contact::NorthSWX)
+      result |= Contact::EastNWY;
+   if (c & Contact::EastNWY)
+      result |= Contact::SouthNEX;
+   if (c & Contact::SouthNEX)
+      result |= Contact::WestSEY;
+   if (c & Contact::WestSEY)
+      result |= Contact::NorthSWX;
+
+   if (c & Contact::NorthSWY)
+      result |= Contact::EastNWX;
+   if (c & Contact::EastNWX)
+      result |= Contact::SouthNEY;
+   if (c & Contact::SouthNEY)
+      result |= Contact::WestSEX;
+   if (c & Contact::WestSEX)
+      result |= Contact::NorthSWY;
+
+   if (c & Contact::NorthSEX)
+      result |= Contact::EastSWY;
+   if (c & Contact::EastSWY)
+      result |= Contact::SouthNWX;
+   if (c & Contact::SouthNWX)
+      result |= Contact::WestNEY;
+   if (c & Contact::WestNEY)
+      result |= Contact::NorthSEX;
+
+   if (c & Contact::NorthSEY)
+      result |= Contact::EastSWX;
+   if (c & Contact::EastSWX)
+      result |= Contact::SouthNWY;
+   if (c & Contact::SouthNWY)
+      result |= Contact::WestNEX;
+   if (c & Contact::WestNEX)
+      result |= Contact::NorthSEY;
+
+   return result;
+}
+
 enum class Connection : mb::u64 {
    None = 0,
    NorthX = 1 << 0,
@@ -125,17 +246,21 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
 struct Tile {
    std::array<EdgeType, 4> edges{};
    std::array<EdgeType, 8> field_edges{};
+   Contact contacts = Contact::None;
    Connection connections = Connection::None;
    bool monastery = false;
    bool pennant = false;
 
    [[nodiscard]] inline Tile rotate(mb::size count) const {
-      Connection rotated = connections;
-      for (mb::size i = 0; i < count; ++i)
-         rotated = rotate_connection(rotated);
-
+      Contact rotatedContacts = contacts;
+      Connection rotatedConnections = connections;
+      for (mb::size i = 0; i < count; ++i) {
+         rotatedContacts = rotate_contact(rotatedContacts);
+         rotatedConnections = rotate_connection(rotatedConnections);
+      }
       Tile result{
-              .connections = rotated,
+              .contacts = rotatedContacts,
+              .connections = rotatedConnections,
               .monastery = monastery,
               .pennant = pennant,
       };
@@ -159,24 +284,28 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 1
                 .edges{EdgeType::Path, EdgeType::Town, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
+                .contacts = Contact::EastNEY | Contact::EastSEY,
                 .connections = Connection::NorthSouth | Connection::EastX | Connection::West,
         },
         {
                 // 2
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+                .contacts = Contact::North,
                 .connections = Connection::EastY | Connection::South | Connection::WestY,
         },
         {
                 // 3
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+                .contacts = Contact::NorthW | Contact::NorthE | Contact::SouthW | Contact::SouthE,
                 .connections = Connection::NorthSouth | Connection::EastY | Connection::WestY,
         },
         {
                 // 4
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
+                .contacts = Contact::EastN | Contact::EastS | Contact::WestN | Contact::WestS,
                 .connections = Connection::NorthX | Connection::SouthX | Connection::WestX | Connection::EastX,
         },
         {
@@ -197,6 +326,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 7
                 .edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},
+                .contacts = Contact::SouthN | Contact::SouthW | Contact::EastW | Contact::EastN,
                 .connections = Connection::NorthWestCorner | Connection::NorthX | Connection::WestY,
         },
         {
@@ -210,24 +340,28 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 9
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+                .contacts = Contact::NorthW | Contact::NorthNEX | Contact::NorthSWY,
                 .connections = Connection::SouthEast | Connection::WestY | Connection::SouthWestCorner | Connection::NorthY | Connection::SouthEastCorner,
         },
         {
                 // 10
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+                .contacts = Contact::NorthW | Contact::NorthNWX | Contact::NorthSEY,
                 .connections = Connection::SouthWest | Connection::EastY | Connection::SouthWestCorner | Connection::NorthY | Connection::SouthEastCorner,
         },
         {
                 // 11
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Path},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+                .contacts = Contact::NorthNEX | Contact::NorthNWX,
                 .connections = Connection::NorthY | Connection::SouthEastCorner | Connection::SouthWestCorner,
         },
         {
                 // 12
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthE | Contact::NorthS | Contact::WestE | Contact::WestS,
                 .connections = Connection::NorthWest | Connection::SouthX | Connection::EastY | Connection::SouthEastCorner,
                 .pennant = true,
         },
@@ -235,18 +369,21 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 13
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthE | Contact::NorthS | Contact::WestE | Contact::WestS,
                 .connections = Connection::NorthWest | Connection::SouthX | Connection::EastY | Connection::SouthEastCorner,
         },
         {
                 // 14
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthNEX | Contact::NorthSWY,
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
         },
         {
                 // 15
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthNEX | Contact::NorthSWY,
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
                 .pennant = true,
         },
@@ -254,6 +391,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 16
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS,
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthX,
                 .pennant = true,
         },
@@ -261,12 +399,14 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 17
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS,
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast | Connection::SouthX,
         },
         {
                 // 18
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS, // not sure
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
                 .pennant = true,
         },
@@ -274,6 +414,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 19
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS, // not sure
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
         {
@@ -304,6 +445,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 24
                 .edges{EdgeType::Town, EdgeType::Grass, EdgeType::Town, EdgeType::Grass},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town},
+                .contacts = Contact::NorthW | Contact::NorthE | Contact::SouthW | Contact::SouthE,
                 .connections = Connection::NorthSouth | Connection::WestY | Connection::EastY,
                 .pennant = true,
         },
@@ -404,7 +546,63 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    return std::make_tuple(static_cast<double>(tp.x), static_cast<double>(tp.y));
 }
 
-[[nodiscard]] constexpr std::tuple<Connection, Direction, Direction> read_directions(Connection c) {
+[[nodiscard]] constexpr std::tuple<Contact, Direction, Direction> read_contacts(Contact c) {
+   if (c & Contact::NorthNWX)
+      return std::make_tuple(c - Contact::NorthNWX, Direction::North, Direction::WestNorth);
+   if (c & Contact::NorthNEX)
+      return std::make_tuple(c - Contact::NorthNEX, Direction::North, Direction::EastNorth);
+   if (c & Contact::NorthSWX)
+      return std::make_tuple(c - Contact::NorthSWX, Direction::North, Direction::WestSouth);
+   if (c & Contact::NorthSWY)
+      return std::make_tuple(c - Contact::NorthSWY, Direction::North, Direction::SouthWest);
+   if (c & Contact::NorthSEX)
+      return std::make_tuple(c - Contact::NorthSEX, Direction::North, Direction::EastSouth);
+   if (c & Contact::NorthSEY)
+      return std::make_tuple(c - Contact::NorthSEY, Direction::North, Direction::SouthEast);
+
+   if (c & Contact::EastNEY)
+      return std::make_tuple(c - Contact::EastNEY, Direction::East, Direction::NorthEast);
+   if (c & Contact::EastSEY)
+      return std::make_tuple(c - Contact::EastSEY, Direction::East, Direction::SouthEast);
+   if (c & Contact::EastNWY)
+      return std::make_tuple(c - Contact::EastNWY, Direction::East, Direction::NorthWest);
+   if (c & Contact::EastNWX)
+      return std::make_tuple(c - Contact::EastNWX, Direction::East, Direction::WestNorth);
+   if (c & Contact::EastSWY)
+      return std::make_tuple(c - Contact::EastSWY, Direction::East, Direction::SouthWest);
+   if (c & Contact::EastSWX)
+      return std::make_tuple(c - Contact::EastSWX, Direction::East, Direction::WestSouth);
+
+   if (c & Contact::SouthSEX)
+      return std::make_tuple(c - Contact::SouthSEX, Direction::South, Direction::EastSouth);
+   if (c & Contact::SouthSWX)
+      return std::make_tuple(c - Contact::SouthSWX, Direction::South, Direction::WestSouth);
+   if (c & Contact::SouthNEX)
+      return std::make_tuple(c - Contact::SouthNEX, Direction::South, Direction::EastNorth);
+   if (c & Contact::SouthNEY)
+      return std::make_tuple(c - Contact::SouthNEY, Direction::South, Direction::NorthEast);
+   if (c & Contact::SouthNWX)
+      return std::make_tuple(c - Contact::SouthNWX, Direction::South, Direction::WestNorth);
+   if (c & Contact::SouthNWY)
+      return std::make_tuple(c - Contact::SouthNWY, Direction::South, Direction::NorthWest);
+
+   if (c & Contact::WestSWY)
+      return std::make_tuple(c - Contact::WestSWY, Direction::South, Direction::SouthWest);
+   if (c & Contact::WestNWY)
+      return std::make_tuple(c - Contact::WestNWY, Direction::South, Direction::NorthWest);
+   if (c & Contact::WestSEY)
+      return std::make_tuple(c - Contact::WestSEY, Direction::South, Direction::SouthEast);
+   if (c & Contact::WestSEX)
+      return std::make_tuple(c - Contact::WestSEX, Direction::South, Direction::EastSouth);
+   if (c & Contact::WestNEY)
+      return std::make_tuple(c - Contact::WestNEY, Direction::South, Direction::NorthEast);
+   if (c & Contact::WestNEX)
+      return std::make_tuple(c - Contact::WestNEX, Direction::South, Direction::EastNorth);
+
+   return std::make_tuple(Contact::None, Direction::Middle, Direction::Middle);
+}
+
+[[nodiscard]] constexpr std::tuple<Connection, Direction, Direction> read_connections(Connection c) {
    if (c & Connection::NorthEast)
       return std::make_tuple(c - Connection::NorthEast, Direction::North, Direction::East);
    if (c & Connection::NorthSouth)
@@ -469,6 +667,7 @@ constexpr auto g_edges_field_horizontal_east = g_edges_field_horizontal_west + g
 constexpr auto g_edges_field_vertical_north = g_edges_field_horizontal_east + g_board_width * (g_board_height + 1);
 constexpr auto g_edges_field_vertical_south = g_edges_field_vertical_north + (g_board_width + 1) * g_board_height;
 constexpr auto g_edges_max = g_edges_field_vertical_south + (g_board_width + 1) * g_board_height;
+constexpr auto g_fields_max = 100;
 
 constexpr Edge make_edge(int x, int y, Direction d) {
    switch (d) {
