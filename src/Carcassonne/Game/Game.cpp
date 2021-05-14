@@ -52,7 +52,7 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       Group field_group{m_groups.group_of(make_edge(x, y, b))};
       auto is_pair_found = [town_group, field_group](std::pair<Group, Group> town_field) {
          return town_group == town_field.first && field_group == town_field.second;};
-      if (auto result = std::ranges::find_if(m_towns.begin(), m_towns.end(), is_pair_found); result == m_towns.end())
+      if (auto result = std::find_if(m_towns.begin(), m_towns.end(), is_pair_found); result == m_towns.end())
          m_towns.push_back(std::make_pair(town_group, field_group));
    }
    mb::u8 buffer[sizeof(Group) * 8];
