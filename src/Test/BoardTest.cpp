@@ -145,3 +145,11 @@ TEST(Board, FreeEdges) {
    ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(69, 69, carcassonne::Direction::East)), 4);
    ASSERT_TRUE(g.groups().is_completed(carcassonne::make_edge(69, 69, carcassonne::Direction::East)));
 }
+
+TEST(Board, FieldTown) {
+   carcassonne::game::Game g;
+   g.apply_tile(70, 69, 2, 2);
+
+   ASSERT_FALSE(g.is_town_field_connected(carcassonne::make_edge(70, 70, carcassonne::Direction::North), carcassonne::make_edge(70, 70, carcassonne::Direction::SouthWest)));
+   ASSERT_TRUE(g.is_town_field_connected(carcassonne::make_edge(70, 70, carcassonne::Direction::North), carcassonne::make_edge(70, 70, carcassonne::Direction::EastNorth)));
+}

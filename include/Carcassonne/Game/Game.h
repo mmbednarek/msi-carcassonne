@@ -6,12 +6,12 @@
 #include <Carcassonne/ScoreBoard.h>
 #include <mb/int.h>
 #include <memory>
-#include <random>
 #include <memory_resource>
+#include <random>
 
 namespace carcassonne::game {
 
-using Towns = std::vector<std::pair<Group, Group>, std::pmr::polymorphic_allocator<std::pair<Group, Group>>>;
+using Towns = std::vector<std::pair<Group, Group>>;
 using EdgeGroups = Groups<g_edges_max>;
 
 class Game : public IGame {
@@ -38,6 +38,7 @@ class Game : public IGame {
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
+   [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {
       return m_board;
@@ -56,8 +57,6 @@ class Game : public IGame {
    constexpr void set_next_player() noexcept {
       m_current_player = next_player(m_current_player, m_player_count);
    }
-
-   std::unique_ptr<IMove> new_debug_move(Player p, TileType tt) noexcept;
 };
 
 }// namespace carcassonne::game
