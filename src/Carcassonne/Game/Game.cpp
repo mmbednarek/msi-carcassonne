@@ -2,12 +2,11 @@
 #include <Carcassonne/Game/Move.h>
 #include <algorithm>
 #include <fmt/core.h>
-#include <memory_resource>
 #include <set>
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(10101) {
+Game::Game() : m_random_generator(6) {
    apply_tile(70, 70, 1, 3);
 }
 
@@ -31,9 +30,9 @@ void Game::add_figure(Figure f) {
    m_figures.push_back(f);
 }
 
-std::unique_ptr<IMove> Game::new_debug_move(Player p, TileType tt) noexcept {
-   return std::make_unique<Move>(p, tt, *this);
-}
+// std::unique_ptr<IMove> Game::new_debug_move(Player p, TileType tt) noexcept {
+//    return std::make_unique<Move>(p, tt, *this);
+// } // it it necessary?
 
 void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    m_board.set_tile(x, y, tt, rot);
@@ -42,8 +41,19 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    auto connections = tile.connections;
    while (connections != Connection::None) {
       Direction a, b;
-      std::tie(connections, a, b) = read_directions(connections);
+      std::tie(connections, a, b) = read_connections(connections);
       m_groups.join(make_edge(x, y, a), make_edge(x, y, b));
+   }
+   auto contacts = tile.contacts;
+   while (contacts != Contact::None) {
+      Direction a, b;
+      std::tie(contacts, a, b) = read_contacts(contacts);
+      Group town_group{m_groups.group_of(make_edge(x, y, a))};
+      Group field_group{m_groups.group_of(make_edge(x, y, b))};
+      auto is_pair_found = [town_group, field_group](std::pair<Group, Group> town_field) {
+         return town_group == town_field.first && field_group == town_field.second;};
+      if (auto result = std::find_if(m_towns.begin(), m_towns.end(), is_pair_found); result == m_towns.end())
+         m_towns.push_back(std::make_pair(town_group, field_group));
    }
    mb::u8 buffer[sizeof(Group) * 8];
    std::pmr::monotonic_buffer_resource pool(std::data(buffer), std::size(buffer));
