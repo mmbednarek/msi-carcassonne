@@ -30,10 +30,6 @@ void Game::add_figure(Figure f) {
    m_figures.push_back(f);
 }
 
-// std::unique_ptr<IMove> Game::new_debug_move(Player p, TileType tt) noexcept {
-//    return std::make_unique<Move>(p, tt, *this);
-// } // it it necessary?
-
 void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    m_board.set_tile(x, y, tt, rot);
 
@@ -50,8 +46,7 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       std::tie(contacts, a, b) = read_contacts(contacts);
       Group town_group{m_groups.group_of(make_edge(x, y, a))};
       Group field_group{m_groups.group_of(make_edge(x, y, b))};
-      auto is_pair_found = [town_group, field_group](std::pair<Group, Group> town_field) {
-         return town_group == town_field.first && field_group == town_field.second;};
+      auto is_pair_found = [town_group, field_group](std::pair<Group, Group> town_field) { return town_group == town_field.first && field_group == town_field.second; };
       if (auto result = std::find_if(m_towns.begin(), m_towns.end(), is_pair_found); result == m_towns.end())
          m_towns.push_back(std::make_pair(town_group, field_group));
    }
@@ -73,7 +68,7 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
 
    for (const auto group : tile_groups) {
       if (tile.pennant && m_groups.type_of(group) == EdgeType::Town) {
-         m_groups.inc_tiles(group); // second time for the pennant
+         m_groups.inc_tiles(group);// second time for the pennant
       }
       m_groups.inc_tiles(group);
    }
@@ -122,6 +117,10 @@ void Game::on_structure_completed(Group g) {
 
 const ScoreBoard &Game::scores() const noexcept {
    return m_scores;
+}
+
+bool Game::is_town_field_connected(Edge town, Edge field) const noexcept {
+   return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(m_groups.group_of(town), m_groups.group_of(field))) != m_towns.end();
 }
 
 }// namespace carcassonne::game
