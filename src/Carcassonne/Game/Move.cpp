@@ -53,7 +53,7 @@ void Move::place_figure(Direction d) noexcept {
    });
 
    m_game.mutable_groups().assign(make_edge(m_x, m_y, d), m_player);
-   bool on_structure = d == Direction::North && d == Direction::East && d == Direction::South && d == Direction::West;
+   bool on_structure = d == Direction::North || d == Direction::East || d == Direction::South || d == Direction::West;
    if (m_game.groups().is_completed(edge) && on_structure) {
       m_game.on_structure_completed(m_x, m_y, m_game.groups().group_of(edge));
    }
