@@ -30,7 +30,7 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
    }
 
    if (all_occupied) {
-      ignore_figure();
+      return;
    }
 }
 
@@ -39,7 +39,7 @@ void Move::place_figure(Direction d) noexcept {
       return;
 
    if (!is_free(d))
-      ignore_figure();
+      return;
 
    auto edge = make_edge(m_x, m_y, d);
 
@@ -57,17 +57,19 @@ void Move::place_figure(Direction d) noexcept {
    if (m_game.groups().is_completed(edge) && on_structure) {
       m_game.on_structure_completed(m_x, m_y, m_game.groups().group_of(edge));
    }
-   ignore_figure();
+   if (d == Direction::Middle)
+      for (mb::u8 i = m_x - 1; i <= m_x + 1; i++)
+         for (mb::u8 j = m_y - 1; j <= m_y + 1; j++)
+            if(m_game.mutable_board().tile_at(i, j).tile().monastery)
+               if(m_game.is_monastery_completed(i, j))
+                  m_game.on_monastery_completed(i, j, m_player);
+   m_game.set_next_player();
+   m_phase = MovePhase::Done;
 }
 
 void Move::ignore_figure() noexcept {
    if (m_phase != MovePhase::PlaceFigure)
       return;
-   for (mb::u8 i = m_x - 1; i <= m_x + 1; i++)
-      for (mb::u8 j = m_y - 1; j <= m_y + 1; j++)
-         if(m_game.mutable_board().tile_at(i, j).tile().monastery)
-            if(m_game.is_monastery_completed(i, j))
-               m_game.on_monastery_completed(i, j, m_player);
    m_game.set_next_player();
    m_phase = MovePhase::Done;
 }

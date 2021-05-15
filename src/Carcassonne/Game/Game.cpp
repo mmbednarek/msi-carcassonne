@@ -89,6 +89,16 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    for (const auto edge : free_edges) {
       on_structure_completed(x, y, edge);
    }
+
+   Player player;
+   for (mb::u8 i = x - 1; i <= x + 1; i++)
+      for (mb::u8 j = y - 1; j <= y + 1; j++)
+         if(mutable_board().tile_at(i, j).tile().monastery) {
+            auto assignment = m_groups.assigment(make_edge(i, j, Direction::Middle));
+            std::tie(assignment, player) = read_player_assignment(assignment);
+            if(is_monastery_completed(i, j))
+               on_monastery_completed(i, j, player);
+         }
 }
 
 void Game::on_structure_completed(int x, int y, Group g) {
