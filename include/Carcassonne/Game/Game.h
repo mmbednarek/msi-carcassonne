@@ -12,7 +12,7 @@
 namespace carcassonne::game {
 
 using Towns = std::vector<std::pair<Group, Group>>;
-using Monastery = std::vector<TileType, std::pmr::polymorphic_allocator<TileType>>;
+using Monastery = std::vector<TileType>;
 using EdgeGroups = Groups<g_edges_max>;
 
 class Game : public IGame {

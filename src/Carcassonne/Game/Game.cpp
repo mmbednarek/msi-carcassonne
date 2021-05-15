@@ -110,10 +110,6 @@ void Game::on_structure_completed(int x, int y, Group g) {
       break;
    default: break;
    }
-   // if (mutable_board().tile_at(x, y).tile().monastery)
-   //    if (mutable_board().tile_at(x, y).type == 6 && make_edge(x,  y, Direction::Middle))
-   //       ;
-   // else
    std::erase_if(m_figures, [&groups = m_groups, target_group = g](const Figure &f) { return groups.group_of(f.edge) == target_group; });
 }
 
@@ -130,12 +126,8 @@ bool Game::is_monastery_completed(int x, int y) noexcept {
 
 void Game::on_monastery_completed(int x, int y, Player player) {
    m_scores.add_points(player, 9);
-   for (auto const &figure : m_figures)
-      fmt::print("{} {} {} {} {}\n", figure.x, figure.y, x, y, figure.x == x + 0.5 && figure.y == y + 0.5 ? "true" : "false");
    std::erase_if(m_figures,
                  [&x, &y](const Figure &f) { return f.x == x + 0.5 && f.y == y + 0.5; });
-   // std::erase_if(m_figures,
-   //               [&groups = m_groups, target_group = g](const Figure &f) { return groups.group_of(f.edge) == target_group; });
 }
 
 const ScoreBoard &Game::scores() const noexcept {
