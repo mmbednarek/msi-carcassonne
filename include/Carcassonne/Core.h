@@ -376,14 +376,14 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 14
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthNEX | Contact::NorthSWY,
+                .contacts = Contact::NorthNEX | Contact::NorthSWY | Contact::WestNEX | Contact::WestSWY,
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
         },
         {
                 // 15
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthNEX | Contact::NorthSWY,
+                .contacts = Contact::NorthNEX | Contact::NorthSWY | Contact::WestNEX | Contact::WestSWY,
                 .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
                 .pennant = true,
         },

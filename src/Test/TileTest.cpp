@@ -4,7 +4,7 @@
 TEST(Tile, RotateBasic) {
    using carcassonne::EdgeType;
    using carcassonne::Connection;
-   auto tile = carcassonne::g_tiles[1];
+   auto tile = carcassonne::g_tiles[14];
 
    // SINGLE ROTATION
    {

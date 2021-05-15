@@ -30,8 +30,7 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
    }
 
    if (all_occupied) {
-      m_game.set_next_player();
-      m_phase = MovePhase::Done;
+      ignore_figure();
    }
 }
 
