@@ -6,7 +6,7 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(6) {
+Game::Game() : m_random_generator(10101) {
    apply_tile(70, 70, 1, 3);
 }
 
@@ -87,15 +87,15 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    }
 
    for (const auto edge : free_edges) {
-      on_structure_completed(edge);
+      on_structure_completed(x, y, edge);
    }
 }
 
-void Game::on_structure_completed(Group g) {
-   auto tile_type = m_groups.type_of(g);
+void Game::on_structure_completed(int x, int y, Group g) {
+   auto edge_type = m_groups.type_of(g);
    auto assignment = m_groups.assigment(g);
    Player player;
-   switch (tile_type) {
+   switch (edge_type) {
    case EdgeType::Path:
       while (assignment != PlayerAssignment::None) {
          std::tie(assignment, player) = read_player_assignment(assignment);
@@ -110,9 +110,32 @@ void Game::on_structure_completed(Group g) {
       break;
    default: break;
    }
+   // if (mutable_board().tile_at(x, y).tile().monastery)
+   //    if (mutable_board().tile_at(x, y).type == 6 && make_edge(x,  y, Direction::Middle))
+   //       ;
+   // else
+   std::erase_if(m_figures, [&groups = m_groups, target_group = g](const Figure &f) { return groups.group_of(f.edge) == target_group; });
+}
 
+bool Game::is_monastery_completed(int x, int y) noexcept {
+   Monastery mon;
+   for (mb::u8 i = x - 1; i <= x + 1; i++)
+      for (mb::u8 j = y - 1; j <= y + 1; j++)
+         mon.push_back(mutable_board().tile_at(i, j).type);
+   for (auto const &tileType : mon)
+      if (tileType == static_cast<TileType>(0))
+         return false;
+   return true;
+}
+
+void Game::on_monastery_completed(int x, int y, Player player) {
+   m_scores.add_points(player, 9);
+   for (auto const &figure : m_figures)
+      fmt::print("{} {} {} {} {}\n", figure.x, figure.y, x, y, figure.x == x + 0.5 && figure.y == y + 0.5 ? "true" : "false");
    std::erase_if(m_figures,
-                 [&groups = m_groups, target_group = g](const Figure &f) { return groups.group_of(f.edge) == target_group; });
+                 [&x, &y](const Figure &f) { return f.x == x + 0.5 && f.y == y + 0.5; });
+   // std::erase_if(m_figures,
+   //               [&groups = m_groups, target_group = g](const Figure &f) { return groups.group_of(f.edge) == target_group; });
 }
 
 const ScoreBoard &Game::scores() const noexcept {
