@@ -44,11 +44,14 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    while (contacts != Contact::None) {
       Direction a, b;
       std::tie(contacts, a, b) = read_contacts(contacts);
-      Group town_group{m_groups.group_of(make_edge(x, y, a))};
-      Group field_group{m_groups.group_of(make_edge(x, y, b))};
-      auto is_pair_found = [town_group, field_group](std::pair<Group, Group> town_field) { return town_group == town_field.first && field_group == town_field.second; };
-      if (auto result = std::find_if(m_towns.begin(), m_towns.end(), is_pair_found); result == m_towns.end())
+
+      auto town_group = m_groups.group_of(make_edge(x, y, a));
+      auto field_group = m_groups.group_of(make_edge(x, y, b));
+
+      auto is_pair_found = [town_group, field_group](const std::pair<Group, Group> town_field) { return town_group == town_field.first && field_group == town_field.second; };
+      if (std::find_if(m_towns.begin(), m_towns.end(), is_pair_found) == m_towns.end()) {
          m_towns.push_back(std::make_pair(town_group, field_group));
+      }
    }
    mb::u8 buffer[sizeof(Group) * 8];
    std::pmr::monotonic_buffer_resource pool(std::data(buffer), std::size(buffer));
@@ -77,28 +80,30 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.field_edges[direction_id - 5]);
    }
 
-   std::pmr::set<Group> free_edges(&pool);
+   std::pmr::set<Group> completed_edges(&pool);
    for (mb::u8 direction_id = 0; direction_id < 4; ++direction_id) {
       auto direction = static_cast<Direction>(direction_id);
       auto edge = make_edge(x, y, direction);
       if (m_groups.type_of(edge) != EdgeType::Grass && m_groups.is_completed(edge)) {
-         free_edges.insert(m_groups.group_of(edge));
+         completed_edges.insert(m_groups.group_of(edge));
       }
    }
 
-   for (const auto edge : free_edges) {
+   for (const auto edge : completed_edges) {
       on_structure_completed(x, y, edge);
    }
 
-   Player player;
-   for (mb::u8 i = x - 1; i <= x + 1; i++)
-      for (mb::u8 j = y - 1; j <= y + 1; j++)
-         if(mutable_board().tile_at(i, j).tile().monastery) {
-            auto assignment = m_groups.assigment(make_edge(i, j, Direction::Middle));
-            std::tie(assignment, player) = read_player_assignment(assignment);
-            if(is_monastery_completed(i, j))
-               on_monastery_completed(i, j, player);
+   for (auto _x = x - 1; _x <= x + 1; _x++) {
+      for (auto _y = y - 1; _y <= y + 1; _y++) {
+         if (mutable_board().tile_at(_x, _y).tile().monastery) {
+            if (is_monastery_completed(_x, _y)) {
+               Player player;
+               std::tie(std::ignore, player) = read_player_assignment(m_groups.assigment(make_edge(_x, _y, Direction::Middle)));
+               on_monastery_completed(_x, _y, player);
+            }
          }
+      }
+   }
 }
 
 void Game::on_structure_completed(int x, int y, Group g) {
@@ -115,7 +120,7 @@ void Game::on_structure_completed(int x, int y, Group g) {
    case EdgeType::Town:
       while (assignment != PlayerAssignment::None) {
          std::tie(assignment, player) = read_player_assignment(assignment);
-         m_scores.add_points(player, 2 * static_cast<short>(m_groups.tile_count(g)));
+         m_scores.add_points(player, static_cast<short>(2 * m_groups.tile_count(g)));
       }
       break;
    default: break;
@@ -124,13 +129,13 @@ void Game::on_structure_completed(int x, int y, Group g) {
 }
 
 bool Game::is_monastery_completed(int x, int y) noexcept {
-   Monastery mon;
-   for (mb::u8 i = x - 1; i <= x + 1; i++)
-      for (mb::u8 j = y - 1; j <= y + 1; j++)
-         mon.push_back(mutable_board().tile_at(i, j).type);
-   for (auto const &tileType : mon)
-      if (tileType == static_cast<TileType>(0))
-         return false;
+   for (auto _x = x - 1; _x <= x + 1; _x++) {
+      for (auto _y = y - 1; _y <= y + 1; _y++) {
+         if (m_board.tile_at(_x, _y).type == 0) {
+            return false;
+         }
+      }
+   }
    return true;
 }
 

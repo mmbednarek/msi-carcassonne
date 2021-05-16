@@ -406,7 +406,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 18
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS, // not sure
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS,// not sure
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
                 .pennant = true,
         },
@@ -414,7 +414,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 19
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS, // not sure
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS,// not sure
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
         {
@@ -498,6 +498,18 @@ constexpr std::array<Direction, 13> g_directions{
         Direction::NorthWest,
         Direction::WestNorth,
 };
+
+constexpr bool is_side_direction(Direction d) {
+   switch (d) {
+   case Direction::North:
+   case Direction::East:
+   case Direction::South:
+   case Direction::West:
+      return true;
+   default:
+      return false;
+   }
+}
 
 constexpr TilePosition neighbour_of(int x, int y, Direction d) {
    switch (d) {
