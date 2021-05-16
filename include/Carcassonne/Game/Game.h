@@ -12,6 +12,7 @@
 namespace carcassonne::game {
 
 using Towns = std::vector<std::pair<Group, Group>>;
+using Monastery = std::vector<TileType>;
 using EdgeGroups = Groups<g_edges_max>;
 
 class Game : public IGame {
@@ -37,6 +38,7 @@ class Game : public IGame {
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
+   void on_monastery_completed(int x, int y, Player player);
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;
 
@@ -51,6 +53,8 @@ class Game : public IGame {
    [[nodiscard]] constexpr const EdgeGroups &groups() const noexcept {
       return m_groups;
    }
+
+   [[nodiscard]] bool is_monastery_completed(int x, int y) noexcept;
 
    void add_figure(Figure f);
 

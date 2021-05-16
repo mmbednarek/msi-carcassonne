@@ -157,9 +157,9 @@ enum class Connection : mb::u64 {
    East = EastX | EastY | NorthEastCorner | SouthEastCorner,
    South = SouthX | SouthY | SouthEastCorner | SouthWestCorner,
    West = WestX | WestY | SouthWestCorner | NorthWestCorner,
-   NorthEastCross = 1 << 12,
+   EastNorthCross = 1 << 12,
    SouthEastCross = 1 << 13,
-   SouthWestCross = 1 << 14,
+   WestSouthCross = 1 << 14,
    NorthWestCross = 1 << 15,
    AllFieldEdges = North | East | South | West,
    NorthEast = 1 << 16,
@@ -231,14 +231,14 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
    if (c & Connection::NorthWestCorner)
       result |= Connection::NorthEastCorner;
 
-   if (c & Connection::NorthEastCross)
+   if (c & Connection::EastNorthCross)
       result |= Connection::SouthEastCross;
    if (c & Connection::SouthEastCross)
-      result |= Connection::SouthWestCross;
-   if (c & Connection::SouthWestCross)
+      result |= Connection::WestSouthCross;
+   if (c & Connection::WestSouthCross)
       result |= Connection::NorthWestCross;
    if (c & Connection::NorthWestCross)
-      result |= Connection::NorthEastCross;
+      result |= Connection::EastNorthCross;
 
    return result;
 }
@@ -376,15 +376,15 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 14
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthNEX | Contact::NorthSWY,
-                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
+                .contacts = Contact::NorthNEX | Contact::NorthSWY | Contact::WestNEX | Contact::WestSWY,
+                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::EastNorthCross,
         },
         {
                 // 15
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthNEX | Contact::NorthSWY,
-                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
+                .contacts = Contact::NorthNEX | Contact::NorthSWY | Contact::WestNEX | Contact::WestSWY,
+                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::EastNorthCross,
                 .pennant = true,
         },
         {
@@ -406,7 +406,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 18
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS, // not sure
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS,// not sure
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
                 .pennant = true,
         },
@@ -414,7 +414,7 @@ constexpr std::array<Tile, 25> g_tiles{
                 // 19
                 .edges{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
-                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS, // not sure
+                .contacts = Contact::NorthS | Contact::WestS | Contact::EastS,// not sure
                 .connections = Connection::NorthEast | Connection::NorthWest | Connection::WestEast,
         },
         {
@@ -498,6 +498,18 @@ constexpr std::array<Direction, 13> g_directions{
         Direction::NorthWest,
         Direction::WestNorth,
 };
+
+constexpr bool is_side_direction(Direction d) {
+   switch (d) {
+   case Direction::North:
+   case Direction::East:
+   case Direction::South:
+   case Direction::West:
+      return true;
+   default:
+      return false;
+   }
+}
 
 constexpr TilePosition neighbour_of(int x, int y, Direction d) {
    switch (d) {
@@ -645,12 +657,12 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::NorthWestCorner)
       return std::make_tuple(c - Connection::NorthWestCorner, Direction::NorthWest, Direction::WestNorth);
 
-   if (c & Connection::NorthEastCross)
-      return std::make_tuple(c - Connection::NorthEastCross, Direction::EastNorth, Direction::SouthWest);
+   if (c & Connection::EastNorthCross)
+      return std::make_tuple(c - Connection::EastNorthCross, Direction::EastNorth, Direction::SouthWest);
    if (c & Connection::SouthEastCross)
       return std::make_tuple(c - Connection::SouthEastCross, Direction::SouthEast, Direction::WestNorth);
-   if (c & Connection::SouthWestCross)
-      return std::make_tuple(c - Connection::SouthWestCross, Direction::WestSouth, Direction::NorthEast);
+   if (c & Connection::WestSouthCross)
+      return std::make_tuple(c - Connection::WestSouthCross, Direction::WestSouth, Direction::NorthEast);
    if (c & Connection::NorthWestCross)
       return std::make_tuple(c - Connection::NorthWestCross, Direction::NorthWest, Direction::EastSouth);
 
@@ -725,12 +737,25 @@ enum class PlayerAssignment : mb::u8 {
    return static_cast<PlayerAssignment>(1 << static_cast<mb::u8>(p));
 }
 
+[[nodiscard]] constexpr PlayerAssignment operator&(PlayerAssignment left, PlayerAssignment right) {
+   return static_cast<PlayerAssignment>(static_cast<mb::u32>(left) & static_cast<mb::u32>(right));
+}
+
 [[nodiscard]] constexpr PlayerAssignment operator|(PlayerAssignment left, PlayerAssignment right) {
    return static_cast<PlayerAssignment>(static_cast<mb::u32>(left) | static_cast<mb::u32>(right));
 }
 
+[[nodiscard]] constexpr bool operator&(PlayerAssignment left, Player right) {
+   return (left & player_to_assignment(right)) != PlayerAssignment::None;
+}
+
 constexpr PlayerAssignment &operator|=(PlayerAssignment &left, PlayerAssignment right) {
    left = left | right;
+   return left;
+}
+
+constexpr PlayerAssignment &operator&=(PlayerAssignment &left, PlayerAssignment right) {
+   left = left & right;
    return left;
 }
 
@@ -739,22 +764,18 @@ constexpr PlayerAssignment &operator|=(PlayerAssignment &left, Player right) {
    return left;
 }
 
-[[nodiscard]] constexpr bool operator&(PlayerAssignment left, PlayerAssignment right) {
-   return (static_cast<mb::u32>(left) & static_cast<mb::u32>(right)) != 0;
-}
-
 [[nodiscard]] constexpr PlayerAssignment operator-(PlayerAssignment left, PlayerAssignment right) {
    return static_cast<PlayerAssignment>(static_cast<mb::u64>(left) & (~static_cast<mb::u64>(right)));
 }
 
 [[nodiscard]] std::tuple<PlayerAssignment, Player> constexpr read_player_assignment(PlayerAssignment assignment) {
-   if (assignment & PlayerAssignment::Black)
+   if (assignment & Player::Black)
       return std::make_tuple(assignment - PlayerAssignment::Black, Player::Black);
-   if (assignment & PlayerAssignment::Blue)
+   if (assignment & Player::Blue)
       return std::make_tuple(assignment - PlayerAssignment::Blue, Player::Blue);
-   if (assignment & PlayerAssignment::Yellow)
+   if (assignment & Player::Yellow)
       return std::make_tuple(assignment - PlayerAssignment::Yellow, Player::Yellow);
-   if (assignment & PlayerAssignment::Red)
+   if (assignment & Player::Red)
       return std::make_tuple(assignment - PlayerAssignment::Red, Player::Red);
 
    return std::make_tuple(PlayerAssignment::None, Player::Black);

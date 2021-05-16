@@ -6,7 +6,7 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(6) {
+Game::Game() : m_random_generator(10101) {
    apply_tile(70, 70, 1, 3);
 }
 
@@ -40,16 +40,20 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       std::tie(connections, a, b) = read_connections(connections);
       m_groups.join(make_edge(x, y, a), make_edge(x, y, b));
    }
+
    auto contacts = tile.contacts;
    while (contacts != Contact::None) {
       Direction a, b;
       std::tie(contacts, a, b) = read_contacts(contacts);
-      Group town_group{m_groups.group_of(make_edge(x, y, a))};
-      Group field_group{m_groups.group_of(make_edge(x, y, b))};
-      auto is_pair_found = [town_group, field_group](std::pair<Group, Group> town_field) { return town_group == town_field.first && field_group == town_field.second; };
-      if (auto result = std::find_if(m_towns.begin(), m_towns.end(), is_pair_found); result == m_towns.end())
+
+      auto town_group = m_groups.group_of(make_edge(x, y, a));
+      auto field_group = m_groups.group_of(make_edge(x, y, b));
+
+      if (!is_town_field_connected(town_group, field_group)) {
          m_towns.push_back(std::make_pair(town_group, field_group));
+      }
    }
+
    mb::u8 buffer[sizeof(Group) * 8];
    std::pmr::monotonic_buffer_resource pool(std::data(buffer), std::size(buffer));
    std::pmr::set<Group> tile_groups(&pool);
@@ -77,42 +81,69 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.field_edges[direction_id - 5]);
    }
 
-   std::pmr::set<Group> free_edges(&pool);
+   std::pmr::set<Group> completed_edges(&pool);
    for (mb::u8 direction_id = 0; direction_id < 4; ++direction_id) {
       auto direction = static_cast<Direction>(direction_id);
       auto edge = make_edge(x, y, direction);
+
       if (m_groups.type_of(edge) != EdgeType::Grass && m_groups.is_completed(edge)) {
-         free_edges.insert(m_groups.group_of(edge));
+         completed_edges.insert(m_groups.group_of(edge));
       }
    }
 
-   for (const auto edge : free_edges) {
+   for (const auto edge : completed_edges) {
       on_structure_completed(edge);
+   }
+
+   for (auto _x = x - 1; _x <= x + 1; _x++) {
+      for (auto _y = y - 1; _y <= y + 1; _y++) {
+         if (!mutable_board().tile_at(_x, _y).tile().monastery)
+            continue;
+
+         if (!is_monastery_completed(_x, _y))
+            continue;
+
+         Player player;
+         std::tie(std::ignore, player) = read_player_assignment(m_groups.assigment(make_edge(_x, _y, Direction::Middle)));
+         on_monastery_completed(_x, _y, player);
+      }
    }
 }
 
 void Game::on_structure_completed(Group g) {
-   auto tile_type = m_groups.type_of(g);
-   auto assignment = m_groups.assigment(g);
-   Player player;
-   switch (tile_type) {
+   switch (m_groups.type_of(g)) {
    case EdgeType::Path:
-      while (assignment != PlayerAssignment::None) {
-         std::tie(assignment, player) = read_player_assignment(assignment);
-         m_scores.add_points(player, m_groups.tile_count(g));
-      }
+      m_scores.add_points(m_groups.assigment(g), m_groups.tile_count(g));
       break;
    case EdgeType::Town:
-      while (assignment != PlayerAssignment::None) {
-         std::tie(assignment, player) = read_player_assignment(assignment);
-         m_scores.add_points(player, 2 * static_cast<short>(m_groups.tile_count(g)));
-      }
+      m_scores.add_points(m_groups.assigment(g), static_cast<short>(2 * m_groups.tile_count(g)));
       break;
    default: break;
    }
 
    std::erase_if(m_figures,
-                 [&groups = m_groups, target_group = g](const Figure &f) { return groups.group_of(f.edge) == target_group; });
+                 [&groups = m_groups, target_group = g](const Figure &f) {
+                    return groups.group_of(f.edge) == target_group;
+                 });
+}
+
+bool Game::is_monastery_completed(int x, int y) noexcept {
+   for (auto _x = x - 1; _x <= x + 1; _x++) {
+      for (auto _y = y - 1; _y <= y + 1; _y++) {
+         if (m_board.tile_at(_x, _y).type == 0) {
+            return false;
+         }
+      }
+   }
+   return true;
+}
+
+void Game::on_monastery_completed(int x, int y, Player player) {
+   m_scores.add_points(player, 9);
+   std::erase_if(m_figures,
+                 [&x, &y](const Figure &f) {
+                    return f.x == x + 0.5 && f.y == y + 0.5;
+                 });
 }
 
 const ScoreBoard &Game::scores() const noexcept {

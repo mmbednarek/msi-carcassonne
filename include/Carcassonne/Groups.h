@@ -95,11 +95,12 @@ class Groups {
       }
       m_group[at] = target_group;
 
-      if (m_assignments[target_group] & assigment_b) {
-         m_assignments[target_group] = assigment_b;
+      if ((m_assignments[target_group] & assigment_b) != PlayerAssignment::None) {
+         m_assignments[target_group] &= assigment_b;
       } else {
          m_assignments[target_group] |= assigment_b;
       }
+
       m_free_edges[target_group] += free_edges_b;
       m_tile_count[target_group] += tile_count_b;
 
