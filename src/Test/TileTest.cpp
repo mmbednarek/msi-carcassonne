@@ -13,7 +13,7 @@ TEST(Tile, RotateBasic) {
       std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
       std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town};
       Contact expected_contact_rotation{Contact::EastSEY | Contact::EastNWX | Contact::NorthSEY | Contact::NorthNWX};
-      Connection expected_connection_rotation{Connection::NorthEast | Connection::SouthWest | Connection::SouthWestCorner | Connection::WestSouthCross};
+      Connection expected_connection_rotation{Connection::NorthEast | Connection::SouthWest | Connection::SouthWestCorner | Connection::SouthEastCross};
       ASSERT_EQ(rotated.edges, expected_edges_rotation);
       ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
       ASSERT_EQ(rotated.contacts, expected_contact_rotation);
@@ -27,7 +27,7 @@ TEST(Tile, RotateBasic) {
       std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Path, EdgeType::Town, EdgeType::Town, EdgeType::Path};
       std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass};
       Contact expected_contact_rotation{Contact::SouthSWX | Contact::SouthNEY | Contact::EastSWX | Contact::EastNEY};
-      Connection expected_connection_rotation{Connection::SouthEast | Connection::NorthWest | Connection::NorthWestCorner | Connection::NorthWestCross};
+      Connection expected_connection_rotation{Connection::SouthEast | Connection::NorthWest | Connection::NorthWestCorner | Connection::WestSouthCross};
       ASSERT_EQ(rotated.edges, expected_edges_rotation);
       ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
       ASSERT_EQ(rotated.contacts, expected_contact_rotation);
@@ -41,7 +41,7 @@ TEST(Tile, RotateBasic) {
       std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Path, EdgeType::Path, EdgeType::Town, EdgeType::Town};
       std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass};
       Contact expected_contact_rotation{Contact::WestNWY | Contact::WestSEX | Contact::SouthNWY | Contact::SouthSEX};
-      Connection expected_connection_rotation{Connection::SouthWest | Connection::NorthEast | Connection::NorthEastCorner | Connection::EastNorthCross};
+      Connection expected_connection_rotation{Connection::SouthWest | Connection::NorthEast | Connection::NorthEastCorner | Connection::NorthWestCross};
       ASSERT_EQ(rotated.edges, expected_edges_rotation);
       ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);
       ASSERT_EQ(rotated.contacts, expected_contact_rotation);
@@ -75,7 +75,7 @@ TEST(Tile, Rotate4Connections) {
    carcassonne::Tile rotated = tile.rotate(1);
    std::array<EdgeType, 4> expected_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Path, EdgeType::Path};
    std::array<EdgeType, 8> expected_field_edges_rotation{EdgeType::Town, EdgeType::Town, EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town};
-   Connection expected_connection_rotation{Connection::NorthEast | Connection::SouthWest | Connection::WestSouthCross | Connection::SouthWestCorner};
+   Connection expected_connection_rotation{Connection::NorthEast | Connection::SouthWest | Connection::SouthEastCross | Connection::SouthWestCorner};
 
    ASSERT_EQ(rotated.edges, expected_edges_rotation);
    ASSERT_EQ(rotated.field_edges, expected_field_edges_rotation);

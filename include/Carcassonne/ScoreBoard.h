@@ -21,10 +21,10 @@ class ScoreBoard {
                              [p](PlayerScore score) { return score.player == p; });
       if (it == m_score.end()) {
          m_score.emplace_back(p, points);
-         return;
+      } else {
+         it->score += points;
       }
 
-      it->score += points;
       std::sort(m_score.begin(), m_score.end(), [](const PlayerScore lhs, const PlayerScore rhs) { return lhs.score > rhs.score; });
    }
 
