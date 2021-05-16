@@ -157,9 +157,9 @@ enum class Connection : mb::u64 {
    East = EastX | EastY | NorthEastCorner | SouthEastCorner,
    South = SouthX | SouthY | SouthEastCorner | SouthWestCorner,
    West = WestX | WestY | SouthWestCorner | NorthWestCorner,
-   NorthEastCross = 1 << 12,
+   EastNorthCross = 1 << 12,
    SouthEastCross = 1 << 13,
-   SouthWestCross = 1 << 14,
+   WestSouthCross = 1 << 14,
    NorthWestCross = 1 << 15,
    AllFieldEdges = North | East | South | West,
    NorthEast = 1 << 16,
@@ -231,14 +231,14 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
    if (c & Connection::NorthWestCorner)
       result |= Connection::NorthEastCorner;
 
-   if (c & Connection::NorthEastCross)
+   if (c & Connection::EastNorthCross)
       result |= Connection::SouthEastCross;
    if (c & Connection::SouthEastCross)
-      result |= Connection::SouthWestCross;
-   if (c & Connection::SouthWestCross)
+      result |= Connection::WestSouthCross;
+   if (c & Connection::WestSouthCross)
       result |= Connection::NorthWestCross;
    if (c & Connection::NorthWestCross)
-      result |= Connection::NorthEastCross;
+      result |= Connection::EastNorthCross;
 
    return result;
 }
@@ -377,14 +377,14 @@ constexpr std::array<Tile, 25> g_tiles{
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .contacts = Contact::NorthNEX | Contact::NorthSWY | Contact::WestNEX | Contact::WestSWY,
-                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
+                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::EastNorthCross,
         },
         {
                 // 15
                 .edges{EdgeType::Town, EdgeType::Path, EdgeType::Path, EdgeType::Town},
                 .field_edges{EdgeType::Town, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Town, EdgeType::Town, EdgeType::Town},
                 .contacts = Contact::NorthNEX | Contact::NorthSWY | Contact::WestNEX | Contact::WestSWY,
-                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::SouthEastCross,
+                .connections = Connection::NorthWest | Connection::SouthEast | Connection::SouthEastCorner | Connection::EastNorthCross,
                 .pennant = true,
         },
         {
@@ -657,12 +657,12 @@ constexpr std::tuple<double, double> direction_position(TilePosition tp, Directi
    if (c & Connection::NorthWestCorner)
       return std::make_tuple(c - Connection::NorthWestCorner, Direction::NorthWest, Direction::WestNorth);
 
-   if (c & Connection::NorthEastCross)
-      return std::make_tuple(c - Connection::NorthEastCross, Direction::EastNorth, Direction::SouthWest);
+   if (c & Connection::EastNorthCross)
+      return std::make_tuple(c - Connection::EastNorthCross, Direction::EastNorth, Direction::SouthWest);
    if (c & Connection::SouthEastCross)
       return std::make_tuple(c - Connection::SouthEastCross, Direction::SouthEast, Direction::WestNorth);
-   if (c & Connection::SouthWestCross)
-      return std::make_tuple(c - Connection::SouthWestCross, Direction::WestSouth, Direction::NorthEast);
+   if (c & Connection::WestSouthCross)
+      return std::make_tuple(c - Connection::WestSouthCross, Direction::WestSouth, Direction::NorthEast);
    if (c & Connection::NorthWestCross)
       return std::make_tuple(c - Connection::NorthWestCross, Direction::NorthWest, Direction::EastSouth);
 

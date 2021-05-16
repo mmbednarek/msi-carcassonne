@@ -28,6 +28,14 @@ class ScoreBoard {
       std::sort(m_score.begin(), m_score.end(), [](const PlayerScore lhs, const PlayerScore rhs) { return lhs.score > rhs.score; });
    }
 
+   inline void add_points(PlayerAssignment assignment, short points) {
+      Player player;
+      while (assignment != PlayerAssignment::None) {
+         std::tie(assignment, player) = read_player_assignment(assignment);
+         add_points(player, points);
+      }
+   }
+
    [[nodiscard]] inline std::vector<PlayerScore>::const_iterator begin() const {
       return m_score.cbegin();
    }

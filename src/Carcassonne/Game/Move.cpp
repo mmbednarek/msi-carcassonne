@@ -21,16 +21,8 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
 
    m_game.apply_tile(x, y, m_tile_type, rotation);
 
-   bool all_occupied = true;
-   for (const auto d : g_directions) {
-      if (is_free(d)) {
-         all_occupied = false;
-         break;
-      }
-   }
-
-   if (all_occupied) {
-      return;
+   if (std::all_of(g_directions.cbegin(), g_directions.cend(), [this](Direction d) { return !is_free(d); })) {
+      m_phase = MovePhase::Done;
    }
 }
 
@@ -43,7 +35,7 @@ void Move::place_figure(Direction d) noexcept {
 
    auto edge = make_edge(m_x, m_y, d);
 
-   double px{}, py{};
+   double px, py;
    std::tie(px, py) = direction_position(TilePosition{m_x, m_y}, d);
    m_game.add_figure(Figure{
            .player = m_player,
@@ -53,14 +45,11 @@ void Move::place_figure(Direction d) noexcept {
    });
 
    m_game.mutable_groups().assign(make_edge(m_x, m_y, d), m_player);
-   if (m_game.groups().is_completed(edge) && is_side_direction(d)) {
-      m_game.on_structure_completed(m_x, m_y, m_game.groups().group_of(edge));
-   }
 
-   if (d == Direction::Middle) {
-      if(m_game.is_monastery_completed(m_x, m_y)) {
-         m_game.on_monastery_completed(m_x, m_y, m_player);
-      }
+   if (is_side_direction(d) && m_game.groups().is_completed(edge)) {
+      m_game.on_structure_completed(m_game.groups().group_of(edge));
+   } else if (d == Direction::Middle && m_game.is_monastery_completed(m_x, m_y)) {
+      m_game.on_monastery_completed(m_x, m_y, m_player);
    }
 
    m_game.set_next_player();

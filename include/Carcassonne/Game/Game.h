@@ -37,7 +37,7 @@ class Game : public IGame {
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
-   void on_structure_completed(int x, int y, Group g);
+   void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;
