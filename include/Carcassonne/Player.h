@@ -66,6 +66,10 @@ constexpr PlayerAssignment &operator|=(PlayerAssignment &left, Player right) {
    return std::make_tuple(PlayerAssignment::None, Player::Black);
 }
 
+constexpr Player next_player(Player player, mb::u8 player_count) {
+   return static_cast<Player>((static_cast<int>(player) + 1) % player_count);
+}
+
 }// namespace carcassonne
 
 #endif//MSI_CARCASSONNE_PLAYER_H

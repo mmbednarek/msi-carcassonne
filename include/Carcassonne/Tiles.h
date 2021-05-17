@@ -231,9 +231,20 @@ struct TilePlacement {
    }
 };
 
-struct TilePosition {
-   int x, y;
-};
+constexpr TilePosition neighbour_of(int x, int y, Direction d) {
+   switch (d) {
+   case Direction::North:
+      return TilePosition{x, y - 1};
+   case Direction::East:
+      return TilePosition{x + 1, y};
+   case Direction::South:
+      return TilePosition{x, y + 1};
+   case Direction::West:
+      return TilePosition{x - 1, y};
+   default:
+      return TilePosition{x, y};
+   }
+}
 
 }// namespace carcassonne
 

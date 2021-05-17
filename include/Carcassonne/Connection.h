@@ -109,6 +109,61 @@ constexpr Connection &operator|=(Connection &left, Connection right) {
    return result;
 }
 
+[[nodiscard]] constexpr std::tuple<Connection, Direction, Direction> read_connections(Connection c) {
+   if (c & Connection::NorthEast)
+      return std::make_tuple(c - Connection::NorthEast, Direction::North, Direction::East);
+   if (c & Connection::NorthSouth)
+      return std::make_tuple(c - Connection::NorthSouth, Direction::North, Direction::South);
+   if (c & Connection::NorthWest)
+      return std::make_tuple(c - Connection::NorthWest, Direction::North, Direction::West);
+   if (c & Connection::SouthEast)
+      return std::make_tuple(c - Connection::SouthEast, Direction::South, Direction::East);
+   if (c & Connection::SouthWest)
+      return std::make_tuple(c - Connection::SouthWest, Direction::South, Direction::West);
+   if (c & Connection::WestEast)
+      return std::make_tuple(c - Connection::WestEast, Direction::West, Direction::East);
+
+   if (c & Connection::NorthX)
+      return std::make_tuple(c - Connection::NorthX, Direction::NorthWest, Direction::NorthEast);
+   if (c & Connection::NorthY)
+      return std::make_tuple(c - Connection::NorthY, Direction::WestNorth, Direction::EastNorth);
+
+   if (c & Connection::EastX)
+      return std::make_tuple(c - Connection::EastX, Direction::NorthEast, Direction::SouthEast);
+   if (c & Connection::EastY)
+      return std::make_tuple(c - Connection::EastY, Direction::EastNorth, Direction::EastSouth);
+
+   if (c & Connection::SouthX)
+      return std::make_tuple(c - Connection::SouthX, Direction::SouthWest, Direction::SouthEast);
+   if (c & Connection::SouthY)
+      return std::make_tuple(c - Connection::SouthY, Direction::WestSouth, Direction::EastSouth);
+
+   if (c & Connection::WestX)
+      return std::make_tuple(c - Connection::WestX, Direction::NorthWest, Direction::SouthWest);
+   if (c & Connection::WestY)
+      return std::make_tuple(c - Connection::WestY, Direction::WestNorth, Direction::WestSouth);
+
+   if (c & Connection::NorthEastCorner)
+      return std::make_tuple(c - Connection::NorthEastCorner, Direction::NorthEast, Direction::EastNorth);
+   if (c & Connection::SouthEastCorner)
+      return std::make_tuple(c - Connection::SouthEastCorner, Direction::SouthEast, Direction::EastSouth);
+   if (c & Connection::SouthWestCorner)
+      return std::make_tuple(c - Connection::SouthWestCorner, Direction::SouthWest, Direction::WestSouth);
+   if (c & Connection::NorthWestCorner)
+      return std::make_tuple(c - Connection::NorthWestCorner, Direction::NorthWest, Direction::WestNorth);
+
+   if (c & Connection::EastNorthCross)
+      return std::make_tuple(c - Connection::EastNorthCross, Direction::EastNorth, Direction::SouthWest);
+   if (c & Connection::SouthEastCross)
+      return std::make_tuple(c - Connection::SouthEastCross, Direction::SouthEast, Direction::WestNorth);
+   if (c & Connection::WestSouthCross)
+      return std::make_tuple(c - Connection::WestSouthCross, Direction::WestSouth, Direction::NorthEast);
+   if (c & Connection::NorthWestCross)
+      return std::make_tuple(c - Connection::NorthWestCross, Direction::NorthWest, Direction::EastSouth);
+
+   return std::make_tuple(Connection::None, Direction::Middle, Direction::Middle);
+}
+
 }// namespace carcassonne
 
 #endif//MSI_CARCASSONNE_CONNECTION_H
