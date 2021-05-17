@@ -228,7 +228,7 @@ constexpr Edge make_edge(int x, int y, Direction d) {
    case Direction::SouthEast:
       return static_cast<Edge>(g_edges_field_horizontal_east + x + (y + 1) * (g_board_height));
    }
-   return static_cast<Edge>(std::numeric_limits<Edge>::infinity());
+   return std::numeric_limits<Edge>::infinity();
 }
 
 struct Figure {
