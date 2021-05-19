@@ -12,8 +12,9 @@
 namespace carcassonne::game {
 
 using Towns = std::vector<std::pair<Group, Group>>;
-using Monastery = std::vector<TileType>;
 using EdgeGroups = Groups<g_edges_max>;
+using TileSet = std::vector<TileType>;
+using TileSets = std::vector<TileSet>;
 
 class Game : public IGame {
    Board m_board;
@@ -24,6 +25,7 @@ class Game : public IGame {
    Towns m_towns;
    EdgeGroups m_groups;
    ScoreBoard m_scores;
+   TileSets m_tile_sets;
 
    std::random_device m_random_device;
    std::mt19937_64 m_random_generator;
@@ -39,6 +41,7 @@ class Game : public IGame {
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
+   void draw_tiles();
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;
 

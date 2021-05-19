@@ -8,6 +8,7 @@ namespace carcassonne::game {
 
 Game::Game() : m_random_generator(10101) {
    apply_tile(70, 70, 1, 3);
+   draw_tiles();
 }
 
 const IBoard &Game::board() const noexcept {
@@ -152,6 +153,37 @@ const ScoreBoard &Game::scores() const noexcept {
 
 bool Game::is_town_field_connected(Edge town, Edge field) const noexcept {
    return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(m_groups.group_of(town), m_groups.group_of(field))) != m_towns.end();
+}
+
+template<class bidiiter>
+bidiiter random_unique(bidiiter begin, bidiiter end, size_t num_random) {
+    size_t left = std::distance(begin, end);
+    while (num_random--) {
+        bidiiter r = begin;
+        std::advance(r, rand()%left);
+        std::swap(*begin, *r);
+        ++begin;
+        --left;
+    }
+    return begin;
+}
+
+void Game::draw_tiles() {
+   TileSet tiles_to_draw;
+   TileType tt = 0;
+   for(const auto& tile : g_tiles)
+      if (tt == 0)
+         tt++;
+      else
+         for(size_t i = 0; i < tile.amount; i++)
+            tiles_to_draw.push_back(static_cast<TileType>(tt++));
+   tt = 0;
+   for(const auto& tile : g_tiles)
+      if (tt != 0)
+         for(size_t i = 0; i < tile.amount; i++)
+            fmt::print('{}', tiles_to_draw[tt++]);
+   // std::random_shuffle(tiles_to_draw.begin(), tiles_to_draw.end(), m_random_generator);
+   // m_tile_sets;
 }
 
 }// namespace carcassonne::game

@@ -19,7 +19,7 @@ struct Tile {
    Connection connections = Connection::None;
    bool monastery = false;
    bool pennant = false;
-   mb::u8 amount = std::numeric_limits<Edge>::infinity();
+   mb::u8 amount = std::numeric_limits<mb::u8>::infinity();
 
    [[nodiscard]] inline Tile rotate(mb::size count) const {
       Contact rotatedContacts = contacts;
