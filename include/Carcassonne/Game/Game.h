@@ -11,9 +11,16 @@
 
 namespace carcassonne::game {
 
+struct PossibleMove {
+   int m_x, m_y;
+   mb::u8 m_rotation;
+   PossibleMove(int _x, int _y, mb::u8 _r) : m_x{_x}, m_y{_y}, m_rotation{_r} {}
+};
+
 using Towns = std::vector<std::pair<Group, Group>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
+using PossibleMoves = std::vector<PossibleMove>;
 
 class Game : public IGame {
    Board m_board;
@@ -26,6 +33,7 @@ class Game : public IGame {
    EdgeGroups m_groups;
    ScoreBoard m_scores;
    TileSet m_tile_set;
+   PossibleMoves m_possible_moves;
 
    std::random_device m_random_device;
    std::mt19937_64 m_random_generator;
@@ -42,6 +50,8 @@ class Game : public IGame {
    void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
    void draw_tiles();
+   bool find_possible_moves(TileType tt) noexcept;
+   bool can_place(TileType tt) noexcept;
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
    [[nodiscard]] mb::u8 move_nr() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;

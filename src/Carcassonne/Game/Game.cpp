@@ -23,8 +23,52 @@ mb::u8 Game::move_nr() const noexcept {
    return m_move_nr;
 }
 
+bool Game::find_possible_moves(TileType tt) noexcept {
+   m_possible_moves = PossibleMoves();
+   bool possible_move_exists = false;
+   for (int _x = board().min_x(); _x < board().max_x(); _x++) {
+      for (int _y = board().min_y(); _y < board().max_y(); _y++) {
+         for (mb::u8 rotation = 0; rotation < 4; ++rotation) {
+            if (board().can_place_at(_x, _y, tt, rotation)) {
+               m_possible_moves.push_back(PossibleMove(_x,_y,rotation));
+               possible_move_exists = true;
+            }
+         }
+      }
+   }
+   return possible_move_exists;
+}
+
+bool Game::can_place(TileType tt) noexcept {
+   bool can_place = false;
+   for (int _x = board().min_x() - 1; _x < board().max_x(); _x++) {
+      for (int _y = board().min_y() - 1; _y < board().max_y(); _y++) {
+         for (mb::u8 rotation = 0; rotation < 4; ++rotation) {
+            if (board().can_place_at(_x, _y, tt, rotation)) {
+               return true;
+            }
+         }
+      }
+   }
+   return false;
+}
+
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   return std::make_unique<Move>(p, m_tile_set[m_move_nr++], *this);
+   TileType tt = m_tile_set[m_move_nr];
+   mb::u8 move_nr = m_move_nr;
+   while (!can_place(tt) && m_move_nr != 0) {
+      move_nr += m_player_count;
+      tt = m_tile_set[move_nr];
+      if (move_nr + m_player_count >= m_tile_set.size() - 1) { // if there is no tile to be swapped
+         std::iter_swap(m_tile_set.begin() + m_move_nr, m_tile_set.begin() + m_move_nr + 1);
+         move_nr = m_move_nr;
+      }
+   }
+   if (m_move_nr != move_nr) {
+      std::iter_swap(m_tile_set.begin() + m_move_nr, m_tile_set.begin() + move_nr);
+   }
+   tt = m_tile_set[m_move_nr++];
+   return std::make_unique<Move>(p, tt, *this);
 }
 
 mb::view<Figure> Game::figures() const noexcept {
