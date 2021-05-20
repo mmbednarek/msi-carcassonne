@@ -16,6 +16,12 @@ struct Figure {
    Edge edge;
 };
 
+struct PossibleMove {
+   int x, y;
+   mb::u8 rotation;
+   PossibleMove(int _x, int _y, mb::u8 _r) : x{_x}, y{_y}, rotation{_r} {}
+};
+
 enum class MovePhase {
    PlaceTile,
    PlaceFigure,
@@ -60,6 +66,7 @@ class IGame {
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
    [[nodiscard]] virtual mb::u8 move_nr() const noexcept = 0;
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
+   [[nodiscard]] virtual const std::vector<PossibleMove> &possible_moves() const noexcept = 0;
 };
 
 }// namespace carcassonne

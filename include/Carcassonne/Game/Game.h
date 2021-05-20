@@ -11,12 +11,6 @@
 
 namespace carcassonne::game {
 
-struct PossibleMove {
-   int m_x, m_y;
-   mb::u8 m_rotation;
-   PossibleMove(int _x, int _y, mb::u8 _r) : m_x{_x}, m_y{_y}, m_rotation{_r} {}
-};
-
 using Towns = std::vector<std::pair<Group, Group>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
@@ -47,6 +41,7 @@ class Game : public IGame {
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    [[nodiscard]] const TileSet &tile_set() const noexcept override;
+   [[nodiscard]] const PossibleMoves &possible_moves() const noexcept;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
