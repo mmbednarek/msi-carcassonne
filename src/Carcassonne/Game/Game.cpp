@@ -19,8 +19,12 @@ Player Game::current_player() const noexcept {
    return m_current_player;
 }
 
+mb::u8 Game::move_nr() const noexcept {
+   return m_move_nr;
+}
+
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   return std::make_unique<Move>(p, m_tile_sets[m_move % 2][m_move++ / 2], *this);
+   return std::make_unique<Move>(p, m_tile_sets[m_move_nr % 2][m_move_nr++ / 2], *this);
 }
 
 mb::view<Figure> Game::figures() const noexcept {

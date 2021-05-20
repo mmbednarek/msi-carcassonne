@@ -20,7 +20,7 @@ class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
    mb::u8 m_player_count = 2;
-   mb::u8 m_move = 0;
+   mb::u8 m_move_nr = 0;
    std::vector<Figure> m_figures;
 
    Towns m_towns;
@@ -44,6 +44,7 @@ class Game : public IGame {
    void on_monastery_completed(int x, int y, Player player);
    void draw_tiles();
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
+   [[nodiscard]] mb::u8 move_nr() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {

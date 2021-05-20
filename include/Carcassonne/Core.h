@@ -283,6 +283,7 @@ class IGame {
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
    [[nodiscard]] virtual mb::view<Figure> figures() const noexcept = 0;
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
+   [[nodiscard]] virtual mb::u8 move_nr() const noexcept = 0;
 };
 
 }// namespace carcassonne
