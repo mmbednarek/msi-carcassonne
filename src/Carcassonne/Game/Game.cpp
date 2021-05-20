@@ -6,7 +6,7 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(9), m_tile_sets(m_player_count) {
+Game::Game() : m_random_generator(9) {
    apply_tile(70, 70, 1, 3);
    draw_tiles();
 }
@@ -24,7 +24,7 @@ mb::u8 Game::move_nr() const noexcept {
 }
 
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   return std::make_unique<Move>(p, m_tile_sets[m_move_nr % 2][m_move_nr++ / 2], *this);
+   return std::make_unique<Move>(p, m_tile_set[m_move_nr++], *this);
 }
 
 mb::view<Figure> Game::figures() const noexcept {
@@ -173,24 +173,14 @@ bidiiter random_unique(bidiiter begin, bidiiter end, size_t num_random) {
 }
 
 void Game::draw_tiles() {
-   TileSet tiles_to_draw;
    TileType tt = 0;
    for(const auto& tile : g_tiles) {
       for(size_t i = 0; i < tile.amount; i++) {
-         tiles_to_draw.push_back(static_cast<TileType>(tt));
+         m_tile_set.push_back(static_cast<TileType>(tt));
       }
       tt++;
    }
-   std::shuffle(tiles_to_draw.begin(), tiles_to_draw.end(), m_random_generator);
-   // Is it better to have tiles in a vector of m_players_cout size?
-   mb::u8 size = (tiles_to_draw.size() / m_player_count);
-   for (mb::u8 i = 0; i < m_player_count; i++) {
-      m_tile_sets.at(i) = std::vector<TileType>(tiles_to_draw.begin() + i * size, tiles_to_draw.begin() + (i + 1) * size);
-   }
-   mb::u8 rest = tiles_to_draw.size() - size * m_player_count;
-   for (mb::u8 i = 0; i < rest; i++) {
-      m_tile_sets.at(i).push_back(tiles_to_draw.at(size * m_player_count + i));
-   }
+   std::shuffle(m_tile_set.begin(), m_tile_set.end(), m_random_generator);
 }
 
 }// namespace carcassonne::game

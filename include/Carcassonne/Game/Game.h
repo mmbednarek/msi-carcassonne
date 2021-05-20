@@ -14,19 +14,18 @@ namespace carcassonne::game {
 using Towns = std::vector<std::pair<Group, Group>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
-using TileSets = std::vector<TileSet>;
 
 class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
-   mb::u8 m_player_count = 5;
+   mb::u8 m_player_count = 2;
    mb::u8 m_move_nr = 0;
    std::vector<Figure> m_figures;
 
    Towns m_towns;
    EdgeGroups m_groups;
    ScoreBoard m_scores;
-   TileSets m_tile_sets;
+   TileSet m_tile_set;
 
    std::random_device m_random_device;
    std::mt19937_64 m_random_generator;
