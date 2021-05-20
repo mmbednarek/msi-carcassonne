@@ -20,7 +20,8 @@ Player Game::current_player() const noexcept {
 }
 
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   return std::make_unique<Move>(p, (m_random_distribution(m_random_generator) % 24) + 1, *this);
+   return std::make_unique<Move>(p, m_tiles_to_draw[m_move], *this);
+   m_move++;
 }
 
 mb::view<Figure> Game::figures() const noexcept {
@@ -169,29 +170,21 @@ bidiiter random_unique(bidiiter begin, bidiiter end, size_t num_random) {
 }
 
 void Game::draw_tiles() {
-   TileSet tiles_to_draw;
    TileType tt = 0;
    for(const auto& tile : g_tiles) {
       for(size_t i = 0; i < tile.amount; i++) {
-         tiles_to_draw.push_back(static_cast<TileType>(tt));
+         m_tiles_to_draw.push_back(static_cast<TileType>(tt));
       }
       tt++;
    }
-
-   std::shuffle(tiles_to_draw.begin(), tiles_to_draw.end(), m_random_generator);
-   fmt::print("size2={}:\n", tiles_to_draw.size());
-   for (auto t : tiles_to_draw) 
-      fmt::print("{s:d}\n", fmt::arg("s", t));
-   fmt::print("\n\n");
+   std::shuffle(m_tiles_to_draw.begin(), m_tiles_to_draw.end(), m_random_generator);
+   // Is it better to have tiles in a vector of m_players_cout size?
+   /*
    mb::u8 size = (tiles_to_draw.size() / m_player_count);
-   for (mb::u8 i = 0; i < m_player_count; i++)
+   for (mb::u8 i = 0; i < m_player_count; i++) {
       m_tile_sets[i] = std::vector<TileType>(tiles_to_draw.begin() + i * size, tiles_to_draw.begin() + (i + 1) * size);
-   for (auto set : m_tile_sets) {
-      fmt::print("size3={}:\n", set.size());
-      for (auto t : set) 
-         fmt::print("{s:d}\n", fmt::arg("s", t));
-      fmt::print("\n\n");
    }
+   */
 }
 
 }// namespace carcassonne::game

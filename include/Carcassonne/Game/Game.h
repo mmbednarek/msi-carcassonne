@@ -20,11 +20,13 @@ class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
    mb::u8 m_player_count = 2;
+   mb::u8 m_move = 0;
    std::vector<Figure> m_figures;
 
    Towns m_towns;
    EdgeGroups m_groups;
    ScoreBoard m_scores;
+   TileSet m_tiles_to_draw;
    TileSets m_tile_sets;
 
    std::random_device m_random_device;
