@@ -26,7 +26,6 @@ class Game : public IGame {
    Towns m_towns;
    EdgeGroups m_groups;
    ScoreBoard m_scores;
-   TileSet m_tiles_to_draw;
    TileSets m_tile_sets;
 
    std::random_device m_random_device;
