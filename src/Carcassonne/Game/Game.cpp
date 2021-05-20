@@ -6,7 +6,7 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(10101), m_tile_sets(m_player_count) {
+Game::Game() : m_random_generator(9), m_tile_sets(m_player_count) {
    apply_tile(70, 70, 1, 3);
    draw_tiles();
 }
@@ -185,7 +185,11 @@ void Game::draw_tiles() {
    // Is it better to have tiles in a vector of m_players_cout size?
    mb::u8 size = (tiles_to_draw.size() / m_player_count);
    for (mb::u8 i = 0; i < m_player_count; i++) {
-      m_tile_sets[i] = std::vector<TileType>(tiles_to_draw.begin() + i * size, tiles_to_draw.begin() + (i + 1) * size);
+      m_tile_sets.at(i) = std::vector<TileType>(tiles_to_draw.begin() + i * size, tiles_to_draw.begin() + (i + 1) * size);
+   }
+   mb::u8 rest = tiles_to_draw.size() - size * m_player_count;
+   for (mb::u8 i = 0; i < rest; i++) {
+      m_tile_sets.at(i).push_back(tiles_to_draw.at(size * m_player_count + i));
    }
 }
 

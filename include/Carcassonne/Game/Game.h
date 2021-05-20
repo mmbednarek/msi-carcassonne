@@ -19,7 +19,7 @@ using TileSets = std::vector<TileSet>;
 class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
-   mb::u8 m_player_count = 2;
+   mb::u8 m_player_count = 5;
    mb::u8 m_move_nr = 0;
    std::vector<Figure> m_figures;
 
