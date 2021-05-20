@@ -6,7 +6,7 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(10101) {
+Game::Game() : m_random_generator(10101), m_tile_sets(m_player_count) {
    apply_tile(70, 70, 1, 3);
    draw_tiles();
 }
@@ -171,19 +171,27 @@ bidiiter random_unique(bidiiter begin, bidiiter end, size_t num_random) {
 void Game::draw_tiles() {
    TileSet tiles_to_draw;
    TileType tt = 0;
-   for(const auto& tile : g_tiles)
-      if (tt == 0)
-         tt++;
-      else
-         for(size_t i = 0; i < tile.amount; i++)
-            tiles_to_draw.push_back(static_cast<TileType>(tt++));
-   tt = 0;
-   for(const auto& tile : g_tiles)
-      if (tt != 0)
-         for(size_t i = 0; i < tile.amount; i++)
-            fmt::print('{}', tiles_to_draw[tt++]);
-   // std::random_shuffle(tiles_to_draw.begin(), tiles_to_draw.end(), m_random_generator);
-   // m_tile_sets;
+   for(const auto& tile : g_tiles) {
+      for(size_t i = 0; i < tile.amount; i++) {
+         tiles_to_draw.push_back(static_cast<TileType>(tt));
+      }
+      tt++;
+   }
+
+   std::shuffle(tiles_to_draw.begin(), tiles_to_draw.end(), m_random_generator);
+   fmt::print("size2={}:\n", tiles_to_draw.size());
+   for (auto t : tiles_to_draw) 
+      fmt::print("{s:d}\n", fmt::arg("s", t));
+   fmt::print("\n\n");
+   mb::u8 size = (tiles_to_draw.size() / m_player_count);
+   for (mb::u8 i = 0; i < m_player_count; i++)
+      m_tile_sets[i] = std::vector<TileType>(tiles_to_draw.begin() + i * size, tiles_to_draw.begin() + (i + 1) * size);
+   for (auto set : m_tile_sets) {
+      fmt::print("size3={}:\n", set.size());
+      for (auto t : set) 
+         fmt::print("{s:d}\n", fmt::arg("s", t));
+      fmt::print("\n\n");
+   }
 }
 
 }// namespace carcassonne::game
