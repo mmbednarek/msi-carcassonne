@@ -1,6 +1,8 @@
 #ifndef MSI_CARCASSONNE_CONTACT_H
 #define MSI_CARCASSONNE_CONTACT_H
 #include <mb/int.h>
+#include <tuple>
+#include "Direction.h"
 
 namespace carcassonne {
 
@@ -123,6 +125,62 @@ constexpr Contact &operator|=(Contact &left, Contact right) {
       result |= Contact::NorthSEY;
 
    return result;
+}
+
+[[nodiscard]] constexpr std::tuple<Contact, Direction, Direction> read_contacts(Contact c) {
+   if (c & Contact::NorthNWX)
+      return std::make_tuple(c - Contact::NorthNWX, Direction::North, Direction::WestNorth);
+   if (c & Contact::NorthNEX)
+      return std::make_tuple(c - Contact::NorthNEX, Direction::North, Direction::EastNorth);
+   if (c & Contact::NorthSWX)
+      return std::make_tuple(c - Contact::NorthSWX, Direction::North, Direction::WestSouth);
+   if (c & Contact::NorthSWY)
+      return std::make_tuple(c - Contact::NorthSWY, Direction::North, Direction::SouthWest);
+   if (c & Contact::NorthSEX)
+      return std::make_tuple(c - Contact::NorthSEX, Direction::North, Direction::EastSouth);
+   if (c & Contact::NorthSEY)
+      return std::make_tuple(c - Contact::NorthSEY, Direction::North, Direction::SouthEast);
+
+   if (c & Contact::EastNEY)
+      return std::make_tuple(c - Contact::EastNEY, Direction::East, Direction::NorthEast);
+   if (c & Contact::EastSEY)
+      return std::make_tuple(c - Contact::EastSEY, Direction::East, Direction::SouthEast);
+   if (c & Contact::EastNWY)
+      return std::make_tuple(c - Contact::EastNWY, Direction::East, Direction::NorthWest);
+   if (c & Contact::EastNWX)
+      return std::make_tuple(c - Contact::EastNWX, Direction::East, Direction::WestNorth);
+   if (c & Contact::EastSWY)
+      return std::make_tuple(c - Contact::EastSWY, Direction::East, Direction::SouthWest);
+   if (c & Contact::EastSWX)
+      return std::make_tuple(c - Contact::EastSWX, Direction::East, Direction::WestSouth);
+
+   if (c & Contact::SouthSEX)
+      return std::make_tuple(c - Contact::SouthSEX, Direction::South, Direction::EastSouth);
+   if (c & Contact::SouthSWX)
+      return std::make_tuple(c - Contact::SouthSWX, Direction::South, Direction::WestSouth);
+   if (c & Contact::SouthNEX)
+      return std::make_tuple(c - Contact::SouthNEX, Direction::South, Direction::EastNorth);
+   if (c & Contact::SouthNEY)
+      return std::make_tuple(c - Contact::SouthNEY, Direction::South, Direction::NorthEast);
+   if (c & Contact::SouthNWX)
+      return std::make_tuple(c - Contact::SouthNWX, Direction::South, Direction::WestNorth);
+   if (c & Contact::SouthNWY)
+      return std::make_tuple(c - Contact::SouthNWY, Direction::South, Direction::NorthWest);
+
+   if (c & Contact::WestSWY)
+      return std::make_tuple(c - Contact::WestSWY, Direction::South, Direction::SouthWest);
+   if (c & Contact::WestNWY)
+      return std::make_tuple(c - Contact::WestNWY, Direction::South, Direction::NorthWest);
+   if (c & Contact::WestSEY)
+      return std::make_tuple(c - Contact::WestSEY, Direction::South, Direction::SouthEast);
+   if (c & Contact::WestSEX)
+      return std::make_tuple(c - Contact::WestSEX, Direction::South, Direction::EastSouth);
+   if (c & Contact::WestNEY)
+      return std::make_tuple(c - Contact::WestNEY, Direction::South, Direction::NorthEast);
+   if (c & Contact::WestNEX)
+      return std::make_tuple(c - Contact::WestNEX, Direction::South, Direction::EastNorth);
+
+   return std::make_tuple(Contact::None, Direction::Middle, Direction::Middle);
 }
 
 }// namespace carcassonne
