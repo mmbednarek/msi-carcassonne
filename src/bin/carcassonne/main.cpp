@@ -37,6 +37,7 @@ int main() {
    carcassonne::game::Game game;
    carcassonne::frontend::GameView view(game);
 
+
    constexpr double dt = 1000.0 / 60.0;
    auto prev_time = static_cast<double>(now_milis());
    auto dt_accum = 0.0;

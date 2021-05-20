@@ -122,10 +122,10 @@ void GameView::on_mouse_wheel(int y) {
 }
 
 void GameView::next_move() {
-   if (m_game.move_nr() == 71) {
+   if (m_game.move_nr() == m_game.tile_set().size()) {
       on_quit();
    } else {
-   m_move = m_game.new_move(m_game.current_player());
+      m_move = m_game.new_move(m_game.current_player());
    }
 }
 

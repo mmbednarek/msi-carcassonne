@@ -3,4 +3,9 @@
 
 // AI implementation
 
+namespace carcassonne::game::ai {
+
+
+} // namespace carcassonne::game::ai
+
 #endif //MSI_CARCASSONNE_AI_H

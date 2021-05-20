@@ -22,6 +22,9 @@ Player Game::current_player() const noexcept {
 mb::u8 Game::move_nr() const noexcept {
    return m_move_nr;
 }
+const TileSet &Game::tile_set() const noexcept {
+   return m_tile_set;
+}
 
 bool Game::find_possible_moves(TileType tt) noexcept {
    m_possible_moves = PossibleMoves();
@@ -201,19 +204,6 @@ const ScoreBoard &Game::scores() const noexcept {
 
 bool Game::is_town_field_connected(Edge town, Edge field) const noexcept {
    return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(m_groups.group_of(town), m_groups.group_of(field))) != m_towns.end();
-}
-
-template<class bidiiter>
-bidiiter random_unique(bidiiter begin, bidiiter end, size_t num_random) {
-    size_t left = std::distance(begin, end);
-    while (num_random--) {
-        bidiiter r = begin;
-        std::advance(r, rand()%left);
-        std::swap(*begin, *r);
-        ++begin;
-        --left;
-    }
-    return begin;
 }
 
 void Game::draw_tiles() {

@@ -59,6 +59,7 @@ class IGame {
    [[nodiscard]] virtual mb::view<Figure> figures() const noexcept = 0;
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
    [[nodiscard]] virtual mb::u8 move_nr() const noexcept = 0;
+   [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
 };
 
 }// namespace carcassonne
