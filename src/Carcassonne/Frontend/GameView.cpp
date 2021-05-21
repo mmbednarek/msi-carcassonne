@@ -122,7 +122,11 @@ void GameView::on_mouse_wheel(int y) {
 }
 
 void GameView::next_move() {
-   m_move = m_game.new_move(m_game.current_player());
+   if (m_game.move_nr() == m_game.tile_set().size()) {
+      on_quit();
+   } else {
+      m_move = m_game.new_move(m_game.current_player());
+   }
 }
 
 }// namespace carcassonne::frontend

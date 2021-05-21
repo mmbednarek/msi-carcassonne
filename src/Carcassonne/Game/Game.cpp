@@ -6,8 +6,9 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(10101) {
+Game::Game() : m_random_generator(9) {
    apply_tile(70, 70, 1, 3);
+   draw_tiles();
 }
 
 const IBoard &Game::board() const noexcept {
@@ -18,8 +19,71 @@ Player Game::current_player() const noexcept {
    return m_current_player;
 }
 
+mb::u8 Game::move_nr() const noexcept {
+   return m_move_nr;
+}
+
+const TileSet &Game::tile_set() const noexcept {
+   return m_tile_set;
+}
+
+const PossibleMoves &Game::possible_moves() const noexcept {
+   return m_possible_moves;
+}
+
+bool Game::find_possible_moves(TileType tt) noexcept {
+   m_possible_moves = PossibleMoves();
+   bool possible_move_exists = false;
+   for (int _x = board().min_x() - 1; _x < board().max_x() + 1; _x++) {
+      for (int _y = board().min_y() - 1; _y < board().max_y() + 1; _y++) {
+         for (mb::u8 rotation = 0; rotation < 4; rotation++) {
+            if (board().can_place_at(_x, _y, tt, rotation)) {
+               m_possible_moves.push_back(PossibleMove(_x,_y,rotation));
+               possible_move_exists = true;
+            }
+         }
+      }
+   }
+   return possible_move_exists;
+}
+
+bool Game::can_place(TileType tt) noexcept {
+   bool can_place = false;
+   for (int _x = board().min_x() - 1; _x < board().max_x() + 1; _x++) {
+      for (int _y = board().min_y() - 1; _y < board().max_y() + 1; _y++) {
+         for (mb::u8 rotation = 0; rotation < 4; ++rotation) {
+            if (board().can_place_at(_x, _y, tt, rotation)) {
+               return true;
+            }
+         }
+      }
+   }
+   return false;
+}
+
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   return std::make_unique<Move>(p, (m_random_distribution(m_random_generator) % 24) + 1, *this);
+   TileType tt = m_tile_set[m_move_nr];
+   mb::u8 move_nr = m_move_nr;
+   while (m_move_nr != 0 && m_move_nr != m_tile_set.size() - 1 && !can_place(tt)) {
+      move_nr += m_player_count;
+      tt = m_tile_set[move_nr];
+      if (move_nr + m_player_count >= m_tile_set.size() - 1) { // if there is no tile to be swapped
+         mb::u8 rotations = m_tile_set.size() - move_nr;
+         while (!can_place(m_tile_set[m_move_nr])) {
+            std::rotate(m_tile_set.begin() + m_move_nr, m_tile_set.begin() + m_move_nr + 1, m_tile_set.end());
+            if(--rotations == 0) { // if went back to the tile with which rotating started
+               m_move_nr++;
+               break;
+            }
+         }
+         move_nr = m_move_nr;
+      }
+   }
+   if (m_move_nr != move_nr) {
+      std::iter_swap(m_tile_set.begin() + m_move_nr, m_tile_set.begin() + move_nr);
+   }
+   tt = m_tile_set[m_move_nr++];
+   return std::make_unique<Move>(p, tt, *this);
 }
 
 mb::view<Figure> Game::figures() const noexcept {
@@ -152,6 +216,17 @@ const ScoreBoard &Game::scores() const noexcept {
 
 bool Game::is_town_field_connected(Edge town, Edge field) const noexcept {
    return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(m_groups.group_of(town), m_groups.group_of(field))) != m_towns.end();
+}
+
+void Game::draw_tiles() {
+   TileType tt = 0;
+   for(const auto& tile : g_tiles) {
+      for(size_t i = 0; i < tile.amount; i++) {
+         m_tile_set.push_back(static_cast<TileType>(tt));
+      }
+      tt++;
+   }
+   std::shuffle(m_tile_set.begin(), m_tile_set.end(), m_random_generator);
 }
 
 }// namespace carcassonne::game

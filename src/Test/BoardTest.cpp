@@ -153,3 +153,112 @@ TEST(Board, FieldTown) {
    ASSERT_FALSE(g.is_town_field_connected(carcassonne::make_edge(70, 70, carcassonne::Direction::North), carcassonne::make_edge(70, 70, carcassonne::Direction::SouthWest)));
    ASSERT_TRUE(g.is_town_field_connected(carcassonne::make_edge(70, 70, carcassonne::Direction::North), carcassonne::make_edge(70, 70, carcassonne::Direction::EastNorth)));
 }
+
+TEST(Board, CanPlace) {
+   carcassonne::game::Game g;
+   ASSERT_TRUE(g.can_place(8));
+   g.apply_tile(71, 70, 1, 3);
+   ASSERT_TRUE(g.can_place(8));
+   g.apply_tile(70, 69, 2, 2);
+   ASSERT_FALSE(g.can_place(8));
+   g.apply_tile(71, 69, 2, 2);
+   ASSERT_FALSE(g.can_place(8));
+   g.apply_tile(72, 69, 7, 0);
+   ASSERT_TRUE(g.can_place(8));
+   g.apply_tile(73, 69, 2, 3);
+   ASSERT_FALSE(g.can_place(8));
+   g.apply_tile(69, 69, 7, 1);
+   ASSERT_TRUE(g.can_place(8));
+   g.apply_tile(68, 69, 2, 1);
+   ASSERT_FALSE(g.can_place(8));
+   g.apply_tile(70, 68, 1, 3);
+   ASSERT_TRUE(g.can_place(8));
+   g.apply_tile(70, 67, 2, 2);
+   ASSERT_FALSE(g.can_place(8));
+   g.apply_tile(70, 71, 1, 1);
+   ASSERT_TRUE(g.can_place(8));
+}
+
+TEST(Board, PossibleMoves) {
+   carcassonne::game::Game g;
+   carcassonne::game::TileSet ts;
+   using carcassonne::game::PossibleMoves;
+   using carcassonne::PossibleMove;
+   using mb::u8;
+   g.find_possible_moves(8);
+   PossibleMoves expected_pm = PossibleMoves{PossibleMove(70, 69, 0)};
+   ASSERT_EQ(g.possible_moves()[0].x, expected_pm[0].x);
+   ASSERT_EQ(g.possible_moves()[0].y, expected_pm[0].y);
+   ASSERT_EQ(g.possible_moves()[0].rotation, expected_pm[0].rotation);
+
+   g.apply_tile(71, 70, 1, 3);
+   g.find_possible_moves(8);
+   u8 ii = 0;
+   for (int x = 70; x <= 71; x++)
+      for (u8 rotation = 0; rotation <= 3; rotation++) {
+         ASSERT_EQ(g.possible_moves()[ii].x, x);
+         ASSERT_EQ(g.possible_moves()[ii].y, 69);
+         ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
+         ii++;
+      }
+   
+   g.apply_tile(70, 69, 2, 2);
+   g.find_possible_moves(8);
+   ASSERT_EQ(g.possible_moves().size(), 0);
+
+   g.apply_tile(71, 69, 2, 2);
+   g.find_possible_moves(8);
+   ASSERT_EQ(g.possible_moves().size(), 0);
+
+   g.apply_tile(72, 69, 7, 0);
+   g.find_possible_moves(8);
+   ii = 0;
+   for (u8 rotation = 0; rotation <= 3; rotation++) {
+      ASSERT_EQ(g.possible_moves()[ii].x, 73);
+      ASSERT_EQ(g.possible_moves()[ii].y, 69);
+      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
+      ii++;
+   }
+
+   g.apply_tile(73, 69, 2, 3);
+   g.find_possible_moves(8);
+   ASSERT_EQ(g.possible_moves().size(), 0);
+
+   g.apply_tile(69, 69, 7, 1);
+   g.find_possible_moves(8);
+   ii = 0;
+   for (u8 rotation = 0; rotation <= 3; rotation++) {
+      ASSERT_EQ(g.possible_moves()[ii].x, 68);
+      ASSERT_EQ(g.possible_moves()[ii].y, 69);
+      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
+      ii++;
+   }
+
+   g.apply_tile(68, 69, 2, 1);
+   g.find_possible_moves(8);
+   ASSERT_EQ(g.possible_moves().size(), 0);
+
+   g.apply_tile(70, 68, 1, 3);
+   g.find_possible_moves(8);
+   ii = 0;
+   for (u8 rotation = 0; rotation <= 3; rotation++) {
+      ASSERT_EQ(g.possible_moves()[ii].x, 70);
+      ASSERT_EQ(g.possible_moves()[ii].y, 67);
+      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
+      ii++;
+   }
+
+   g.apply_tile(70, 67, 2, 2);
+   g.find_possible_moves(8);
+   ASSERT_EQ(g.possible_moves().size(), 0);
+
+   g.apply_tile(70, 71, 1, 1);
+   g.find_possible_moves(8);
+   ii = 0;
+   for (u8 rotation = 0; rotation <= 3; rotation++) {
+      ASSERT_EQ(g.possible_moves()[ii].x, 70);
+      ASSERT_EQ(g.possible_moves()[ii].y, 72);
+      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
+      ii++;
+   }
+}

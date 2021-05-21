@@ -12,18 +12,22 @@
 namespace carcassonne::game {
 
 using Towns = std::vector<std::pair<Group, Group>>;
-using Monastery = std::vector<TileType>;
 using EdgeGroups = Groups<g_edges_max>;
+using TileSet = std::vector<TileType>;
+using PossibleMoves = std::vector<PossibleMove>;
 
 class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
    mb::u8 m_player_count = 2;
+   mb::u8 m_move_nr = 0;
    std::vector<Figure> m_figures;
 
    Towns m_towns;
    EdgeGroups m_groups;
    ScoreBoard m_scores;
+   TileSet m_tile_set;
+   PossibleMoves m_possible_moves;
 
    std::random_device m_random_device;
    std::mt19937_64 m_random_generator;
@@ -36,10 +40,16 @@ class Game : public IGame {
    [[nodiscard]] Player current_player() const noexcept override;
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
+   [[nodiscard]] const TileSet &tile_set() const noexcept override;
+   [[nodiscard]] const PossibleMoves &possible_moves() const noexcept;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
+   void draw_tiles();
+   bool find_possible_moves(TileType tt) noexcept;
+   bool can_place(TileType tt) noexcept;
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
+   [[nodiscard]] mb::u8 move_nr() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) const noexcept;
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {

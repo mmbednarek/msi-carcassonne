@@ -6,6 +6,7 @@
 #include "Tiles.h"
 #include <mb/view.h>
 #include <memory>
+#include <mb/view.h>
 
 namespace carcassonne {
 
@@ -13,6 +14,12 @@ struct Figure {
    Player player;
    double x, y;
    Edge edge;
+};
+
+struct PossibleMove {
+   int x, y;
+   mb::u8 rotation;
+   PossibleMove(int _x, int _y, mb::u8 _r) : x{_x}, y{_y}, rotation{_r} {}
 };
 
 enum class MovePhase {
@@ -57,6 +64,9 @@ class IGame {
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
    [[nodiscard]] virtual mb::view<Figure> figures() const noexcept = 0;
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
+   [[nodiscard]] virtual mb::u8 move_nr() const noexcept = 0;
+   [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
+   [[nodiscard]] virtual const std::vector<PossibleMove> &possible_moves() const noexcept = 0;
 };
 
 }// namespace carcassonne
