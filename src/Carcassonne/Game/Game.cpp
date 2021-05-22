@@ -279,6 +279,7 @@ void Game::set_next_player() noexcept {
          m_game_finished = true;
          assign_final_points();
       }
+      return;
    }
 
    m_current_player = next_player(m_current_player, m_player_count);

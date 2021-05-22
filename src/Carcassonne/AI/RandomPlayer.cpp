@@ -13,16 +13,8 @@ RandomPlayer::RandomPlayer(IGame &game, Player player) : m_player(player), m_ran
 
 void RandomPlayer::make_move(IGame &game) noexcept {
    auto move = game.new_move(m_player);
-   if (move->tile_type() < 1 || move->tile_type() > 25) {
-      return;
-   }
 
    const auto possible_tile_moves = game.moves(move->tile_type());
-   if (possible_tile_moves.begin() == possible_tile_moves.end()) {
-      // WTF???
-      return;
-   }
-
    auto tile_placement_it = util::random_from_range(m_random_generator, possible_tile_moves.begin(), possible_tile_moves.end() - 1);
    const auto tile_placement = *tile_placement_it;
    move->place_tile(tile_placement.x, tile_placement.y, tile_placement.rotation);

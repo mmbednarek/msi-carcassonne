@@ -44,10 +44,10 @@ int main() {
    }
 
    carcassonne::game::Game game(player_count, game_seed);
-   carcassonne::frontend::GameView view(game, carcassonne::PlayerAssignment::Black);
+   carcassonne::frontend::GameView view(game, carcassonne::PlayerAssignment::None);
 
-   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(player_count - 1);
-   std::transform(carcassonne::g_players.begin() + 1, carcassonne::g_players.begin() + player_count, random_players.begin(), [&game](carcassonne::Player p) {
+   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(player_count);
+   std::transform(carcassonne::g_players.begin(), carcassonne::g_players.begin() + player_count, random_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::RandomPlayer>(game, p);
    });
 
