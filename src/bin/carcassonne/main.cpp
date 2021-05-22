@@ -14,14 +14,29 @@ uint64_t now_milis() {
            .count();
 }
 
+constexpr bool player_range_ok(int count) {
+   return count >= 0 && count <= 4;
+}
+
 int main() {
    using carcassonne::frontend::Status;
 
    auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("9"));
-   auto player_count = std::stoi(mb::getenv("C_PLAYER_COUNT").unwrap("2"));
+   auto human_player_count = std::stoi(mb::getenv("C_HUMAN_PLAYERS").unwrap("1"));
+   auto random_ai_player_count = std::stoi(mb::getenv("C_AI_RANDOM_PLAYERS").unwrap("1"));
 
-   if (player_count < 0 || player_count > 4) {
-      fmt::print(stderr, "invalid player count (0-4): {}", player_count);
+   if (!player_range_ok(human_player_count)) {
+      fmt::print(stderr, "invalid human player count (0-4): {}", human_player_count);
+      return 1;
+   }
+
+   if (!player_range_ok(random_ai_player_count)) {
+      fmt::print(stderr, "invalid random ai player count (0-4): {}", random_ai_player_count);
+      return 1;
+   }
+
+   if (!player_range_ok(human_player_count + random_ai_player_count)) {
+      fmt::print(stderr, "invalid player count (0-4): {}", human_player_count + random_ai_player_count);
       return 1;
    }
 
@@ -43,11 +58,19 @@ int main() {
       return 1;
    }
 
-   carcassonne::game::Game game(player_count, game_seed);
-   carcassonne::frontend::GameView view(game, carcassonne::PlayerAssignment::None);
+   carcassonne::game::Game game(human_player_count + random_ai_player_count, game_seed);
 
-   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(player_count);
-   std::transform(carcassonne::g_players.begin(), carcassonne::g_players.begin() + player_count, random_players.begin(), [&game](carcassonne::Player p) {
+   auto human_players = std::accumulate(
+           carcassonne::g_players.begin(),
+           carcassonne::g_players.begin() + human_player_count,
+           carcassonne::PlayerAssignment::None,
+           [](carcassonne::PlayerAssignment players, carcassonne::Player p) {
+              return players | carcassonne::player_to_assignment(p);
+           });
+   carcassonne::frontend::GameView view(game, human_players);
+
+   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(random_ai_player_count);
+   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), random_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::RandomPlayer>(game, p);
    });
 
