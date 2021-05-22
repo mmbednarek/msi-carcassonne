@@ -1,5 +1,6 @@
 #ifndef MSI_CARCASSONNE_CONNECTION_H
 #define MSI_CARCASSONNE_CONNECTION_H
+#include "Direction.h"
 #include <mb/int.h>
 
 namespace carcassonne {

@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
 #include <Carcassonne/Core.h>
 #include <Carcassonne/Game/Game.h>
 #include <fmt/core.h>
+#include <gtest/gtest.h>
 
 void assert_same_group(carcassonne::game::Game &g, const std::vector<carcassonne::Edge> &vec) {
    auto beg = vec.begin();
@@ -10,11 +10,11 @@ void assert_same_group(carcassonne::game::Game &g, const std::vector<carcassonne
       return;
 
    auto group = g.groups().group_of(*beg);
-   ASSERT_TRUE(std::all_of(beg+1, end, [&g, group](carcassonne::Edge e) { return g.groups().group_of(e) == group; }));
+   ASSERT_TRUE(std::all_of(beg + 1, end, [&g, group](carcassonne::Edge e) { return g.groups().group_of(e) == group; }));
 }
 
 TEST(Board, Basic) {
-   carcassonne::game::Game g;
+   carcassonne::game::Game g(0, 0);
    g.apply_tile(71, 70, 1, 3);
    g.apply_tile(70, 69, 2, 2);
    g.apply_tile(71, 69, 2, 2);
@@ -93,7 +93,7 @@ TEST(Board, Basic) {
 }
 
 TEST(Board, Path) {
-   carcassonne::game::Game g;
+   carcassonne::game::Game g(0, 0);
    g.apply_tile(71, 70, 9, 1);
    auto edgeTown1 = carcassonne::make_edge(71, 70, carcassonne::Direction::EastNorth);
    ASSERT_EQ(g.groups().type_of(edgeTown1), carcassonne::EdgeType::Town);
@@ -117,7 +117,7 @@ TEST(Board, Path) {
 }
 
 TEST(Board, FreeEdges) {
-   carcassonne::game::Game g;
+   carcassonne::game::Game g(0, 0);
    ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(70, 70, carcassonne::Direction::East)), 2);
    ASSERT_EQ(g.groups().free_edges(carcassonne::make_edge(70, 70, carcassonne::Direction::North)), 1);
    ASSERT_EQ(g.groups().tile_count(carcassonne::make_edge(70, 70, carcassonne::Direction::East)), 1);
@@ -147,7 +147,7 @@ TEST(Board, FreeEdges) {
 }
 
 TEST(Board, FieldTown) {
-   carcassonne::game::Game g;
+   carcassonne::game::Game g(0, 0);
    g.apply_tile(70, 69, 2, 2);
 
    ASSERT_FALSE(g.is_town_field_connected(carcassonne::make_edge(70, 70, carcassonne::Direction::North), carcassonne::make_edge(70, 70, carcassonne::Direction::SouthWest)));
@@ -155,7 +155,7 @@ TEST(Board, FieldTown) {
 }
 
 TEST(Board, CanPlace) {
-   carcassonne::game::Game g;
+   carcassonne::game::Game g(0, 0);
    ASSERT_TRUE(g.can_place(8));
    g.apply_tile(71, 70, 1, 3);
    ASSERT_TRUE(g.can_place(8));
@@ -180,85 +180,131 @@ TEST(Board, CanPlace) {
 }
 
 TEST(Board, PossibleMoves) {
-   carcassonne::game::Game g;
-   carcassonne::game::TileSet ts;
-   using carcassonne::game::PossibleMoves;
-   using carcassonne::PossibleMove;
+   using carcassonne::TileMove;
    using mb::u8;
-   g.find_possible_moves(8);
-   PossibleMoves expected_pm = PossibleMoves{PossibleMove(70, 69, 0)};
-   ASSERT_EQ(g.possible_moves()[0].x, expected_pm[0].x);
-   ASSERT_EQ(g.possible_moves()[0].y, expected_pm[0].y);
-   ASSERT_EQ(g.possible_moves()[0].rotation, expected_pm[0].rotation);
+
+   carcassonne::game::Game g(0, 0);
+   carcassonne::game::TileSet ts;
+
+   {
+      const auto move_rage = g.moves(8);
+      std::vector<TileMove> moves(move_rage.begin(), move_rage.end());
+      std::vector<TileMove> expected_moves{
+              TileMove{70, 69, 0},
+              TileMove{70, 69, 1},
+              TileMove{70, 69, 2},
+              TileMove{70, 69, 3},
+      };
+      ASSERT_EQ(moves, expected_moves);
+   }
 
    g.apply_tile(71, 70, 1, 3);
-   g.find_possible_moves(8);
-   u8 ii = 0;
-   for (int x = 70; x <= 71; x++)
-      for (u8 rotation = 0; rotation <= 3; rotation++) {
-         ASSERT_EQ(g.possible_moves()[ii].x, x);
-         ASSERT_EQ(g.possible_moves()[ii].y, 69);
-         ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
-         ii++;
+   {
+      const auto move_rage = g.moves(8);
+      std::vector<TileMove> moves(move_rage.begin(), move_rage.end());
+
+      u8 index = 0;
+      for (int x = 70; x <= 71; x++) {
+         for (u8 rotation = 0; rotation <= 3; rotation++) {
+            TileMove expected_move{x, 69, rotation};
+            ASSERT_EQ(moves[index], expected_move);
+            ++index;
+         }
       }
-   
+   }
+
    g.apply_tile(70, 69, 2, 2);
-   g.find_possible_moves(8);
-   ASSERT_EQ(g.possible_moves().size(), 0);
+   {
+      const auto move_rage = g.moves(8);
+      ASSERT_EQ(move_rage.begin(), move_rage.end());
+   }
 
    g.apply_tile(71, 69, 2, 2);
-   g.find_possible_moves(8);
-   ASSERT_EQ(g.possible_moves().size(), 0);
+   {
+      const auto move_rage = g.moves(8);
+      ASSERT_EQ(move_rage.begin(), move_rage.end());
+   }
 
    g.apply_tile(72, 69, 7, 0);
-   g.find_possible_moves(8);
-   ii = 0;
-   for (u8 rotation = 0; rotation <= 3; rotation++) {
-      ASSERT_EQ(g.possible_moves()[ii].x, 73);
-      ASSERT_EQ(g.possible_moves()[ii].y, 69);
-      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
-      ii++;
+   {
+      const auto move_rage = g.moves(8);
+      std::vector<TileMove> moves(move_rage.begin(), move_rage.end());
+      auto index = 0;
+      for (u8 rotation = 0; rotation <= 3; rotation++) {
+         TileMove expected_move{73, 69, rotation};
+         ASSERT_EQ(moves[index], expected_move);
+         ++index;
+      }
    }
 
    g.apply_tile(73, 69, 2, 3);
-   g.find_possible_moves(8);
-   ASSERT_EQ(g.possible_moves().size(), 0);
+   {
+      const auto move_rage = g.moves(8);
+      ASSERT_EQ(move_rage.begin(), move_rage.end());
+   }
 
    g.apply_tile(69, 69, 7, 1);
-   g.find_possible_moves(8);
-   ii = 0;
-   for (u8 rotation = 0; rotation <= 3; rotation++) {
-      ASSERT_EQ(g.possible_moves()[ii].x, 68);
-      ASSERT_EQ(g.possible_moves()[ii].y, 69);
-      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
-      ii++;
+   {
+      const auto move_rage = g.moves(8);
+      std::vector<TileMove> moves(move_rage.begin(), move_rage.end());
+      auto index = 0;
+      for (u8 rotation = 0; rotation <= 3; rotation++) {
+         TileMove expected_move{68, 69, rotation};
+         ASSERT_EQ(moves[index], expected_move);
+         ++index;
+      }
    }
 
    g.apply_tile(68, 69, 2, 1);
-   g.find_possible_moves(8);
-   ASSERT_EQ(g.possible_moves().size(), 0);
+   {
+      const auto move_rage = g.moves(8);
+      ASSERT_EQ(move_rage.begin(), move_rage.end());
+   }
 
    g.apply_tile(70, 68, 1, 3);
-   g.find_possible_moves(8);
-   ii = 0;
-   for (u8 rotation = 0; rotation <= 3; rotation++) {
-      ASSERT_EQ(g.possible_moves()[ii].x, 70);
-      ASSERT_EQ(g.possible_moves()[ii].y, 67);
-      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
-      ii++;
+   {
+      const auto move_rage = g.moves(8);
+      std::vector<TileMove> moves(move_rage.begin(), move_rage.end());
+      auto index = 0;
+      for (u8 rotation = 0; rotation <= 3; rotation++) {
+         TileMove expected_move{70, 67, rotation};
+         ASSERT_EQ(moves[index], expected_move);
+         index++;
+      }
    }
 
    g.apply_tile(70, 67, 2, 2);
-   g.find_possible_moves(8);
-   ASSERT_EQ(g.possible_moves().size(), 0);
+   {
+      const auto move_rage = g.moves(8);
+      ASSERT_EQ(move_rage.begin(), move_rage.end());
+   }
 
    g.apply_tile(70, 71, 1, 1);
-   g.find_possible_moves(8);
-   ii = 0;
-   for (u8 rotation = 0; rotation <= 3; rotation++) {
-      ASSERT_EQ(g.possible_moves()[ii].x, 70);
-      ASSERT_EQ(g.possible_moves()[ii].y, 72);
-      ASSERT_EQ(g.possible_moves()[ii].rotation, rotation);
-      ii++;
+   {
+
+      const auto move_rage = g.moves(8);
+      std::vector<TileMove> moves(move_rage.begin(), move_rage.end());
+      auto index = 0;
+      for (u8 rotation = 0; rotation <= 3; rotation++) {
+         TileMove expected_move{70, 72, rotation};
+         ASSERT_EQ(moves[index], expected_move);
+         index++;
+      }
    }
+}
+
+TEST(Board, PossibleMoves2) {
+   carcassonne::game::Game g(0, 0);
+   auto move_range = g.moves(22);
+   std::vector<carcassonne::TileMove> moves(move_range.begin(), move_range.end());
+   std::vector<carcassonne::TileMove> expected_moves{
+           carcassonne::TileMove{69, 70, 0},
+           carcassonne::TileMove{69, 70, 2},
+           carcassonne::TileMove{69, 70, 3},
+           carcassonne::TileMove{71, 70, 0},
+           carcassonne::TileMove{71, 70, 1},
+           carcassonne::TileMove{71, 70, 2},
+           carcassonne::TileMove{70, 71, 0},
+   };
+   ASSERT_EQ(moves, expected_moves);
 }

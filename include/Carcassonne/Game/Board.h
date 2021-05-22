@@ -1,6 +1,7 @@
-#ifndef MSI_CARCASSONNE_BOARD_H
-#define MSI_CARCASSONNE_BOARD_H
-#include <Carcassonne/Core.h>
+#ifndef MSI_CARCASSONNE_GAME_BOARD_H
+#define MSI_CARCASSONNE_GAME_BOARD_H
+#include <array>
+#include <Carcassonne/Board.h>
 #include <mb/int.h>
 
 namespace carcassonne::game {
@@ -25,4 +26,4 @@ class Board : public IBoard {
 
 }// namespace carcassonne::game
 
-#endif//MSI_CARCASSONNE_BOARD_H
+#endif//MSI_CARCASSONNE_GAME_BOARD_H

@@ -1,60 +1,21 @@
 #ifndef MSI_CARCASSONNE_CORE_H
 #define MSI_CARCASSONNE_CORE_H
+#include "Board.h"
 #include "Direction.h"
 #include "Edge.h"
+#include "Move.h"
 #include "Player.h"
-#include "Tiles.h"
+#include "ScoreBoard.h"
 #include <mb/view.h>
 #include <memory>
-#include <mb/view.h>
 
 namespace carcassonne {
 
 struct Figure {
    Player player;
    double x, y;
+   int tile_x, tile_y;
    Edge edge;
-};
-
-struct PossibleMove {
-   int x, y;
-   mb::u8 rotation;
-   PossibleMove(int _x, int _y, mb::u8 _r) : x{_x}, y{_y}, rotation{_r} {}
-};
-
-enum class MovePhase {
-   PlaceTile,
-   PlaceFigure,
-   Done
-};
-
-class ScoreBoard;
-
-class IMove {
- public:
-   [[nodiscard]] virtual Player player() const noexcept = 0;
-   [[nodiscard]] virtual TileType tile_type() const noexcept = 0;
-   [[nodiscard]] virtual MovePhase phase() const noexcept = 0;
-   [[nodiscard]] virtual bool is_free(Direction d) const noexcept = 0;
-   [[nodiscard]] virtual TilePosition position() const noexcept = 0;
-   virtual void place_tile(int x, int y, mb::u8 rotation) noexcept = 0;
-   virtual void place_figure(Direction d) noexcept = 0;
-   virtual void ignore_figure() noexcept = 0;
-};
-
-/*
- The maximal board size is 141x141
- Starting tile is at x = 70, y = 70
- */
-class IBoard {
- public:
-   [[nodiscard]] virtual int min_x() const noexcept = 0;
-   [[nodiscard]] virtual int min_y() const noexcept = 0;
-   [[nodiscard]] virtual int max_x() const noexcept = 0;
-   [[nodiscard]] virtual int max_y() const noexcept = 0;
-   [[nodiscard]] virtual TilePlacement tile_at(int x, int y) const noexcept = 0;
-   [[nodiscard]] virtual bool can_place_at(int x, int y, TileType t, mb::u8 rotation) const noexcept = 0;
-   virtual void set_tile(int x, int y, TileType t, mb::u8 rotation) noexcept = 0;
 };
 
 class IGame {
@@ -64,9 +25,21 @@ class IGame {
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
    [[nodiscard]] virtual mb::view<Figure> figures() const noexcept = 0;
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
-   [[nodiscard]] virtual mb::u8 move_nr() const noexcept = 0;
+   [[nodiscard]] virtual mb::u8 move_index() const noexcept = 0;
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
-   [[nodiscard]] virtual const std::vector<PossibleMove> &possible_moves() const noexcept = 0;
+   [[nodiscard]] virtual std::vector<Direction> figure_placements(int x, int y) const noexcept = 0;
+   virtual void start() noexcept = 0;
+   virtual void on_next_move(std::function<void(IGame &, Player)> callback) noexcept = 0;
+
+   [[nodiscard]] inline MoveRange moves(TileType tile_type = 0) const {
+      if (tile_type == 0) {
+         tile_type = tile_set()[move_index()];
+      }
+      return MoveRange{
+              .from = MoveIter(board(), tile_type),
+              .to = MoveIter(board(), tile_type, board().min_x() - 1, board().max_y() + 1, 0),
+      };
+   }
 };
 
 }// namespace carcassonne

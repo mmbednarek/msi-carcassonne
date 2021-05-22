@@ -1,3 +1,0 @@
-project(msi_carcassonne_game_ai)
-add_library(msi_carcassonne_game_ai RandomPlayer.cpp)
-target_link_libraries(msi_carcassonne_game_ai libmb fmt)

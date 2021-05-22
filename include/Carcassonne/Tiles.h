@@ -1,15 +1,17 @@
 #ifndef MSI_CARCASSONNE_TILES_H
 #define MSI_CARCASSONNE_TILES_H
-#include <Carcassonne/Contact.h>
 #include <Carcassonne/Connection.h>
+#include <Carcassonne/Contact.h>
 #include <algorithm>
+#include <limits>
 
 namespace carcassonne {
 
 enum class EdgeType {
    Grass,
    Path,
-   Town
+   Town,
+   Monastery
 };
 
 struct Tile {

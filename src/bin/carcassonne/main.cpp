@@ -1,3 +1,4 @@
+#include <Carcassonne/AI/RandomPlayer.h>
 #include <Carcassonne/Frontend/GameView.h>
 #include <Carcassonne/Frontend/Resource.h>
 #include <Carcassonne/Game/Game.h>
@@ -15,6 +16,14 @@ uint64_t now_milis() {
 
 int main() {
    using carcassonne::frontend::Status;
+
+   auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("9"));
+   auto player_count = std::stoi(mb::getenv("C_PLAYER_COUNT").unwrap("2"));
+
+   if (player_count < 0 || player_count > 4) {
+      fmt::print(stderr, "invalid player count (0-4): {}", player_count);
+      return 1;
+   }
 
    graphics::Config cfg{
            .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("800")),
@@ -34,13 +43,19 @@ int main() {
       return 1;
    }
 
-   carcassonne::game::Game game;
-   carcassonne::frontend::GameView view(game);
+   carcassonne::game::Game game(player_count, game_seed);
+   carcassonne::frontend::GameView view(game, carcassonne::PlayerAssignment::Black);
 
+   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(player_count - 1);
+   std::transform(carcassonne::g_players.begin() + 1, carcassonne::g_players.begin() + player_count, random_players.begin(), [&game](carcassonne::Player p) {
+      return std::make_unique<carcassonne::ai::RandomPlayer>(game, p);
+   });
 
    constexpr double dt = 1000.0 / 60.0;
    auto prev_time = static_cast<double>(now_milis());
    auto dt_accum = 0.0;
+
+   game.start();
 
    while (view.status() != Status::Quitting) {
       auto now = static_cast<double>(now_milis());

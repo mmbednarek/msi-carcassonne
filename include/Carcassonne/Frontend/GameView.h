@@ -22,6 +22,7 @@ class GameView {
    IGame &m_game;
    std::unique_ptr<IMove> m_move;
 
+   PlayerAssignment m_controlled_players;
    Status m_status = Status::Init;
    Camera m_camera;
    BoardView m_board_view;
@@ -35,7 +36,7 @@ class GameView {
 
 
  public:
-   explicit GameView(IGame &game);
+   explicit GameView(IGame &game, PlayerAssignment controlled_players);
 
    void update(double dt);
    void render(const graphics::Context &ctx) const noexcept;
