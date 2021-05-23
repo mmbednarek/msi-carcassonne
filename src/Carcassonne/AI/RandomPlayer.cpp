@@ -12,6 +12,9 @@ RandomPlayer::RandomPlayer(IGame &game, Player player) : m_player(player), m_ran
 }
 
 void RandomPlayer::make_move(IGame &game) noexcept {
+   if (game.move_index() >= game.tile_set().size()) {
+      return;
+   }
    auto move = game.new_move(m_player);
 
    const auto possible_tile_moves = game.moves(move->tile_type());
