@@ -45,7 +45,8 @@ std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
          while (!can_place(m_tile_set[m_move_index])) {
             std::rotate(m_tile_set.begin() + m_move_index, m_tile_set.begin() + m_move_index + 1, m_tile_set.end());
             if (--rotations == 0) {// if went back to the tile with which rotating started
-               m_move_index++;
+               // m_move_index++;
+               m_game_finished = true;
                break;
             }
          }
@@ -55,7 +56,7 @@ std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
    if (m_move_index != move_index) {
       std::iter_swap(m_tile_set.begin() + m_move_index, m_tile_set.begin() + move_index);
    }
-   tt = m_tile_set[m_move_index++];
+   tt = m_tile_set[m_move_index];
    return std::make_unique<Move>(p, tt, *this);
 }
 
@@ -274,6 +275,7 @@ void Game::start() noexcept {
 }
 
 void Game::set_next_player() noexcept {
+   m_move_index++;
    if (m_move_index >= m_tile_set.size()) {
       if (!m_game_finished) {
          m_game_finished = true;
