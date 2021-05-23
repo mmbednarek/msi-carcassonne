@@ -23,7 +23,7 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
 
    if (m_game.player_figure_count(m_player) == 0 || std::all_of(g_directions.cbegin(), g_directions.cend(), [this](Direction d) { return !is_free(d); })) {
       m_phase = MovePhase::Done;
-      m_game.set_next_player();
+      m_game.notify_tour_finished();
    }
 }
 
@@ -56,14 +56,14 @@ void Move::place_figure(Direction d) noexcept {
    }
 
    m_phase = MovePhase::Done;
-   m_game.set_next_player();
+   m_game.notify_tour_finished();
 }
 
 void Move::ignore_figure() noexcept {
    if (m_phase != MovePhase::PlaceFigure)
       return;
    m_phase = MovePhase::Done;
-   m_game.set_next_player();
+   m_game.notify_tour_finished();
 }
 
 MovePhase Move::phase() const noexcept {

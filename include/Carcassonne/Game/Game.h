@@ -25,6 +25,7 @@ class Game : public IGame {
    std::vector<std::function<void(IGame &, Player)>> m_next_move_callbacks;
    bool m_game_finished = false;
    std::array<mb::u8, 4> m_figure_count{};
+   bool m_tour_finished = false;
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -48,17 +49,17 @@ class Game : public IGame {
    [[nodiscard]] std::vector<Direction> figure_placements(int x, int y) const noexcept override;
    void on_next_move(std::function<void(IGame &, Player)> callback) noexcept override;
    void start() noexcept override;
+   void update(double dt) noexcept override;
 
    [[nodiscard]] bool can_place_figure(int x, int y, Direction d) const;
    [[nodiscard]] bool is_monastery_completed(int x, int y) noexcept;
+   [[nodiscard]] mb::u8 player_figure_count(Player p) const noexcept;
+   void notify_tour_finished() noexcept;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
    void draw_tiles();
    void add_figure(Figure f);
-   void set_next_player() noexcept;
-   void assign_final_points() noexcept;
-   [[nodiscard]] mb::u8 player_figure_count(Player p) const noexcept;
 
    [[nodiscard]] constexpr Board &mutable_board() noexcept {
       return m_board;
@@ -71,6 +72,10 @@ class Game : public IGame {
    [[nodiscard]] constexpr const EdgeGroups &groups() const noexcept {
       return m_groups;
    }
+
+ private:
+   void set_next_player() noexcept;
+   void assign_final_points() noexcept;
 };
 
 }// namespace carcassonne::game

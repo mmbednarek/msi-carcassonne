@@ -331,4 +331,15 @@ mb::u8 Game::player_figure_count(Player p) const noexcept {
    return m_figure_count[static_cast<mb::size>(p)];
 }
 
+void Game::update(double dt) noexcept {
+   if (m_tour_finished) {
+      m_tour_finished = false;
+      set_next_player();
+   }
+}
+
+void Game::notify_tour_finished() noexcept {
+   m_tour_finished = true;
+}
+
 }// namespace carcassonne::game

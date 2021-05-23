@@ -30,6 +30,7 @@ class IGame {
    [[nodiscard]] virtual std::vector<Direction> figure_placements(int x, int y) const noexcept = 0;
    virtual void start() noexcept = 0;
    virtual void on_next_move(std::function<void(IGame &, Player)> callback) noexcept = 0;
+   virtual void update(double dt) noexcept = 0;
 
    [[nodiscard]] inline MoveRange moves(TileType tile_type = 0) const {
       if (tile_type == 0) {

@@ -88,6 +88,7 @@ int main() {
       dt_accum += diff;
       while (dt_accum > dt) {
          dt_accum -= dt;
+         game.update(dt);
          view.update(dt);
       }
       carcassonne::frontend::ResourceManager::the().pre_render_hook(surface);
