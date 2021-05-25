@@ -6,7 +6,9 @@
 
 namespace carcassonne::game {
 
-Game::Game() : m_random_generator(9) {
+Game::Game(int player_count, mb::u64 seed) : m_random_generator(seed),
+                                             m_player_count(player_count) {
+   std::fill(m_figure_count.begin(), m_figure_count.end(), 7);
    apply_tile(70, 70, 1, 3);
    draw_tiles();
 }
@@ -19,70 +21,41 @@ Player Game::current_player() const noexcept {
    return m_current_player;
 }
 
-mb::u8 Game::move_nr() const noexcept {
-   return m_move_nr;
+mb::u8 Game::move_index() const noexcept {
+   return m_move_index;
 }
 
 const TileSet &Game::tile_set() const noexcept {
    return m_tile_set;
 }
 
-const PossibleMoves &Game::possible_moves() const noexcept {
-   return m_possible_moves;
-}
-
-bool Game::find_possible_moves(TileType tt) noexcept {
-   m_possible_moves = PossibleMoves();
-   bool possible_move_exists = false;
-   for (int _x = board().min_x() - 1; _x < board().max_x() + 1; _x++) {
-      for (int _y = board().min_y() - 1; _y < board().max_y() + 1; _y++) {
-         for (mb::u8 rotation = 0; rotation < 4; rotation++) {
-            if (board().can_place_at(_x, _y, tt, rotation)) {
-               m_possible_moves.push_back(PossibleMove(_x,_y,rotation));
-               possible_move_exists = true;
-            }
-         }
-      }
-   }
-   return possible_move_exists;
-}
-
-bool Game::can_place(TileType tt) noexcept {
-   bool can_place = false;
-   for (int _x = board().min_x() - 1; _x < board().max_x() + 1; _x++) {
-      for (int _y = board().min_y() - 1; _y < board().max_y() + 1; _y++) {
-         for (mb::u8 rotation = 0; rotation < 4; ++rotation) {
-            if (board().can_place_at(_x, _y, tt, rotation)) {
-               return true;
-            }
-         }
-      }
-   }
-   return false;
+bool Game::can_place(TileType tt) const noexcept {
+   auto move_range = moves(tt);
+   return move_range.begin() != move_range.end();
 }
 
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   TileType tt = m_tile_set[m_move_nr];
-   mb::u8 move_nr = m_move_nr;
-   while (m_move_nr != 0 && m_move_nr != m_tile_set.size() - 1 && !can_place(tt)) {
-      move_nr += m_player_count;
-      tt = m_tile_set[move_nr];
-      if (move_nr + m_player_count >= m_tile_set.size() - 1) { // if there is no tile to be swapped
-         mb::u8 rotations = m_tile_set.size() - move_nr;
-         while (!can_place(m_tile_set[m_move_nr])) {
-            std::rotate(m_tile_set.begin() + m_move_nr, m_tile_set.begin() + m_move_nr + 1, m_tile_set.end());
-            if(--rotations == 0) { // if went back to the tile with which rotating started
-               m_move_nr++;
+   auto tt = m_tile_set[m_move_index];
+   auto move_index = m_move_index;
+   while (m_move_index != 0 && m_move_index < m_tile_set.size() - 1 && !can_place(tt)) {
+      move_index += m_player_count;
+      tt = m_tile_set[move_index];
+      if (move_index + m_player_count >= m_tile_set.size() - 1) {// if there is no tile to be swapped
+         mb::u8 rotations = m_tile_set.size() - move_index;
+         while (!can_place(m_tile_set[m_move_index])) {
+            std::rotate(m_tile_set.begin() + m_move_index, m_tile_set.begin() + m_move_index + 1, m_tile_set.end());
+            if (--rotations == 0) {// if went back to the tile with which rotating started
+               m_move_index++;
                break;
             }
          }
-         move_nr = m_move_nr;
+         move_index = m_move_index;
       }
    }
-   if (m_move_nr != move_nr) {
-      std::iter_swap(m_tile_set.begin() + m_move_nr, m_tile_set.begin() + move_nr);
+   if (m_move_index != move_index) {
+      std::iter_swap(m_tile_set.begin() + m_move_index, m_tile_set.begin() + move_index);
    }
-   tt = m_tile_set[m_move_nr++];
+   tt = m_tile_set[m_move_index++];
    return std::make_unique<Move>(p, tt, *this);
 }
 
@@ -91,6 +64,7 @@ mb::view<Figure> Game::figures() const noexcept {
 }
 
 void Game::add_figure(Figure f) {
+   --m_figure_count[static_cast<mb::size>(f.player)];
    m_figures.push_back(f);
 }
 
@@ -141,6 +115,8 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
       m_groups.inc_tiles(group);
    }
 
+   m_groups.set_type(make_edge(x, y, Direction::Middle), EdgeType::Monastery);
+
    for (mb::u8 direction_id = 5; direction_id < 13; ++direction_id) {
       m_groups.set_type(make_edge(x, y, static_cast<Direction>(direction_id)), tile.field_edges[direction_id - 5]);
    }
@@ -186,8 +162,12 @@ void Game::on_structure_completed(Group g) {
    }
 
    std::erase_if(m_figures,
-                 [&groups = m_groups, target_group = g](const Figure &f) {
-                    return groups.group_of(f.edge) == target_group;
+                 [this, &groups = m_groups, target_group = g](const Figure &f) {
+                    if (groups.group_of(f.edge) == target_group) {
+                       ++m_figure_count[static_cast<mb::size>(f.player)];
+                       return true;
+                    }
+                    return false;
                  });
 }
 
@@ -205,8 +185,12 @@ bool Game::is_monastery_completed(int x, int y) noexcept {
 void Game::on_monastery_completed(int x, int y, Player player) {
    m_scores.add_points(player, 9);
    std::erase_if(m_figures,
-                 [&x, &y](const Figure &f) {
-                    return f.x == x + 0.5 && f.y == y + 0.5;
+                 [&x, &y, this](const Figure &f) {
+                    if (f.tile_x == x && f.tile_y == y) {
+                       ++m_figure_count[static_cast<mb::size>(f.player)];
+                       return true;
+                    }
+                    return false;
                  });
 }
 
@@ -214,19 +198,148 @@ const ScoreBoard &Game::scores() const noexcept {
    return m_scores;
 }
 
-bool Game::is_town_field_connected(Edge town, Edge field) const noexcept {
-   return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(m_groups.group_of(town), m_groups.group_of(field))) != m_towns.end();
+bool Game::is_town_field_connected(Edge town, Edge field) noexcept {
+   std::transform(m_towns.begin(), m_towns.end(), m_towns.begin(), [this](std::pair<Edge, Edge> &pair) {
+      return std::make_pair(static_cast<Edge>(m_groups.group_of(pair.first)), static_cast<Edge>(m_groups.group_of(pair.second)));
+   });
+   return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(static_cast<Edge>(m_groups.group_of(town)), static_cast<Edge>(m_groups.group_of(field)))) != m_towns.end();
 }
 
 void Game::draw_tiles() {
    TileType tt = 0;
-   for(const auto& tile : g_tiles) {
-      for(size_t i = 0; i < tile.amount; i++) {
+   for (const auto &tile : g_tiles) {
+      for (size_t i = 0; i < tile.amount; i++) {
          m_tile_set.push_back(static_cast<TileType>(tt));
       }
       tt++;
    }
    std::shuffle(m_tile_set.begin(), m_tile_set.end(), m_random_generator);
+}
+
+void Game::on_next_move(std::function<void(IGame &, Player)> callback) noexcept {
+   m_next_move_callbacks.push_back(callback);
+}
+
+std::vector<Direction> Game::figure_placements(int x, int y) const noexcept {
+   std::vector<Direction> result;
+   result.reserve(8);
+   for (const auto dir : g_directions) {
+      if (!can_place_figure(x, y, dir))
+         continue;
+
+      result.push_back(dir);
+   }
+
+   // TODO: Remove connected duplicated
+
+   return result;
+}
+
+bool Game::can_place_figure(int x, int y, Direction d) const {
+   if (d == Direction::Middle) {
+      return m_board.tile_at(x, y).tile().monastery;
+   }
+
+   auto edge = make_edge(x, y, d);
+   auto edge_type = m_groups.type_of(edge);
+
+   switch (d) {
+   case Direction::North:
+   case Direction::East:
+   case Direction::South:
+   case Direction::West:
+      if (edge_type == EdgeType::Grass)
+         return false;
+      break;
+   case Direction::EastNorth:
+   case Direction::NorthEast:
+   case Direction::SouthEast:
+   case Direction::EastSouth:
+   case Direction::WestSouth:
+   case Direction::SouthWest:
+   case Direction::NorthWest:
+   case Direction::WestNorth:
+      if (edge_type != EdgeType::Grass)
+         return false;
+      break;
+   }
+
+   return m_groups.is_free(edge);
+}
+
+void Game::start() noexcept {
+   for (const auto &callback : m_next_move_callbacks) {
+      callback(*this, m_current_player);
+   }
+}
+
+void Game::set_next_player() noexcept {
+   if (m_move_index >= m_tile_set.size()) {
+      if (!m_game_finished) {
+         m_game_finished = true;
+         assign_final_points();
+      }
+      return;
+   }
+
+   m_current_player = next_player(m_current_player, m_player_count);
+   for (const auto &callback : m_next_move_callbacks) {
+      callback(*this, m_current_player);
+   }
+}
+
+void Game::assign_final_points() noexcept {
+   for (const auto figure : m_figures) {
+      auto tile_type = m_groups.type_of(figure.edge);
+
+      switch (tile_type) {
+      case EdgeType::Grass:
+         continue;
+      case EdgeType::Monastery: {
+         short point_count{};
+         for (auto y = figure.tile_y - 1; y <= figure.tile_y + 1; ++y) {
+            for (auto x = figure.tile_x - 1; x <= figure.tile_x + 1; ++x) {
+               if (x == figure.tile_x && y == figure.tile_y)
+                  continue;
+               if (m_board.tile_at(x, y).type == 0)
+                  continue;
+
+               ++point_count;
+            }
+         }
+         m_scores.add_points(figure.player, point_count);
+         continue;
+      }
+      default:
+         m_scores.add_points(figure.player, m_groups.tile_count(figure.edge));
+         break;
+      }
+   }
+
+   for (const auto pair : m_towns) {
+      Edge town, field;
+      std::tie(town, field) = pair;
+
+      if (!m_groups.is_completed(town))
+         continue;
+
+      m_scores.add_points(m_groups.assigment(field), 3);
+   }
+}
+
+mb::u8 Game::player_figure_count(Player p) const noexcept {
+   return m_figure_count[static_cast<mb::size>(p)];
+}
+
+void Game::update(double dt) noexcept {
+   if (m_tour_finished) {
+      m_tour_finished = false;
+      set_next_player();
+   }
+}
+
+void Game::notify_tour_finished() noexcept {
+   m_tour_finished = true;
 }
 
 }// namespace carcassonne::game

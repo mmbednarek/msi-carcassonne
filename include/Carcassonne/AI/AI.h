@@ -3,7 +3,7 @@
 
 // AI implementation
 
-namespace carcassonne::game::ai {
+namespace carcassonne::ai {
 
 
 } // namespace carcassonne::game::ai

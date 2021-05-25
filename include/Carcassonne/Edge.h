@@ -4,9 +4,6 @@
 #include <limits>
 namespace carcassonne {
 
-constexpr mb::size g_board_width = 141;
-constexpr mb::size g_board_height = 141;
-
 using Edge = mb::u32;
 
 constexpr auto g_edges_horizontal = 0;

@@ -21,8 +21,9 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
 
    m_game.apply_tile(x, y, m_tile_type, rotation);
 
-   if (std::all_of(g_directions.cbegin(), g_directions.cend(), [this](Direction d) { return !is_free(d); })) {
+   if (m_game.player_figure_count(m_player) == 0 || std::all_of(g_directions.cbegin(), g_directions.cend(), [this](Direction d) { return !is_free(d); })) {
       m_phase = MovePhase::Done;
+      m_game.notify_tour_finished();
    }
 }
 
@@ -41,6 +42,8 @@ void Move::place_figure(Direction d) noexcept {
            .player = m_player,
            .x = px,
            .y = py,
+           .tile_x = m_x,
+           .tile_y = m_y,
            .edge = edge,
    });
 
@@ -52,15 +55,15 @@ void Move::place_figure(Direction d) noexcept {
       m_game.on_monastery_completed(m_x, m_y, m_player);
    }
 
-   m_game.set_next_player();
    m_phase = MovePhase::Done;
+   m_game.notify_tour_finished();
 }
 
 void Move::ignore_figure() noexcept {
    if (m_phase != MovePhase::PlaceFigure)
       return;
-   m_game.set_next_player();
    m_phase = MovePhase::Done;
+   m_game.notify_tour_finished();
 }
 
 MovePhase Move::phase() const noexcept {
@@ -72,35 +75,7 @@ TilePosition Move::position() const noexcept {
 }
 
 bool Move::is_free(Direction d) const noexcept {
-   if (d == Direction::Middle) {
-      return m_game.board().tile_at(m_x, m_y).tile().monastery;
-   }
-
-   auto edge = make_edge(m_x, m_y, d);
-   auto edge_type = m_game.groups().type_of(edge);
-
-   switch (d) {
-   case Direction::North:
-   case Direction::East:
-   case Direction::South:
-   case Direction::West:
-      if (edge_type == EdgeType::Grass)
-         return false;
-      break;
-   case Direction::EastNorth:
-   case Direction::NorthEast:
-   case Direction::SouthEast:
-   case Direction::EastSouth:
-   case Direction::WestSouth:
-   case Direction::SouthWest:
-   case Direction::NorthWest:
-   case Direction::WestNorth:
-      if (edge_type != EdgeType::Grass)
-         return false;
-      break;
-   }
-
-   return m_game.groups().is_free(edge);
+   return m_game.can_place_figure(m_x, m_y, d);
 }
 
 }// namespace carcassonne::game

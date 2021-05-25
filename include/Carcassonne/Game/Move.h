@@ -1,5 +1,5 @@
-#ifndef MSI_CARCASSONNE_MOVE_H
-#define MSI_CARCASSONNE_MOVE_H
+#ifndef MSI_CARCASSONNE_GAME_MOVE_H
+#define MSI_CARCASSONNE_GAME_MOVE_H
 #include <Carcassonne/Core.h>
 
 namespace carcassonne::game {
@@ -28,4 +28,4 @@ class Move : public IMove {
 
 }// namespace carcassonne::game
 
-#endif//MSI_CARCASSONNE_MOVE_H
+#endif//MSI_CARCASSONNE_GAME_MOVE_H

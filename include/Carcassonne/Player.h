@@ -10,6 +10,13 @@ enum class Player : mb::u8 {
    Red = 3,
 };
 
+constexpr std::array<Player, 4> g_players {
+        Player::Black,
+        Player::Blue,
+        Player::Yellow,
+        Player::Red,
+};
+
 enum class PlayerAssignment : mb::u8 {
    None = 0,
    Black = 1 << 0,

@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_SCOREBOARD_H
 #define MSI_CARCASSONNE_SCOREBOARD_H
-#include "Core.h"
+#include "Player.h"
 #include <set>
 
 namespace carcassonne {
