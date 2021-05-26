@@ -1,6 +1,6 @@
-#ifndef MSI_CARCASSONNE_CORE_H
-#define MSI_CARCASSONNE_CORE_H
-#include "Board.h"
+#ifndef MSI_CARCASSONNE_IGAME_H
+#define MSI_CARCASSONNE_IGAME_H
+#include "IBoard.h"
 #include "Direction.h"
 #include "Edge.h"
 #include "Move.h"
@@ -20,6 +20,8 @@ struct Figure {
 
 class IGame {
  public:
+   virtual ~IGame() = default;
+   virtual IGame *clone() const noexcept = 0;
    [[nodiscard]] virtual const IBoard &board() const noexcept = 0;
    [[nodiscard]] virtual Player current_player() const noexcept = 0;
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
@@ -45,4 +47,4 @@ class IGame {
 
 }// namespace carcassonne
 
-#endif//MSI_CARCASSONNE_CORE_H
+#endif//MSI_CARCASSONNE_IGAME_H

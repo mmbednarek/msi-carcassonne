@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_GAME_MOVE_H
 #define MSI_CARCASSONNE_GAME_MOVE_H
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 
 namespace carcassonne::game {
 

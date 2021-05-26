@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 
 TEST(Tile, RotateBasic) {
    using carcassonne::EdgeType;

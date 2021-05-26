@@ -5,7 +5,7 @@
 #include "PlaceFigureView.h"
 #include "PlaceTileView.h"
 #include "ScoreBoardView.h"
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <Graphics/Context.h>
 #include <Input/Input.h>
 #include <random>

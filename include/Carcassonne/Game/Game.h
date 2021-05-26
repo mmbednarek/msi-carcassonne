@@ -1,7 +1,7 @@
 #ifndef MSI_CARCASSONNE_GAME_H
 #define MSI_CARCASSONNE_GAME_H
 #include "Board.h"
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <Carcassonne/Groups.h>
 #include <Carcassonne/ScoreBoard.h>
 #include <functional>
@@ -36,7 +36,8 @@ class Game : public IGame {
 
  public:
    Game(int player_count, mb::u64 seed);
-
+   Game(const Game &) = default;
+   [[nodiscard]] IGame *clone() const noexcept override { return new Game(*this); }
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;

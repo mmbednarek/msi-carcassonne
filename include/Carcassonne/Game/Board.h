@@ -1,7 +1,7 @@
 #ifndef MSI_CARCASSONNE_GAME_BOARD_H
 #define MSI_CARCASSONNE_GAME_BOARD_H
 #include <array>
-#include <Carcassonne/Board.h>
+#include <Carcassonne/IBoard.h>
 #include <mb/int.h>
 
 namespace carcassonne::game {

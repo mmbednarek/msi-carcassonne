@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_MOVEITERATOR_H
 #define MSI_CARCASSONNE_MOVEITERATOR_H
-#include "Board.h"
+#include "IBoard.h"
 #include "Player.h"
 
 namespace carcassonne {

@@ -222,7 +222,7 @@ void Game::on_next_move(std::function<void(IGame &, Player)> callback) noexcept 
 
 std::vector<Direction> Game::figure_placements(int x, int y) const noexcept {
    std::vector<Direction> result;
-   result.reserve(8);
+   result.reserve(13);
    for (const auto dir : g_directions) {
       if (!can_place_figure(x, y, dir))
          continue;

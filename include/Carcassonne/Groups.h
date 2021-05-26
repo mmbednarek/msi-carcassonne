@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_GROUPS_H
 #define MSI_CARCASSONNE_GROUPS_H
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <array>
 #include <mb/int.h>
 #include <numeric>
