@@ -1,4 +1,5 @@
 #include <Carcassonne/AI/MCTSPlayer.h>
+#include <Carcassonne/AI/Tree.h>
 #include <Util/Random.h>
 #include <fmt/core.h>
 
@@ -16,6 +17,10 @@ void MCTSPlayer::make_move(IGame &game) noexcept {
    auto move = game.new_move(m_player);
 
    const auto possible_tile_moves = game.moves(move->tile_type());
+   // TileMove tile_placement;
+   Direction figure_placement;
+   // Tree tree(game);
+   // std::tie(tile_placement, figure_placement) = tree.best_move();
    auto tile_placement_it = util::random_from_range(m_random_generator, possible_tile_moves.begin(), possible_tile_moves.end() - 1);
    const auto tile_placement = *tile_placement_it;
 
@@ -23,6 +28,7 @@ void MCTSPlayer::make_move(IGame &game) noexcept {
    if (move->phase() == MovePhase::Done) {
       return;
    }
+   // move->place_figure(figure_placement);
 
    const auto possible_figure_moves = game.figure_placements(tile_placement.x, tile_placement.y);
    if (!possible_figure_moves.empty()) {

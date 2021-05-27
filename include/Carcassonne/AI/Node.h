@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_NODE_H
 #define MSI_CARCASSONNE_NODE_H
-#include <Carcassonne/IGame.h>
+#include <Carcassonne/Game/Game.h>
 #include <mb/int.h>
 // #include <map>
 
@@ -9,16 +9,15 @@
 namespace carcassonne::ai {
 
 class Node {
-  mb::u32 visited_time_;
-  float average_profit_;
-  bool is_in_search_;
-//   std::map<PositionIndex, HashKey> child_hash_keys_;
-
+  game::Game m_game;
  public:
-  Node(int32_t visited_time, float average_profit, bool is_in_search)
-      : visited_time_(visited_time),
-        average_profit_(average_profit),
-        is_in_search_(is_in_search) {}
+  mb::size m_visitation_count = 0;
+  mb::size m_profits_sum = 0;
+
+  Node(const game::Game game) : m_game(game) {};
+  [[nodiscard]] const game::Game &game() noexcept {
+    return m_game;
+  }
 };
 
 } // namespace carcassonne::game::ai

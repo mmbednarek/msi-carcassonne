@@ -69,7 +69,7 @@ int main() {
 
    auto human_players = std::accumulate(
            carcassonne::g_players.begin(),
-           carcassonne::g_players.begin() + human_player_count + mcts_ai_player_count,
+           carcassonne::g_players.begin() + human_player_count,
            carcassonne::PlayerAssignment::None,
            [](carcassonne::PlayerAssignment players, carcassonne::Player p) {
               return players | carcassonne::player_to_assignment(p);

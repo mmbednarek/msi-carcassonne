@@ -74,6 +74,10 @@ class Game : public IGame {
       return m_groups;
    }
 
+   [[nodiscard]] constexpr const mb::size &player_count() const noexcept {
+      return m_player_count;
+   }
+
  private:
    void set_next_player() noexcept;
    void assign_final_points() noexcept;
