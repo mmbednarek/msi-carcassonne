@@ -14,7 +14,7 @@ MCTSPlayer::MCTSPlayer(IGame &game, Player player) : m_player(player), m_random_
 }
 
 void MCTSPlayer::make_move(IGame &game) noexcept {
-   Tree tree(game.clone(), m_player);
+   Tree tree(game, m_player);
    auto move = game.new_move(m_player);
    const auto possible_tile_moves = game.moves(move->tile_type());
    // TileMove tile_placement;

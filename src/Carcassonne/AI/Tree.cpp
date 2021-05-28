@@ -5,22 +5,24 @@
 
 namespace carcassonne::ai {
 
-Tree::Tree(std::unique_ptr<IGame> game, const Player &player) : m_player(player) {
-   find_best_move(*game);
+Tree::Tree(IGame &game, const Player &player) : m_player(player), m_root(Node(game, player)) {
+   find_best_move(game);
 }
 
-void Tree::find_best_move(IGame &game) {
+void Tree::find_best_move(const IGame &game) {
+   auto g = game.clone();
+
    using namespace std::literals;
    const std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
    const std::chrono::time_point<std::chrono::system_clock> end;
    for (
       auto start = std::chrono::steady_clock::now(), now = start; 
-      now < start + std::chrono::milliseconds{500};
+      now < start + std::chrono::milliseconds{1};
       now = std::chrono::steady_clock::now() )
    {
       selection();
       // expansion();
-      simulation(game);
+      simulation(*g);
       backpropagation();
       m_simulations_count++;
    }
@@ -36,11 +38,6 @@ std::tuple<TileMove, Direction> Tree::best_move(IGame &game) noexcept {
 mb::u64 Tree::selection() {
    // TODO: SELECTION
    return m_selected_node_id;
-}
-
-std::vector<Node> Tree::expansion() {
-   // TODO: EXPANSION
-   return std::vector<Node>(0, game::Game(0, 0));
 }
 
 short Tree::simulation(IGame &game) {

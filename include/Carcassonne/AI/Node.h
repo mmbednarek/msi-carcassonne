@@ -9,15 +9,20 @@
 namespace carcassonne::ai {
 
 class Node {
-  game::Game m_game;
+  IGame &m_game;
+  const Player m_player;
  public:
   mb::size m_visitation_count = 0;
   mb::size m_profits_sum = 0;
 
-  Node(const game::Game game) : m_game(game) {};
-  [[nodiscard]] const game::Game &game() noexcept {
+  Node(IGame &game, const Player &player);
+
+  std::vector<Node> expansion();
+
+  [[nodiscard]] const IGame &game() noexcept {
     return m_game;
   }
+  
 };
 
 } // namespace carcassonne::game::ai
