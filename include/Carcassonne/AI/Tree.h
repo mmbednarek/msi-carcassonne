@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_TREE_H
 #define MSI_CARCASSONNE_TREE_H
-#include <Carcassonne/Game/Game.h>
+#include <Carcassonne/IGame.h>
 #include <Carcassonne/AI/RandomPlayer.h>
 #include <mb/int.h>
 #include "Node.h"
@@ -9,18 +9,17 @@
 namespace carcassonne::ai {
 
 class Tree {
-   carcassonne::game::Game m_game;
    Player m_player;
    mb::u64 m_selected_node_id;
    mb::u64 m_simulations_count;
    double g_C; // TODO: move C to global parameters location
  public:
-   Tree(const game::Game &game, const Player &player);
-   void find_best_move();
-   [[nodiscard]] std::tuple<TileMove, Direction> best_move(const game::Game &game) noexcept;
+   Tree(std::unique_ptr<IGame> game, const Player &player);
+   void find_best_move(IGame &game);
+   [[nodiscard]] std::tuple<TileMove, Direction> best_move(IGame &game) noexcept;
    mb::u64 selection();
    std::vector<Node> expansion();
-   short simulation(game::Game &game);
+   short simulation(IGame &game);
    void backpropagation();
    double UCT1(Node node);
 };

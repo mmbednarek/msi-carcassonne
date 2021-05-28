@@ -5,11 +5,11 @@
 
 namespace carcassonne::ai {
 
-Tree::Tree(const game::Game &game, const Player &player) : m_game(game), m_player(player) {
-   find_best_move();
+Tree::Tree(std::unique_ptr<IGame> game, const Player &player) : m_player(player) {
+   find_best_move(*game);
 }
 
-void Tree::find_best_move() {
+void Tree::find_best_move(IGame &game) {
    using namespace std::literals;
    const std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
    const std::chrono::time_point<std::chrono::system_clock> end;
@@ -19,14 +19,14 @@ void Tree::find_best_move() {
       now = std::chrono::steady_clock::now() )
    {
       selection();
-      expansion();
-      simulation(m_game);
+      // expansion();
+      simulation(game);
       backpropagation();
       m_simulations_count++;
    }
 }
 
-std::tuple<TileMove, Direction> Tree::best_move(const game::Game &game) noexcept {
+std::tuple<TileMove, Direction> Tree::best_move(IGame &game) noexcept {
    TileMove tile_placement;
    Direction figure_placement;
    // BEST_MOVE
@@ -43,9 +43,9 @@ std::vector<Node> Tree::expansion() {
    return std::vector<Node>(0, game::Game(0, 0));
 }
 
-short Tree::simulation(game::Game &game) {
+short Tree::simulation(IGame &game) {
    // IN PROGRESS
-   RandomPlayer(game, m_player);
+   RandomPlayer rp = RandomPlayer(game, m_player);
    auto it = std::find_if(game.scores().begin(), game.scores().end(),
                           [this](PlayerScore score) { return score.player == this->m_player; });
    if (it == game.scores().end()) {
