@@ -28,18 +28,29 @@ std::vector<Node> Node::expansion(mb::u64 &simulations_count) {
    return children;
 }
 
-short Node::simulation(IGame &game) {
+std::tuple<std::size_t, std::size_t> Node::simulation() {
    // IN PROGRESS
    // RandomPlayer rp = RandomPlayer(game, m_player);
-   auto it = std::find_if(game.scores().begin(), game.scores().end(),
+   std::size_t wins_count = 0;
+   std::size_t losess_count = 0;
+   auto it_player = std::find_if(m_game.scores().begin(), m_game.scores().end(),
                           [this](PlayerScore score) { return score.player == this->m_player; });
-   if (it == game.scores().end()) {
-      return 0;
+   auto player = (*g_players.begin());
+   // auto it_oponent = std::find_if(m_game.scores().begin(), m_game.scores().end(),
+   //                        [this](PlayerScore score) { return score.player == OTHERPLAYER; });
+   if (it_player == m_game.scores().end()) {
+      return std::make_pair(0, 0);
    }
-   return it->score;
+   // if (it_player->score > it_oponent)
+   //    wins_count++;
+   // else
+   //    losess_count++;
+
+   
+   return std::make_tuple(wins_count, losess_count);
 }
 
-double Node::UCT1(Node node) {
+double Node::UCT1() {
    // DONE
    if (m_visitation_count == 0) {
       return std::numeric_limits<double>::infinity();

@@ -17,7 +17,7 @@ class Tree {
   Tree(IGame &game, const Player &player);
   void find_best_move(const IGame &game);
   [[nodiscard]] std::tuple<TileMove, Direction> best_move(IGame &game) noexcept;
-  mb::u64 selection();
+  mb::u64 selection(Node &current_node);
   void backpropagation();
 };
 
