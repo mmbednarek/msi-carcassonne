@@ -5,12 +5,14 @@
 
 namespace carcassonne::ai {
 
-Tree::Tree(IGame &game, const Player &player) : m_player(player), m_root(Node(game, player)) {
+Tree::Tree(IGame &game, const Player &player)
+ : m_player(player)
+ , m_root(Node(game, player, m_simulations_count))
+{
    find_best_move(game);
 }
 
 void Tree::find_best_move(const IGame &game) {
-   auto g = game.clone();
 
    using namespace std::literals;
    const std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
@@ -21,8 +23,6 @@ void Tree::find_best_move(const IGame &game) {
       now = std::chrono::steady_clock::now() )
    {
       selection();
-      // expansion();
-      simulation(*g);
       backpropagation();
       m_simulations_count++;
    }
@@ -37,30 +37,14 @@ std::tuple<TileMove, Direction> Tree::best_move(IGame &game) noexcept {
 
 mb::u64 Tree::selection() {
    // TODO: SELECTION
-   return m_selected_node_id;
-}
-
-short Tree::simulation(IGame &game) {
-   // IN PROGRESS
-   RandomPlayer rp = RandomPlayer(game, m_player);
-   auto it = std::find_if(game.scores().begin(), game.scores().end(),
-                          [this](PlayerScore score) { return score.player == this->m_player; });
-   if (it == game.scores().end()) {
-      return 0;
-   }
-   return it->score;
+   
+   return 0;
 }
 
 void Tree::backpropagation() {
    // BACKPROPAGATION
 }
 
-double Tree::UCT1(Node node) {
-   // DONE
-   if (node.m_visitation_count == 0) {
-      return std::numeric_limits<double>::infinity();
-   }
-   return node.m_profits_sum / this->m_simulations_count + g_C * sqrt(log(this->m_simulations_count) / node.m_visitation_count);
-}
+
 
 }// namespace carcassonne::ai
