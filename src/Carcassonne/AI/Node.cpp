@@ -3,7 +3,7 @@
 
 namespace carcassonne::ai {
 
-Node::Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count, const std::unique_ptr<Node> &parent)
+Node::Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count, std::shared_ptr<Node> parent)
  : m_game(game)
  , m_player(player)
  , m_parent(parent) {}
@@ -20,10 +20,10 @@ void Node::expansion(mb::u64 &rollouts_performed_count) noexcept {
          auto game_clone_clone = game_clone->clone();
          auto move_clone = game_clone_clone->new_move(m_player);
          move_clone->place_figure(possible_figure_move);
-         const auto parent = std::make_unique<Node>(std::move(*this));
-         Node n = Node(*game_clone_clone, m_player, rollouts_performed_count, parent);
-         std::unique_ptr<Node> nptr = std::make_unique<Node>(std::move(n));
-         m_children.push_back(std::make_unique<Node>(std::move(*nptr)));
+         auto parent = std::make_shared<Node>(std::move(*this));
+         Node n(*game_clone_clone, m_player, rollouts_performed_count, parent);
+         std::shared_ptr<Node> nptr = std::make_shared<Node>(n);
+         m_children.push_back(nptr);
       }
    }
 }
