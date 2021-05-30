@@ -12,7 +12,7 @@ class Node {
   IGame &m_game;
   const Player &m_player;
   // mb::u64 m_node_id = std::numeric_limits<mb::u64>::infinity();
-  std::unique_ptr<Node> m_parent = nullptr;
+  const std::unique_ptr<Node> &m_parent = nullptr;
   std::vector<std::unique_ptr<Node>> m_children;
   mb::u64 m_max_id;
   double g_C; // TODO: move C to global parameters location
@@ -22,12 +22,15 @@ class Node {
   mb::size m_loses_count = 0;
   
   // Node(Node &&) = default;
-  Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count);
+  Node() = delete;
+  Node(const Node&) = delete;
+  Node(Node&&) = default;
+  Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count, const std::unique_ptr<Node> &parent);
 
-  void expansion(mb::u64 &rollouts_performed_count);
-  std::tuple<std::size_t, std::size_t> simulation();
+  void expansion(mb::u64 &rollouts_performed_count) noexcept;
+  [[nodiscard]] std::tuple<std::size_t, std::size_t> simulation() noexcept;
 
-  double UCT1();
+  double UCT1() noexcept;
 
   [[nodiscard]] constexpr IGame &game() noexcept {
     return m_game;
@@ -35,7 +38,7 @@ class Node {
   [[nodiscard]] constexpr const Player &player() noexcept {
     return m_player;
   }
-  [[nodiscard]] constexpr std::unique_ptr<Node> &parent() noexcept {
+  [[nodiscard]] constexpr const std::unique_ptr<Node> &parent() noexcept {
     return m_parent;
   }
   [[nodiscard]] constexpr std::vector<std::unique_ptr<Node>> &children() noexcept {
