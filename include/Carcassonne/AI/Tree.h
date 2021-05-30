@@ -12,7 +12,7 @@ namespace carcassonne::ai {
 class Tree {
   Node m_root;
   Player m_player;
-  mb::u64 m_simulations_count = 0;
+  mb::u64 m_rollouts_performed_count = 0;
  public:
   Tree(IGame &game, const Player &player);
   void find_best_move(const IGame &game);

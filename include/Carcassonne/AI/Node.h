@@ -21,9 +21,9 @@ class Node {
   mb::size m_wins_count = 0;
   mb::size m_loses_count = 0;
   
-  Node(IGame &game, const Player &player, mb::u64 &simulations_count);
+  Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count);
 
-  std::vector<Node> expansion(mb::u64 &simulations_count);
+  void expansion(mb::u64 &rollouts_performed_count);
   std::tuple<std::size_t, std::size_t> simulation();
 
   double UCT1();
