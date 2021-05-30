@@ -12,11 +12,12 @@ Node::Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count,
  , m_player(player)
  , m_parent(parent) {}
 
-std::tuple<std::size_t, std::size_t> Node::simulation() noexcept {
+void Node::simulation() noexcept {
    // IN PROGRESS
    // RandomPlayer rp = RandomPlayer(game, m_player);
    std::size_t wins_count = 0;
    std::size_t losess_count = 0;
+   m_visitation_count++;
 
    // SIMULATION BEGINS HERE
    // auto it_player = std::find_if(m_game.scores().begin(), m_game.scores().end(),
@@ -33,7 +34,8 @@ std::tuple<std::size_t, std::size_t> Node::simulation() noexcept {
    //    losess_count++;
 
    
-   return std::make_tuple(wins_count, losess_count);
+   m_wins_count = ++wins_count;
+   m_loses_count = ++losess_count;
 }
 
 double Node::UCT1(mb::u64 &rollouts_performed_count) noexcept {

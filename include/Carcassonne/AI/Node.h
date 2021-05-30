@@ -25,7 +25,7 @@ class Node {
   Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count);
   Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count, std::reference_wrapper<Node> parent);
 
-  [[nodiscard]] std::tuple<std::size_t, std::size_t> simulation() noexcept;
+  void simulation() noexcept;
 
   double UCT1(mb::u64 &rollouts_performed_count) noexcept;
 

@@ -73,7 +73,7 @@ class Game : public IGame {
       return m_groups;
    }
 
-   [[nodiscard]] constexpr const mb::size &player_count() const noexcept {
+   [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
       return m_player_count;
    }
 

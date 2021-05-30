@@ -23,13 +23,14 @@ void Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) 
    const std::chrono::time_point<std::chrono::system_clock> end;
    for (
       auto start = std::chrono::steady_clock::now(), now = start; 
-      now < start + std::chrono::milliseconds{1};
+      now < start + std::chrono::milliseconds{3600000};
       now = std::chrono::steady_clock::now() )
    {
       backpropagation(node_ref);
       node_ref = selection(m_root, rollouts_performed_count);
       m_rollouts_performed_count++;
    }
+   backpropagation(node_ref);
 }
 
 std::tuple<TileMove, Direction> Tree::best_move(IGame &game) noexcept {
@@ -52,7 +53,7 @@ RefNode Tree::selection(RefNode current_node, mb::u64 &rollouts_performed_count)
       selected_node = *selected_child_it;
    if((*selected_child_it).get().children().size() == 0) { // is it a leaf node?
       if((*selected_child_it).get().m_visitation_count == 0) { // has the node been visited?
-         std::tie(current_node.get().m_wins_count, current_node.get().m_loses_count) = (*selected_child_it).get().simulation();
+         (*selected_child_it).get().simulation();
          rollouts_performed_count++;
          selected_node = *selected_child_it;
       } else {
@@ -66,8 +67,14 @@ RefNode Tree::selection(RefNode current_node, mb::u64 &rollouts_performed_count)
 }
 
 void Tree::expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) noexcept {
+   // auto previous_player = selected_node.get().parent().get().player();
+   // auto players_count = selected_node.get().parent().get().game().player_count();
+   // auto current_player = next_player(previous_player, players_count);
+   auto current_player = selected_node.get().game().current_player();
+   auto players_count = selected_node.get().game().player_count();
    auto move = selected_node.get().game().new_move(m_player);
    const auto possible_tile_moves = selected_node.get().game().moves(move->tile_type());
+   const auto possible_tile_moves_debug = std::vector<TileMove>(possible_tile_moves.begin(), possible_tile_moves.end());
    for (TileMove possible_tile_move : possible_tile_moves) {
       auto game_clone = selected_node.get().game().clone();
       auto move = game_clone->new_move(m_player);
@@ -77,11 +84,11 @@ void Tree::expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) n
          auto game_clone_clone = game_clone->clone();
          auto move_clone = game_clone_clone->new_move(m_player);
          move_clone->place_figure(possible_figure_move);
+         auto NextPlayer = next_player(current_player, players_count);
          auto parent = selected_node;
-         auto new_node = Node(*game_clone_clone, m_player, rollouts_performed_count, parent);
          auto new_id = (m_nodes.end() - 1)->id() + 1;
-         new_node.id() = new_id;
-         m_nodes.push_back(new_node);
+         m_nodes.emplace_back(Node(*game_clone_clone, static_cast<Player>(NextPlayer), rollouts_performed_count, parent));
+         (m_nodes.end() - 1)->id() = new_id;
          auto new_node_ref = std::ref(*(m_nodes.end() - 1));
          selected_node.get().children().push_back(new_node_ref);
       }
@@ -97,6 +104,7 @@ void Tree::backpropagation(RefNode node) {
    if (node.get().parent().get().id() != node.get().id()) {
       node.get().parent().get().m_wins_count += node.get().m_wins_count;
       node.get().parent().get().m_loses_count += node.get().m_loses_count;
+      node.get().parent().get().m_visitation_count += node.get().m_visitation_count;
       backpropagation(node.get().parent());
    } else {
       return;
