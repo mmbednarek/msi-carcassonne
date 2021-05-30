@@ -12,7 +12,7 @@ class Node {
   IGame &m_game;
   const Player &m_player;
   // mb::u64 m_node_id = std::numeric_limits<mb::u64>::infinity();
-  std::unique_ptr<Node> m_parent;
+  std::unique_ptr<Node> m_parent = nullptr;
   std::vector<std::unique_ptr<Node>> m_children;
   mb::u64 m_max_id;
   double g_C; // TODO: move C to global parameters location
@@ -21,6 +21,7 @@ class Node {
   mb::size m_wins_count = 0;
   mb::size m_loses_count = 0;
   
+  // Node(Node &&) = default;
   Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count);
 
   void expansion(mb::u64 &rollouts_performed_count);

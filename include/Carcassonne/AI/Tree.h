@@ -10,15 +10,15 @@ namespace carcassonne::ai {
 
 
 class Tree {
-  Node m_root;
+  std::unique_ptr<Node> m_root;
   Player m_player;
   mb::u64 m_rollouts_performed_count = 0;
  public:
   Tree(IGame &game, const Player &player);
-  void find_best_move(const IGame &game);
+  void find_best_move(const IGame &game, mb::u64 &rollouts_performed_count);
   [[nodiscard]] std::tuple<TileMove, Direction> best_move(IGame &game) noexcept;
-  mb::u64 selection(Node &current_node);
-  void backpropagation();
+  [[nodiscard]] std::unique_ptr<Node> selection(const std::unique_ptr<Node> &current_node, mb::u64 &rollouts_performed_count);
+  void backpropagation(const std::unique_ptr<Node> &node);
 };
 
 } // namespace carcassonne::game::ai

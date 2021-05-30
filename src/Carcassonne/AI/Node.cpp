@@ -21,6 +21,8 @@ void Node::expansion(mb::u64 &rollouts_performed_count) {
          auto game_clone_clone = (*game_clone).clone();
          auto move_clone = (*game_clone_clone).new_move(m_player);
          move_clone->place_figure(possible_figure_move);
+         // Node n(*game_clone_clone, m_player, rollouts_performed_count);
+         // n.m_parent = std::make_unique<Node>(this);
          m_children.push_back(std::make_unique<Node>(Node(*game_clone_clone, m_player, rollouts_performed_count)));
       }
    }
