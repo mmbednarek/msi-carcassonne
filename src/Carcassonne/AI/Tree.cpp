@@ -7,14 +7,17 @@ namespace carcassonne::ai {
 
 Tree::Tree(IGame &game, const Player &player)
  : m_player(player)
- , m_root(std::make_shared<Node>(game, player, m_rollouts_performed_count, nullptr))
+ , m_root(Node(game, player, m_rollouts_performed_count))
 {
-   m_root->expansion(m_rollouts_performed_count);
+   m_root.id() = 0;
+   m_nodes.push_back(m_root);
+   expansion(m_root, m_rollouts_performed_count);
    find_best_move(game, m_rollouts_performed_count);
 }
 
 void Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) {
-   std::shared_ptr<Node> node_ptr = selection(m_root, rollouts_performed_count);
+   auto root_ref = std::ref(m_root);
+   auto node_ref = selection(root_ref, rollouts_performed_count);
    using namespace std::literals;
    const std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
    const std::chrono::time_point<std::chrono::system_clock> end;
@@ -23,8 +26,8 @@ void Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) 
       now < start + std::chrono::milliseconds{1};
       now = std::chrono::steady_clock::now() )
    {
-      backpropagation(node_ptr);
-      node_ptr = selection(m_root, rollouts_performed_count);
+      backpropagation(node_ref);
+      node_ref = selection(m_root, rollouts_performed_count);
       m_rollouts_performed_count++;
    }
 }
@@ -36,37 +39,65 @@ std::tuple<TileMove, Direction> Tree::best_move(IGame &game) noexcept {
    return std::make_tuple(tile_placement, figure_placement);
 }
 
-std::shared_ptr<Node> Tree::selection(std::shared_ptr<Node> current_node, mb::u64 &rollouts_performed_count) {
+RefNode Tree::selection(RefNode current_node, mb::u64 &rollouts_performed_count) {
    double best_uct = 0;
-   std::shared_ptr<Node> node_ptr;
-   auto selected_node = std::max_element(
-      current_node->children().begin(), 
-      current_node->children().end(), 
-      [](const std::shared_ptr<Node> &n_uptr1, const std::shared_ptr<Node> &n_uptr2) -> bool {
-      return n_uptr1->UCT1() < n_uptr2->UCT1();
+   auto selected_node = current_node;
+   auto selected_child_it = std::max_element(
+      current_node.get().children().begin(), 
+      current_node.get().children().end(), 
+      [&rollouts_performed_count](const RefNode &n_uptr1, const RefNode &n_uptr2) -> bool {
+      return n_uptr1.get().UCT1(rollouts_performed_count) < n_uptr2.get().UCT1(rollouts_performed_count);
    });
-   if (selected_node == current_node->children().end())
-      return nullptr;
-   if((*selected_node)->children().size() == 0) { // is it a leaf node?
-      if((*selected_node)->m_visitation_count == 0) {
-         std::tie(current_node->m_wins_count, current_node->m_loses_count) = (*selected_node)->simulation();
+   if (selected_child_it == current_node.get().children().end())
+      selected_node = *selected_child_it;
+   if((*selected_child_it).get().children().size() == 0) { // is it a leaf node?
+      if((*selected_child_it).get().m_visitation_count == 0) { // has the node been visited?
+         std::tie(current_node.get().m_wins_count, current_node.get().m_loses_count) = (*selected_child_it).get().simulation();
          rollouts_performed_count++;
+         selected_node = *selected_child_it;
       } else {
-         (*selected_node)->expansion(rollouts_performed_count);
-         node_ptr = selection(*selected_node, rollouts_performed_count);
+         expansion(*selected_child_it, rollouts_performed_count);
+         selected_node = selection(*selected_child_it, rollouts_performed_count);
       }
    } else {
-      node_ptr = selection(*selected_node, rollouts_performed_count);
+      selected_node = selection(*selected_child_it, rollouts_performed_count);
    }
-   return node_ptr;
+   return selected_node;
 }
 
-void Tree::backpropagation(std::shared_ptr<Node> node) {
+void Tree::expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) noexcept {
+   auto move = selected_node.get().game().new_move(m_player);
+   const auto possible_tile_moves = selected_node.get().game().moves(move->tile_type());
+   for (TileMove possible_tile_move : possible_tile_moves) {
+      auto game_clone = selected_node.get().game().clone();
+      auto move = game_clone->new_move(m_player);
+      move->place_tile(possible_tile_move.x, possible_tile_move.y, possible_tile_move.rotation);
+      const auto possible_figure_moves = game_clone->figure_placements(possible_tile_move.x, possible_tile_move.y);
+      for (Direction possible_figure_move : possible_figure_moves) {
+         auto game_clone_clone = game_clone->clone();
+         auto move_clone = game_clone_clone->new_move(m_player);
+         move_clone->place_figure(possible_figure_move);
+         auto parent = selected_node;
+         auto new_node = Node(*game_clone_clone, m_player, rollouts_performed_count, parent);
+         auto new_id = (m_nodes.end() - 1)->id() + 1;
+         new_node.id() = new_id;
+         m_nodes.push_back(new_node);
+         auto new_node_ref = std::ref(*(m_nodes.end() - 1));
+         selected_node.get().children().push_back(new_node_ref);
+      }
+   }
+}
+
+void Tree::backpropagation(RefNode node) {
    // BACKPROPAGATION
-   if (node->parent() != nullptr) {
-      backpropagation(node->parent());
-      node->parent()->m_wins_count += node->m_wins_count;
-      node->parent()->m_loses_count += node->m_loses_count;
+   auto n_ref = node;
+   auto p_ref = node.get().parent();
+   auto n = node.get();
+   auto p = node.get().parent().get();
+   if (node.get().parent().get().id() != node.get().id()) {
+      node.get().parent().get().m_wins_count += node.get().m_wins_count;
+      node.get().parent().get().m_loses_count += node.get().m_loses_count;
+      backpropagation(node.get().parent());
    } else {
       return;
    }
