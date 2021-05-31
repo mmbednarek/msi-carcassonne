@@ -10,9 +10,9 @@
 namespace carcassonne::ai {
 
 class Node {
-  IGame &m_game;
+  std::unique_ptr<IGame> m_game;
   const Player &m_player;
-  std::reference_wrapper<Node> m_parent = std::ref(*this);
+  Node *m_parent = nullptr;
   std::vector<std::reference_wrapper<Node>> m_children;
   mb::u64 m_id = 0;
   double g_C = sqrt(2); // TODO: move C to global parameters location
@@ -22,15 +22,15 @@ class Node {
   mb::size m_loses_count = 0;
   mb::size m_wins_losses_ratio = 0;
   
-  Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count);
-  Node(IGame &game, const Player &player, mb::u64 &rollouts_performed_count, std::reference_wrapper<Node> parent);
+  Node(std::unique_ptr<IGame> game, const Player &player, mb::u64 &rollouts_performed_count);
+  Node(std::unique_ptr<IGame> game, const Player &player, mb::u64 &rollouts_performed_count, Node *parent);
 
   void simulation() noexcept;
 
   double UCT1(mb::u64 &rollouts_performed_count) noexcept;
 
-  [[nodiscard]] constexpr IGame &game() noexcept {
-    return m_game;
+  [[nodiscard]] inline IGame &game() noexcept {
+    return *m_game;
   }
   [[nodiscard]] constexpr mb::u64 &id() noexcept {
     return m_id;
@@ -38,7 +38,7 @@ class Node {
   [[nodiscard]] constexpr const Player &player() noexcept {
     return m_player;
   }
-  [[nodiscard]] std::reference_wrapper<Node> &parent() noexcept {
+  [[nodiscard]] Node *parent() noexcept {
     return m_parent;
   }
   [[nodiscard]] constexpr std::vector<std::reference_wrapper<Node>> &children() noexcept {

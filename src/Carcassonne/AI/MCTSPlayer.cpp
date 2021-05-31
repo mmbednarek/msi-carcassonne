@@ -7,7 +7,7 @@ namespace carcassonne::ai {
 
 MCTSPlayer::MCTSPlayer(IGame &game, Player player) : m_player(player), m_random_generator(m_random_device()) {
    game.on_next_move([this](IGame &game, Player player) {
-     if (player != m_player)
+      if (player != m_player)
          return;
       make_move(game);
    });

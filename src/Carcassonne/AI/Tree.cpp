@@ -1,22 +1,22 @@
 #include <Carcassonne/AI/Tree.h>
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <limits>
 
 namespace carcassonne::ai {
 
-Tree::Tree(IGame &game, const Player &player)
- : m_player(player)
- , m_root(Node(game, player, m_rollouts_performed_count))
-{
-   m_root.id() = 0;
-   m_nodes.push_back(m_root);
-   expansion(m_root, m_rollouts_performed_count);
+Tree::Tree(const IGame &game, const Player &player)
+    : m_player(player) {
+   m_nodes.emplace_back(game.clone(), player, m_rollouts_performed_count);
+   m_root = &m_nodes[0];
+   m_root->id() = 0;
+   expansion(*m_root, m_rollouts_performed_count);
    find_best_move(game, m_rollouts_performed_count);
 }
 
 void Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) {
-   auto root_ref = std::ref(m_root);
+   auto root_ref = std::ref(*m_root);
    auto node_ref = selection(root_ref, rollouts_performed_count);
    using namespace std::literals;
    const std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
@@ -27,7 +27,7 @@ void Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) 
       now = std::chrono::steady_clock::now() )
    {
       backpropagation(node_ref);
-      node_ref = selection(m_root, rollouts_performed_count);
+      node_ref = selection(*m_root, rollouts_performed_count);
       m_rollouts_performed_count++;
    }
    backpropagation(node_ref);
@@ -41,29 +41,27 @@ std::tuple<TileMove, Direction> Tree::best_move(IGame &game) noexcept {
 }
 
 RefNode Tree::selection(RefNode current_node, mb::u64 &rollouts_performed_count) {
-   double best_uct = 0;
-   auto selected_node = current_node;
+   const auto &children = current_node.get().children();
    auto selected_child_it = std::max_element(
-      current_node.get().children().begin(), 
-      current_node.get().children().end(), 
-      [&rollouts_performed_count](const RefNode &n_uptr1, const RefNode &n_uptr2) -> bool {
-      return n_uptr1.get().UCT1(rollouts_performed_count) < n_uptr2.get().UCT1(rollouts_performed_count);
-   });
-   if (selected_child_it == current_node.get().children().end())
-      selected_node = *selected_child_it;
-   if((*selected_child_it).get().children().size() == 0) { // is it a leaf node?
-      if((*selected_child_it).get().m_visitation_count == 0) { // has the node been visited?
-         (*selected_child_it).get().simulation();
-         rollouts_performed_count++;
-         selected_node = *selected_child_it;
-      } else {
-         expansion(*selected_child_it, rollouts_performed_count);
-         selected_node = selection(*selected_child_it, rollouts_performed_count);
-      }
-   } else {
-      selected_node = selection(*selected_child_it, rollouts_performed_count);
+           children.begin(),
+           children.end(),
+           [&rollouts_performed_count](const RefNode &n_uptr1, const RefNode &n_uptr2) -> bool {
+              return n_uptr1.get().UCT1(rollouts_performed_count) < n_uptr2.get().UCT1(rollouts_performed_count);
+           });
+   assert(selected_child_it != children.end());
+   if (!(*selected_child_it).get().children().empty()) {
+      return selection(*selected_child_it, rollouts_performed_count);
    }
-   return selected_node;
+
+   if ((*selected_child_it).get().m_visitation_count != 0) {
+      expansion(*selected_child_it, rollouts_performed_count);
+      return selection(*selected_child_it, rollouts_performed_count);
+   }
+
+   (*selected_child_it).get().simulation();
+   rollouts_performed_count++;
+   return *selected_child_it;
+   ;
 }
 
 void Tree::expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) noexcept {
@@ -84,10 +82,10 @@ void Tree::expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) n
          auto game_clone_clone = game_clone->clone();
          auto move_clone = game_clone_clone->new_move(m_player);
          move_clone->place_figure(possible_figure_move);
-         auto NextPlayer = next_player(current_player, players_count);
+         auto player = next_player(current_player, players_count);
          auto parent = selected_node;
          auto new_id = (m_nodes.end() - 1)->id() + 1;
-         m_nodes.emplace_back(Node(*game_clone_clone, static_cast<Player>(NextPlayer), rollouts_performed_count, parent));
+         m_nodes.emplace_back(std::move(game_clone_clone), player, rollouts_performed_count, &parent.get());
          (m_nodes.end() - 1)->id() = new_id;
          auto new_node_ref = std::ref(*(m_nodes.end() - 1));
          selected_node.get().children().push_back(new_node_ref);
@@ -97,20 +95,14 @@ void Tree::expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) n
 
 void Tree::backpropagation(RefNode node) {
    // BACKPROPAGATION
-   auto n_ref = node;
-   auto p_ref = node.get().parent();
-   auto n = node.get();
-   auto p = node.get().parent().get();
-   if (node.get().parent().get().id() != node.get().id()) {
-      node.get().parent().get().m_wins_count += node.get().m_wins_count;
-      node.get().parent().get().m_loses_count += node.get().m_loses_count;
-      node.get().parent().get().m_visitation_count += node.get().m_visitation_count;
-      backpropagation(node.get().parent());
-   } else {
+   if (node.get().parent() == nullptr)
       return;
-   }
-}
 
+   node.get().parent()->m_wins_count += node.get().m_wins_count;
+   node.get().parent()->m_loses_count += node.get().m_loses_count;
+   node.get().parent()->m_visitation_count += node.get().m_visitation_count;
+   backpropagation(*node.get().parent());
+}
 
 
 }// namespace carcassonne::ai
