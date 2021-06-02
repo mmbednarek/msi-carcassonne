@@ -21,7 +21,7 @@ struct Figure {
 class IGame {
  public:
    virtual ~IGame() = default;
-   virtual std::unique_ptr<IGame> clone() const noexcept = 0;
+   [[nodiscard]] virtual std::unique_ptr<IGame> clone() const noexcept = 0;
    [[nodiscard]] virtual const IBoard &board() const noexcept = 0;
    [[nodiscard]] virtual Player current_player() const noexcept = 0;
    [[nodiscard]] virtual constexpr const mb::size &player_count() const noexcept = 0;

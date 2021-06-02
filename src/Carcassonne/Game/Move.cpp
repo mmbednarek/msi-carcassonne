@@ -1,5 +1,7 @@
 #include <Carcassonne/Game/Game.h>
 #include <Carcassonne/Game/Move.h>
+#include <Carcassonne/Move.h>
+#include <memory>
 
 namespace carcassonne::game {
 
@@ -11,9 +13,13 @@ TileType Move::tile_type() const noexcept {
    return m_tile_type;
 }
 
-void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
+mb::result<mb::empty> Move::place_tile_at(int x, int y, mb::u8 rotation) noexcept {
    if (m_phase != MovePhase::PlaceTile)
-      return;
+      return mb::error("invalid move phase");
+
+   if (!m_game.board().can_place_at(x, y, m_tile_type, rotation)) {
+      return mb::error("cannot place tile at this location");
+   }
 
    m_x = x;
    m_y = y;
@@ -25,14 +31,17 @@ void Move::place_tile(int x, int y, mb::u8 rotation) noexcept {
       m_phase = MovePhase::Done;
       m_game.notify_tour_finished();
    }
+   return mb::ok;
 }
 
-void Move::place_figure(Direction d) noexcept {
-   if (m_phase != MovePhase::PlaceFigure)
-      return;
+mb::result<mb::empty> Move::place_figure(Direction d) noexcept {
+   if (m_phase != MovePhase::PlaceFigure) {
+      return mb::error("incorrect move phase, place the tile first");
+   }
 
-   if (!is_free(d))
-      return;
+   if (!is_free(d)) {
+      return mb::error("given direction is occupied");
+   }
 
    auto edge = make_edge(m_x, m_y, d);
 
@@ -57,13 +66,15 @@ void Move::place_figure(Direction d) noexcept {
 
    m_phase = MovePhase::Done;
    m_game.notify_tour_finished();
+   return mb::ok;
 }
 
-void Move::ignore_figure() noexcept {
+mb::result<mb::empty> Move::ignore_figure() noexcept {
    if (m_phase != MovePhase::PlaceFigure)
-      return;
+      return mb::error("incorrect move phase, place the tile first");
    m_phase = MovePhase::Done;
    m_game.notify_tour_finished();
+   return mb::ok;
 }
 
 MovePhase Move::phase() const noexcept {
@@ -78,4 +89,13 @@ bool Move::is_free(Direction d) const noexcept {
    return m_game.can_place_figure(m_x, m_y, d);
 }
 
-}// namespace carcassonne::game
+std::unique_ptr<IMove> Move::clone(IGame &game) const noexcept {
+   return std::make_unique<Move>(*dynamic_cast<Game *>(&game), m_player, m_tile_type, m_x, m_y);
+}
+
+mb::result<mb::empty> Move::place_tile(TileMove tile_location) noexcept {
+   return place_tile_at(tile_location.x, tile_location.y, tile_location.rotation);
+}
+
+}
+// namespace carcassonne::game

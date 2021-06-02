@@ -36,7 +36,7 @@ class Game : public IGame {
 
  public:
    Game(int player_count, mb::u64 seed);
-   [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override { return std::make_unique<Game>(*this); }
+   [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override;
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;

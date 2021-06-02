@@ -342,4 +342,10 @@ void Game::notify_tour_finished() noexcept {
    m_tour_finished = true;
 }
 
+std::unique_ptr<IGame> Game::clone() const noexcept {
+   auto game = std::make_unique<Game>(*this);
+   game->m_next_move_callbacks.clear();
+   return game;
+}
+
 }// namespace carcassonne::game

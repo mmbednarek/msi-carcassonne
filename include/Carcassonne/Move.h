@@ -2,6 +2,8 @@
 #define MSI_CARCASSONNE_MOVEITERATOR_H
 #include "IBoard.h"
 #include "Player.h"
+#include <memory>
+#include <mb/result.h>
 
 namespace carcassonne {
 
@@ -16,6 +18,13 @@ struct TileMove {
    constexpr bool operator!=(const TileMove &other) const {
       return x != other.x || y != other.y || rotation != other.rotation;
    }
+};
+
+struct FullMove {
+   int x{}, y{};
+   mb::u8 rotation{};
+   bool ignored_figure = true;
+   Direction direction{};
 };
 
 class MoveIter {
@@ -197,6 +206,8 @@ enum class MovePhase {
    Done
 };
 
+class IGame;
+
 class IMove {
  public:
    [[nodiscard]] virtual Player player() const noexcept = 0;
@@ -204,9 +215,11 @@ class IMove {
    [[nodiscard]] virtual MovePhase phase() const noexcept = 0;
    [[nodiscard]] virtual bool is_free(Direction d) const noexcept = 0;
    [[nodiscard]] virtual TilePosition position() const noexcept = 0;
-   virtual void place_tile(int x, int y, mb::u8 rotation) noexcept = 0;
-   virtual void place_figure(Direction d) noexcept = 0;
-   virtual void ignore_figure() noexcept = 0;
+   [[nodiscard]] virtual std::unique_ptr<IMove> clone(IGame &game) const noexcept = 0;
+   virtual mb::result<mb::empty> place_tile_at(int x, int y, mb::u8 rotation) noexcept = 0;
+   virtual mb::result<mb::empty> place_tile(TileMove tile_location) noexcept = 0;
+   virtual mb::result<mb::empty> place_figure(Direction d) noexcept = 0;
+   virtual mb::result<mb::empty> ignore_figure() noexcept = 0;
 };
 
 }// namespace carcassonne

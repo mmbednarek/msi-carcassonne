@@ -1,11 +1,10 @@
 #include <Carcassonne/AI/MCTSPlayer.h>
 #include <Carcassonne/AI/Tree.h>
-#include <Util/Random.h>
 #include <fmt/core.h>
 
 namespace carcassonne::ai {
 
-MCTSPlayer::MCTSPlayer(IGame &game, Player player) : m_player(player), m_random_generator(m_random_device()) {
+MCTSPlayer::MCTSPlayer(IGame &game, Player player) : m_player(player) {
    game.on_next_move([this](IGame &game, Player player) {
       if (player != m_player)
          return;
@@ -16,30 +15,23 @@ MCTSPlayer::MCTSPlayer(IGame &game, Player player) : m_player(player), m_random_
 void MCTSPlayer::make_move(IGame &game) noexcept {
    Tree tree(game, m_player);
    auto move = game.new_move(m_player);
-   const auto possible_tile_moves = game.moves(move->tile_type());
-   // TileMove tile_placement;
-   // Direction figure_placement;
-   // Tree tree(game);
-   // std::tie(tile_placement, figure_placement) = tree.best_move();
-   auto tile_placement_it = util::random_from_range(m_random_generator, possible_tile_moves.begin(), possible_tile_moves.end() - 1);
-   const auto tile_placement = *tile_placement_it;
+   mb::u64 rollout_count = 0;
+   auto best_move = tree.find_best_move(game, rollout_count);
 
-   move->place_tile(tile_placement.x, tile_placement.y, tile_placement.rotation);
-   if (move->phase() == MovePhase::Done) {
+   if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {
+      fmt::print("[MCTS internal error] selected tile placement is not feasible: {}\n", res.msg());
       return;
    }
-   // move->place_figure(figure_placement);
 
-   const auto possible_figure_moves = game.figure_placements(tile_placement.x, tile_placement.y);
-   if (!possible_figure_moves.empty()) {
-      const auto direction_it = util::random_from_range(m_random_generator, possible_figure_moves.cbegin(), possible_figure_moves.cend());
-      if (direction_it == possible_figure_moves.cend()) {
-         move->ignore_figure();
-      } else {
-         move->place_figure(*direction_it);
+   if (best_move.ignored_figure) {
+      if (auto res = move->ignore_figure(); !res.ok()) {
+         fmt::print("[MCTS internal error] cannot ignore figure at this point: {}\n", res.msg());
       }
-   } else {
-      move->ignore_figure();
+      return;
+   }
+
+   if (auto res = move->place_figure(best_move.direction); !res.ok()) {
+      fmt::print("[MCTS internal error] error placing figure: {}\n", res.msg());
    }
 }
 

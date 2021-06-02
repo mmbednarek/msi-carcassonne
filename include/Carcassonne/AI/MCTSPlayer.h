@@ -9,9 +9,6 @@ namespace carcassonne::ai {
 
 class MCTSPlayer {
    Player m_player;
-
-   std::random_device m_random_device;
-   std::mt19937_64 m_random_generator;
  public:
    explicit MCTSPlayer(IGame &game, Player player);
 

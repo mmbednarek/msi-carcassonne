@@ -12,17 +12,15 @@ using RefNode = std::reference_wrapper<Node>;
 
 class Tree {
    std::vector<Node> m_nodes;
-   Node *m_root = nullptr;
    Player m_player;
    mb::u64 m_rollouts_performed_count = 0;
 
  public:
    Tree(const IGame &game, const Player &player);
-   void find_best_move(const IGame &game, mb::u64 &rollouts_performed_count);
-   [[nodiscard]] std::tuple<TileMove, Direction> best_move(IGame &game) noexcept;
-   [[nodiscard]] RefNode selection(RefNode current_node, mb::u64 &rollouts_performed_count);
-   void expansion(RefNode selected_node, mb::u64 &rollouts_performed_count) noexcept;
-   void backpropagation(RefNode node);
+   FullMove find_best_move(const IGame &game, mb::u64 &rollouts_performed_count);
+   [[nodiscard]] NodeId selection(NodeId, mb::u64 &rollouts_performed_count);
+   void expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept;
+   void backpropagation(Node &node);
 };
 
 }// namespace carcassonne::ai

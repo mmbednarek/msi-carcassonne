@@ -76,11 +76,15 @@ int main() {
            });
    carcassonne::frontend::GameView view(game, human_players);
 
-   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(random_ai_player_count);
-   std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), random_players.begin(), [&game](carcassonne::Player p) {
-      return std::make_unique<carcassonne::ai::RandomPlayer>(game, p);
+   std::random_device random_device;
+   std::mt19937 random_generator(random_device());
+
+   std::vector<carcassonne::ai::RandomPlayer<>> random_players;
+   random_players.reserve(random_ai_player_count);
+   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), std::back_inserter(random_players), [&random_generator](carcassonne::Player p) {
+      return carcassonne::ai::RandomPlayer<>(random_generator, p);
    });
+   std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
    std::transform(carcassonne::g_players.begin() + human_player_count + random_ai_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p);
    });

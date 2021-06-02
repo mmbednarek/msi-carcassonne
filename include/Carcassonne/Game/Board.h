@@ -3,11 +3,12 @@
 #include <array>
 #include <Carcassonne/IBoard.h>
 #include <mb/int.h>
+#include <mb/vector2d.h>
 
 namespace carcassonne::game {
 
 class Board : public IBoard {
-   std::array<TilePlacement, g_board_width * g_board_height> m_board{};
+   mb::vector2d<TilePlacement> m_board;
    int m_min_x = 70;
    int m_min_y = 70;
    int m_max_x = 71;
