@@ -18,9 +18,12 @@ class Tree {
  public:
    Tree(const IGame &game, const Player &player);
    FullMove find_best_move(const IGame &game, mb::u64 &rollouts_performed_count);
-   [[nodiscard]] NodeId selection(NodeId, mb::u64 &rollouts_performed_count);
+   [[nodiscard]] NodeId selection(NodeId node_id, int level, mb::u64 &rollouts_performed_count);
    void expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept;
    void backpropagation(Node &node);
+
+ private:
+   [[nodiscard]] NodeId select_best_node(mb::u64 &rollouts_performed_count);
 };
 
 }// namespace carcassonne::ai

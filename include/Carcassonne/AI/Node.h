@@ -19,6 +19,7 @@ class Node {
    std::vector<NodeId> m_children;
    NodeId m_id = 0;
    FullMove m_move;
+   bool m_expanded = false;
 
  public:
    mb::size m_visitation_count = 0;
@@ -53,9 +54,15 @@ class Node {
    [[nodiscard]] constexpr std::vector<NodeId> &children() noexcept {
       return m_children;
    }
-
    [[nodiscard]] constexpr FullMove move() const noexcept {
       return m_move;
+   }
+   [[nodiscard]] constexpr bool expanded() const noexcept {
+      return m_expanded;
+   }
+
+   constexpr void mark_as_expanded() noexcept {
+      m_expanded = true;
    }
 
    void add_child(NodeId id) noexcept;

@@ -14,48 +14,59 @@ Tree::Tree(const IGame &game, const Player &player)
 }
 
 FullMove Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) {
-   auto node_id = selection(g_root_node, rollouts_performed_count);
-   auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{2000};
+   auto node_id = selection(g_root_node, 0, rollouts_performed_count);
+   //   auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{6000000};
+   auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{5000};
    while (std::chrono::steady_clock::now() < until) {
-      backpropagation(m_nodes[g_root_node]);
-      node_id = selection(g_root_node, rollouts_performed_count);
+      backpropagation(m_nodes[node_id]);
+      node_id = selection(g_root_node, 0, rollouts_performed_count);
       m_rollouts_performed_count++;
    }
    backpropagation(m_nodes[node_id]);
-   auto &node = m_nodes[node_id];
+   auto &node = m_nodes[select_best_node(m_rollouts_performed_count)];
    return node.move();
 }
 
-NodeId Tree::selection(NodeId node_id, mb::u64 &rollouts_performed_count) {
+NodeId Tree::selection(NodeId node_id, int level, mb::u64 &rollouts_performed_count) {
+   if (level > 2)
+      return node_id;
+
    auto &current_node = m_nodes[node_id];
    const auto &children = current_node.children();
+
+   // not expanded
    auto selected_child_it = std::max_element(
            children.begin(),
            children.end(),
-           [this, &rollouts_performed_count](const NodeId &lhs, const NodeId &rhs) -> bool {
-              return m_nodes[lhs].UCT1(rollouts_performed_count) < m_nodes[rhs].UCT1(rollouts_performed_count);
+           [this, &rollouts_performed_count](NodeId lhs, NodeId rhs) -> bool {
+              const auto &lhs_node = m_nodes[lhs];
+              const auto &rhs_node = m_nodes[rhs];
+              const auto lhs_uct = lhs_node.UCT1(rollouts_performed_count);
+              const auto rhs_uct = rhs_node.UCT1(rollouts_performed_count);
+              if (lhs_uct == rhs_uct) {
+                 if (!lhs_node.expanded())
+                    return false;
+                 return true;
+              }
+              return lhs_uct < rhs_uct;
            });
-   assert(selected_child_it != children.end());
-   auto &child_node = m_nodes[*selected_child_it];
-   auto child_id = child_node.id();
 
-   if (!child_node.children().empty()) {
-      child_node.simulation();
-      rollouts_performed_count++;
+   assert(selected_child_it != children.end());
+   auto child_id = *selected_child_it;
+   auto &child_node = m_nodes[child_id];
+
+   if (!child_node.expanded()) {
+      expansion(child_id, rollouts_performed_count);
       return child_id;
    }
-
-   if (child_node.m_visitation_count == 0) {
-      expansion(child_id, rollouts_performed_count);
-   }
-
    if (m_nodes[child_id].children().empty()) {
       return child_id;
    }
-   return selection(child_id, rollouts_performed_count);
+   return selection(child_id, level + 1, rollouts_performed_count);
 }
 
 void Tree::expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept {
+   m_nodes[node_id].mark_as_expanded();
    auto &game = m_nodes[node_id].game();
    const auto current_player = game.current_player();
    const auto players_count = game.player_count();
@@ -70,6 +81,7 @@ void Tree::expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept
             auto move_clone = move->clone(*game_clone_clone);
             move_clone->place_figure(figure_move);
          }
+         game_clone_clone->update(0);
 
          const auto new_id = m_nodes.size();
 
@@ -82,6 +94,11 @@ void Tree::expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept
          };
 
          m_nodes.emplace_back(new_id, std::move(game_clone_clone), next_player(current_player, players_count), full_move, node_id);
+         auto &new_node = m_nodes[new_id];
+         for (auto i = 0; i < 5; ++i) {
+            new_node.simulation();
+         }
+
          m_nodes[node_id].add_child(new_id);
       }
    }
@@ -96,6 +113,22 @@ void Tree::backpropagation(Node &node) {
    parent.m_loses_count += node.m_loses_count;
    parent.m_visitation_count += node.m_visitation_count;
    backpropagation(parent);
+}
+
+NodeId Tree::select_best_node(mb::u64 &rollouts_performed_count) {
+   auto &root_node = m_nodes[g_root_node];
+   const auto &children = root_node.children();
+
+   auto selected_child_it = std::max_element(
+           children.begin(),
+           children.end(),
+           [this, &rollouts_performed_count](NodeId lhs, NodeId rhs) -> bool {
+              const auto &lhs_node = m_nodes[lhs];
+              const auto &rhs_node = m_nodes[rhs];
+              return lhs_node.UCT1(rollouts_performed_count) < rhs_node.UCT1(rollouts_performed_count);
+           });
+   assert(selected_child_it != children.end());
+   return *selected_child_it;
 }
 
 
