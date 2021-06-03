@@ -1,5 +1,8 @@
 #ifndef MSI_CARCASSONNE_PLAYER_H
 #define MSI_CARCASSONNE_PLAYER_H
+#include <array>
+#include <tuple>
+#include <mb/int.h>
 
 namespace carcassonne {
 
@@ -10,7 +13,7 @@ enum class Player : mb::u8 {
    Red = 3,
 };
 
-constexpr std::array<Player, 4> g_players {
+constexpr std::array<Player, 4> g_players{
         Player::Black,
         Player::Blue,
         Player::Yellow,

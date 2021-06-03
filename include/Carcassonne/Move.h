@@ -29,8 +29,8 @@ struct FullMove {
 
 class MoveIter {
    TileMove m_move;
-   const TileType m_tile_type;
-   const IBoard &m_board;
+   TileType m_tile_type;
+   std::reference_wrapper<const IBoard> m_board;
 
  public:
    typedef MoveIter self_type;
@@ -135,18 +135,18 @@ class MoveIter {
       }
       m_move.rotation = 0;
 
-      if (m_move.x < m_board.max_x()) {
+      if (m_move.x < m_board.get().max_x()) {
          ++m_move.x;
          return true;
       }
-      m_move.x = m_board.min_x() - 1;
+      m_move.x = m_board.get().min_x() - 1;
 
-      if (m_move.y < m_board.max_y()) {
+      if (m_move.y < m_board.get().max_y()) {
          ++m_move.y;
          return true;
       }
 
-      m_move.y = m_board.max_y() + 1;
+      m_move.y = m_board.get().max_y() + 1;
       return false;
    }
 
@@ -157,31 +157,31 @@ class MoveIter {
       }
       m_move.rotation = 3;
 
-      if (m_move.x >= m_board.min_x()) {
+      if (m_move.x >= m_board.get().min_x()) {
          --m_move.x;
          return true;
       }
-      m_move.x = m_board.max_x();
+      m_move.x = m_board.get().max_x();
 
-      if (m_move.y >= m_board.min_y()) {
+      if (m_move.y >= m_board.get().min_y()) {
          --m_move.y;
          return true;
       }
 
-      m_move.y = m_board.min_y() - 1;
+      m_move.y = m_board.get().min_y() - 1;
       return false;
    }
 
    constexpr void seek_prev() {
       do {
-         if (m_board.can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
+         if (m_board.get().can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
             return;
       } while (regress());
    }
 
    constexpr void seek_next() {
       do {
-         if (m_board.can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
+         if (m_board.get().can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
             return;
       } while (progress());
    }

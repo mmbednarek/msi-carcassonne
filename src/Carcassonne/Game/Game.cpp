@@ -348,4 +348,148 @@ std::unique_ptr<IGame> Game::clone() const noexcept {
    return game;
 }
 
+static int score_monastery(const Board &board, int x, int y) {
+   int score = 0;
+   for (auto cy = y - 1; cy <= y + 1; ++cy) {
+      for (auto cx = x - 1; cx <= x + 1; ++cx) {
+         if (cx == x && cy == y)
+            continue;
+
+         if (board.tile_at(cx, cy).type != 0)
+            score += 50;
+      }
+   }
+   return score;
+}
+
+int Game::score_grass(Player player, Edge edge) const noexcept {
+   if (!m_groups.is_free(edge))
+      return -20;
+
+   if (player_figure_count(player) < 4)
+      return 0;
+
+   const auto count = std::count_if(m_towns.begin(), m_towns.end(), [this, expected = m_groups.group_of(edge)](std::pair<Edge, Edge> town_grass_pair) {
+      if (!m_groups.is_completed(town_grass_pair.first))
+         return false;
+      return town_grass_pair.second == expected;
+   });
+   return static_cast<int>(count);
+}
+
+struct EdgeState {
+   int opens{};
+   int closes{};
+   bool free{};
+   bool our{};
+   bool ignore{};
+   int tile_count{};
+   EdgeType type{};
+};
+
+static bool owns_edges(bool free_a, bool owns_a, bool free_b, bool owns_b) {
+   if (!free_a && !owns_a)
+      return false;
+   if (!free_b && !owns_b)
+      return false;
+   return owns_a || owns_b;
+}
+
+int Game::score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction) const noexcept {
+   std::array<EdgeState, 4> edge_states;
+   for (auto i = 0; i < 4; ++i) {
+      auto direction = static_cast<Direction>(i);
+      auto edge = make_edge(move.x, move.y, direction);
+
+      auto neighbour = neighbour_of(move.x, move.y, direction);
+      auto open = m_board.tile_at(neighbour.x, neighbour.y).type == 0;
+      auto free = m_groups.is_free(edge);
+      bool our;
+      if (free) {
+         our = (direction == target_direction) && player_figure_count(player) != 0;
+      } else {
+         our = m_groups.assigment(edge) & player;
+      }
+
+      edge_states[i] = EdgeState{
+              .opens = open ? 1 : 0,
+              .closes = open ? 0 : 1,
+              .free = free,
+              .our = our,
+              .ignore = false,
+              .tile_count = m_groups.tile_count(edge),
+              .type = m_groups.type_of(edge),
+      };
+   }
+
+   auto connections = tile.connections;
+   while (connections != Connection::None) {
+      Direction a, b;
+      std::tie(connections, a, b) = read_connections(connections);
+
+      auto ai = static_cast<int>(a);
+      if (ai >= 4)
+         continue;
+      auto bi = static_cast<int>(a);
+      if (bi >= 4)
+         continue;
+
+      auto &state_a = edge_states[ai];
+      auto &state_b = edge_states[bi];
+
+      if (state_a.ignore || state_b.ignore)
+         continue;
+
+      state_a.ignore = true;
+      state_b.tile_count = std::max(state_a.tile_count, state_b.tile_count);
+      state_b.closes += state_a.closes;
+      state_b.opens += state_a.opens;
+      state_b.our = owns_edges(state_a.free, state_a.our, state_b.free, state_b.our);
+      state_b.free = state_a.free && state_b.free;
+   }
+
+   int score = 0;
+   for (auto i = 0; i < 4; ++i) {
+      auto &state = edge_states[i];
+      if (state.ignore)
+         continue;
+
+      auto own_score = state.our ? 1 : (state.free ? 0 : -1);
+      auto type_score = state.type == EdgeType::Town ? 4 : 1;
+      score += 20 * type_score * own_score * (10 * state.closes + state.opens) * state.tile_count;
+   }
+
+   return score;
+}
+
+int Game::score_direction(Player player, TileType tile_type, TileMove move, Direction direction) const noexcept {
+   const auto &tile = g_tiles[tile_type];
+   if (tile.monastery && direction == Direction::Middle) {
+      return score_monastery(m_board, move.x, move.y);
+   }
+
+   auto edge = make_edge(move.x, move.y, direction);
+   if (m_groups.type_of(edge) == EdgeType::Grass) {
+      return score_grass(player, edge);
+   }
+   return score_tile(player, tile, move, direction);
+}
+
+std::pair<Direction, int> Game::move_score(Player player, TileType tile_type, TileMove move) const noexcept {
+   Direction best_dir{};
+   auto best_score = std::numeric_limits<int>::min();
+   int total_score{};
+   for (auto dir : g_directions) {
+      auto score = score_direction(player, tile_type, move, dir);
+
+      if (best_score < score) {
+         best_score = score;
+         best_dir = dir;
+      }
+      total_score += score;
+   }
+
+   return std::make_pair(best_dir, total_score);
+}
+
 }// namespace carcassonne::game
