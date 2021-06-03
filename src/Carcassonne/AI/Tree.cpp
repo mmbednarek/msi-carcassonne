@@ -14,15 +14,13 @@ Tree::Tree(const IGame &game, const Player &player)
 }
 
 FullMove Tree::find_best_move(const IGame &game, mb::u64 &rollouts_performed_count) {
-   auto node_id = selection(g_root_node, 0, rollouts_performed_count);
+   selection(g_root_node, 0, rollouts_performed_count);
    //   auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{6000000};
    auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{5000};
    while (std::chrono::steady_clock::now() < until) {
-      backpropagation(m_nodes[node_id]);
-      node_id = selection(g_root_node, 0, rollouts_performed_count);
+      selection(g_root_node, 0, rollouts_performed_count);
       m_rollouts_performed_count++;
    }
-   backpropagation(m_nodes[node_id]);
    auto &node = m_nodes[select_best_node(m_rollouts_performed_count)];
    return node.move();
 }
@@ -74,6 +72,11 @@ void Tree::expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept
       auto game_clone = game.clone();
       auto move = game_clone->new_move(m_player);
       move->place_tile(tile_location);
+      auto score = game.move_score(m_player, move->tile_type(), tile_location);
+      if (score.second < 10 && !m_nodes[node_id].children().empty()) {
+         continue;
+      }
+
       for (Direction figure_move : game_clone->figure_placements(tile_location.x, tile_location.y)) {
          auto game_clone_clone = game_clone->clone();
 
@@ -95,9 +98,8 @@ void Tree::expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept
 
          m_nodes.emplace_back(new_id, std::move(game_clone_clone), next_player(current_player, players_count), full_move, node_id);
          auto &new_node = m_nodes[new_id];
-         for (auto i = 0; i < 5; ++i) {
-            new_node.simulation();
-         }
+         new_node.simulation();
+         backpropagation(new_node);
 
          m_nodes[node_id].add_child(new_id);
       }

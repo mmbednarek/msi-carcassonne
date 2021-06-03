@@ -23,6 +23,9 @@ void MCTSPlayer::make_move(IGame &game) noexcept {
       return;
    }
 
+   if (move->phase() == MovePhase::Done)
+      return;
+
    if (best_move.ignored_figure) {
       if (auto res = move->ignore_figure(); !res.ok()) {
          fmt::print("[MCTS internal error] cannot ignore figure at this point: {}\n", res.msg());

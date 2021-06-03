@@ -1,5 +1,5 @@
+#include <Carcassonne/AI/HeuristicPlayer.h>
 #include <Carcassonne/AI/Node.h>
-#include <Carcassonne/AI/RandomPlayer.h>
 #include <utility>
 #include <vector>
 
@@ -12,21 +12,16 @@ Node::Node(std::unique_ptr<IGame> game, const Player &player, FullMove move)
 Node::Node(NodeId id, std::unique_ptr<IGame> game, const Player &player, FullMove move, NodeId parent_id)
     : m_game(std::move(game)), m_player(player), m_move(move), m_parent_id(parent_id), m_id(id) {}
 
-
-std::random_device g_random_device;
-std::mt19937 g_random_generator(g_random_device());
-
 void Node::simulation() noexcept {
    // IN PROGRESS
    ++m_visitation_count;
 
    const auto player_count = m_game->player_count();
 
-
-   std::vector<RandomPlayer<>> players;
+   std::vector<HeuristicPlayer> players;
    players.reserve(player_count);
    std::transform(g_players.begin(), g_players.begin() + player_count, std::back_inserter(players), [](carcassonne::Player p) {
-      return carcassonne::ai::RandomPlayer<>(g_random_generator, p);
+      return HeuristicPlayer(p);
    });
 
    auto current_player = m_game->current_player();

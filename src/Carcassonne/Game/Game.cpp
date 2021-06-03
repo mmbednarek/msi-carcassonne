@@ -230,7 +230,19 @@ std::vector<Direction> Game::figure_placements(int x, int y) const noexcept {
       result.push_back(dir);
    }
 
-   // TODO: Remove connected duplicated
+   std::array<bool, 13> removed{};
+   auto tile_placement = m_board.tile_at(x, y);
+   auto connections = g_tiles[tile_placement.type].rotate(tile_placement.rotation).connections;
+   while (connections != Connection::None) {
+      Direction a, b;
+      std::tie(connections, a, b) = read_connections(connections);
+
+      if (removed[static_cast<mb::size>(a)] || removed[static_cast<mb::size>(b)])
+         continue;
+
+      removed[static_cast<mb::size>(a)] = true;
+      std::erase(result, a);
+   }
 
    return result;
 }
@@ -463,7 +475,7 @@ int Game::score_tile(Player player, const Tile &tile, TileMove move, Direction t
 }
 
 int Game::score_direction(Player player, TileType tile_type, TileMove move, Direction direction) const noexcept {
-   const auto &tile = g_tiles[tile_type];
+   const auto tile = g_tiles[tile_type].rotate(move.rotation);
    if (tile.monastery && direction == Direction::Middle) {
       return score_monastery(m_board, move.x, move.y);
    }
