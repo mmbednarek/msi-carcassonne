@@ -16,7 +16,7 @@ void MCTSPlayer::make_move(IGame &game) noexcept {
    Tree tree(game, m_player);
    auto move = game.new_move(m_player);
    mb::u64 rollout_count = 0;
-   auto best_move = tree.find_best_move(game, rollout_count);
+   auto best_move = tree.find_best_move();
 
    if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {
       fmt::print("[MCTS internal error] selected tile placement is not feasible: {}\n", res.msg());

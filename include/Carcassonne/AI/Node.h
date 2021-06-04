@@ -23,9 +23,7 @@ class Node {
 
  public:
    mb::size m_visitation_count = 0;
-   mb::size m_wins_count = 0;
-   mb::size m_loses_count = 0;
-   mb::size m_wins_losses_ratio = 0;
+   std::array<mb::size, 4> m_player_wins{};
 
    Node(std::unique_ptr<IGame> game, const Player &player, FullMove move);
    Node(NodeId id, std::unique_ptr<IGame> game, const Player &player, FullMove move, NodeId parent_id);
@@ -37,7 +35,19 @@ class Node {
 
    void simulation() noexcept;
 
-   double UCT1(mb::u64 &rollouts_performed_count) const noexcept;
+   constexpr void update_id(NodeId id) noexcept {
+      m_id = id;
+   }
+
+   constexpr void update_parent_id(NodeId id) noexcept {
+      m_parent_id = id;
+   }
+
+   inline void clear_children() noexcept {
+      m_children.clear();
+   }
+
+   [[nodiscard]] double UCT1(unsigned long rollout_count) const noexcept;
 
    [[nodiscard]] inline IGame &game() noexcept {
       return *m_game;
@@ -61,8 +71,17 @@ class Node {
       return m_expanded;
    }
 
-   constexpr void mark_as_expanded() noexcept {
+   [[nodiscard]] constexpr double win_ratio() const noexcept {
+      const auto player_wins = m_player_wins[static_cast<int>(m_player)];
+      if (player_wins == m_visitation_count) {
+         return static_cast<double>(player_wins);
+      }
+      return static_cast<double>(player_wins) / static_cast<double>(m_visitation_count - player_wins);
+   }
+
+   inline void mark_as_expanded() noexcept {
       m_expanded = true;
+      m_game = nullptr;
    }
 
    void add_child(NodeId id) noexcept;

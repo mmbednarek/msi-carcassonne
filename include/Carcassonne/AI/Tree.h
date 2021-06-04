@@ -8,22 +8,22 @@
 
 namespace carcassonne::ai {
 
-using RefNode = std::reference_wrapper<Node>;
-
 class Tree {
    std::vector<Node> m_nodes;
    Player m_player;
-   mb::u64 m_rollouts_performed_count = 0;
+   mb::size m_player_count;
 
  public:
    Tree(const IGame &game, const Player &player);
-   FullMove find_best_move(const IGame &game, mb::u64 &rollouts_performed_count);
-   [[nodiscard]] NodeId selection(NodeId node_id, int level, mb::u64 &rollouts_performed_count);
-   void expansion(NodeId node_id, mb::u64 &rollouts_performed_count) noexcept;
-   void backpropagation(Node &node);
+   FullMove find_non_idiotic();
+   FullMove find_best_move();
+   void selection(NodeId node_id, int level);
+   void expansion(NodeId node_id) noexcept;
+   void backpropagation(NodeId node_id);
+   void change_root(NodeId id);
 
  private:
-   [[nodiscard]] NodeId select_best_node(mb::u64 &rollouts_performed_count);
+   [[nodiscard]] NodeId select_best_node();
 };
 
 }// namespace carcassonne::ai

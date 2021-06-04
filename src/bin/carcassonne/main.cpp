@@ -99,7 +99,6 @@ int main() {
       player.await_turn(game);
    }
 
-
    std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
    std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p);
