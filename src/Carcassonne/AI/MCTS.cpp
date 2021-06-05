@@ -60,7 +60,11 @@ void expand(Tree &tree, NodeId node_id) {
       simulate(tree, node_id);
    }
 
-   auto child_node = *tree.node_at(node_id).children().begin();
+   auto &node_children = tree.node_at(node_id).children();
+   if (node_children.empty())
+      return;
+
+   auto child_node = *node_children.begin();
    auto simulation_move = tree.node_at(child_node).move();
 
    auto &game = tree.node_at(node_id).game();

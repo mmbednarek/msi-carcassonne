@@ -21,7 +21,7 @@ void MCTSPlayer::make_move(IGame &game) noexcept {
 //   }
 //   auto best_move = best_move_res.unwrap();
    Tree tree(game, m_player);
-   run_mcts(tree, 5000);
+   run_mcts(tree, 1000);
    auto best_move = choose_move(tree);
 
    auto move = game.new_move(m_player);
