@@ -6,13 +6,13 @@ namespace carcassonne::ai {
 
 void HeuristicPlayer::await_turn(IGame &game) {
    game.on_next_move([this](IGame &game, Player player) {
-     if (player != m_player)
-        return;
-     make_move(game);
+      if (player != m_player)
+         return;
+      make_move(game);
    });
 }
 
-void HeuristicPlayer::make_move(IGame &game) noexcept {
+mb::result<FullMove> HeuristicPlayer::make_move(IGame &game) noexcept {
    auto move = game.new_move(m_player);
 
    Direction best_dir{};
@@ -30,23 +30,43 @@ void HeuristicPlayer::make_move(IGame &game) noexcept {
       }
    }
 
-   if (auto res = move->place_tile(best_move); !res.ok()) {
-      fmt::print("cannot place tile: {}\n", res.msg());
-      return;
-   }
+   MB_TRY(move->place_tile(best_move));
    if (move->phase() == MovePhase::Done) {
-      return;
+      return FullMove{
+              .x = best_move.x,
+              .y = best_move.y,
+              .rotation = best_move.rotation,
+              .ignored_figure = true,
+      };
    }
 
    if (best_score < 0) {
       move->ignore_figure();
-      return;
+      return FullMove{
+              .x = best_move.x,
+              .y = best_move.y,
+              .rotation = best_move.rotation,
+              .ignored_figure = true,
+      };
    }
 
    if (auto res = move->place_figure(best_dir); !res.ok()) {
       move->ignore_figure();
-//      fmt::print("cannot place figure: {}\n", res.msg());
+      return FullMove{
+              .x = best_move.x,
+              .y = best_move.y,
+              .rotation = best_move.rotation,
+              .ignored_figure = true,
+      };
    }
+
+   return FullMove{
+           .x = best_move.x,
+           .y = best_move.y,
+           .rotation = best_move.rotation,
+           .ignored_figure = false,
+           .direction = best_dir,
+   };
 }
 
-}
+}// namespace carcassonne::ai
