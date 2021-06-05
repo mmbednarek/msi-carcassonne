@@ -15,7 +15,7 @@ class Tree;
 mb::result<FullMove> find_non_idiotic(Tree &tree, Player player);
 void simulate(Tree &tree, NodeId node_id);
 void expand(Tree &tree, NodeId node_id);
-void backpropagate(Tree &tree, NodeId node_id, mb::size player_count);
+void backpropagate(Tree &tree, NodeId node_id, Player winner);
 void run_selection(Tree &tree);
 void run_mcts(Tree &tree, mb::i64 time_limit);
 FullMove choose_move(Tree &tree);

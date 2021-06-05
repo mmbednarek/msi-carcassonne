@@ -38,7 +38,7 @@ class Node {
    Node(const Node &other) = delete;
    Node &operator=(const Node &other) = delete;
 
-   void mark_as_leaf_node();
+   Player find_winner();
 
    constexpr void update_id(NodeId id) noexcept {
       m_id = id;
@@ -91,11 +91,9 @@ class Node {
       return m_simulation_count;
    }
 
-   constexpr void propagate(Node &child, mb::size player_count) noexcept {
-      for (auto i = 0; i < player_count; ++i) {
-         m_player_wins[i] += child.m_player_wins[i];
-      }
-      m_simulation_count += child.m_simulation_count;
+   constexpr void propagate(Player player) noexcept {
+      m_player_wins[static_cast<mb::size>(player)] += 1;
+      m_simulation_count += 1;
    }
 
    inline void mark_as_expanded() noexcept {

@@ -40,28 +40,45 @@ void simulate(Tree &tree, NodeId node_id) {
       parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
    }
 
-   tree.node_at(parent_id).mark_as_leaf_node();
-   backpropagate(tree, parent_id, simulated_game->player_count());
+   auto &leaf_node = tree.node_at(parent_id);
+   auto winner = leaf_node.find_winner();
+   leaf_node.mark_as_expanded();
+   backpropagate(tree, parent_id, winner);
 }
 
-void backpropagate(Tree &tree, NodeId node_id, mb::size player_count) {
-   while (node_id != 0) {
+void backpropagate(Tree &tree, NodeId node_id, Player winner) {
+   while (node_id != g_root_node) {
       auto &node = tree.node_at(node_id);
-      auto &parent = tree.node_at(node.parent_id());
-      parent.propagate(node, player_count);
-      node_id = parent.id();
+      node.propagate(winner);
+      node_id = node.parent_id();
    }
+   tree.node_at(g_root_node).propagate(winner);
 }
 
 void expand(Tree &tree, NodeId node_id) {
+   if (tree.node_at(node_id).simulation_count() == 0) {
+      simulate(tree, node_id);
+   }
+
+   auto child_node = *tree.node_at(node_id).children().begin();
+   auto simulation_move = tree.node_at(child_node).move();
+
    auto &game = tree.node_at(node_id).game();
    const auto current_player = game.current_player();
    for (auto tile_location : game.moves()) {
+      bool simulated_tile = false;
+      if (tile_location.x == simulation_move.x && tile_location.y == simulation_move.y && tile_location.rotation == simulation_move.rotation) [[unlikely]] {
+         simulated_tile = true;
+      }
+
       auto game_clone = game.clone();
       auto move = game_clone->new_move(current_player);
       move->place_tile(tile_location);
 
       for (Direction figure_move : game_clone->figure_placements(tile_location.x, tile_location.y)) {
+         if (simulated_tile && figure_move == simulation_move.direction && !simulation_move.ignored_figure) [[unlikely]]
+            continue;
+
          auto game_clone_clone = game_clone->clone();
 
          {
@@ -77,10 +94,11 @@ void expand(Tree &tree, NodeId node_id) {
                  .ignored_figure = false,
                  .direction = figure_move,
          };
-
-         auto new_id = tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
-         simulate(tree, new_id);
+         tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
       }
+
+      if (simulated_tile && simulation_move.ignored_figure)
+         continue;
 
       move->ignore_figure();
       game_clone->update(0);
@@ -91,9 +109,7 @@ void expand(Tree &tree, NodeId node_id) {
                  .rotation = tile_location.rotation,
                  .ignored_figure = true,
          };
-
-         auto new_id = tree.add_node(std::move(game_clone), current_player, full_move, node_id);
-         simulate(tree, new_id);
+         tree.add_node(std::move(game_clone), current_player, full_move, node_id);
       }
    }
 
@@ -138,13 +154,8 @@ void run_mcts(Tree &tree, mb::i64 time_limit) {
    }
 
    auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{time_limit};
-   auto prev_sim_count = tree.node_at(g_root_node).simulation_count();
-   auto prev_node_count = tree.node_count();
    while (std::chrono::steady_clock::now() < until) {
       run_selection(tree);
-      fmt::print("sim diff: {}, node count diff: {}\n", tree.node_at(g_root_node).simulation_count() - prev_sim_count, tree.node_count() - prev_node_count);
-      prev_sim_count = tree.node_at(g_root_node).simulation_count();
-      prev_node_count = tree.node_count();
    }
 }
 
@@ -155,7 +166,7 @@ FullMove choose_move(Tree &tree) {
            children.begin(),
            children.end(),
            [&tree, rollout_count = root_node.simulation_count()](NodeId lhs, NodeId rhs) -> bool {
-             return tree.node_at(lhs).UCT1(rollout_count) < tree.node_at(rhs).UCT1(rollout_count);
+              return tree.node_at(lhs).UCT1(rollout_count) < tree.node_at(rhs).UCT1(rollout_count);
            });
    assert(selected_child_it != children.end());
    auto &node = tree.node_at(*selected_child_it);
