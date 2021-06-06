@@ -39,7 +39,7 @@ class Node {
 
    Player find_winner();
 
-   [[nodiscard]] constexpr Player find_winning_player() const noexcept {
+   [[nodiscard]] inline Player find_winning_player() const noexcept {
       auto win_it = std::find_if(m_player_wins.begin(), m_player_wins.end(), [](mb::size wins) { return wins != 0; });
       if (win_it == m_player_wins.end())
          return Player::Black;
