@@ -47,6 +47,8 @@ struct Tile {
    }
 };
 
+constexpr auto g_max_moves = 71;
+
 constexpr std::array<Tile, 25> g_tiles{
         Tile{
                 .edges{EdgeType::Grass, EdgeType::Grass, EdgeType::Grass, EdgeType::Grass},

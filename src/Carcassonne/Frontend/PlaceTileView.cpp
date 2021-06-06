@@ -40,7 +40,7 @@ bool PlaceTileView::place_tile() {
    if (!m_selection_ok)
       return false;
 
-   m_move->place_tile(m_tile_x, m_tile_y, m_rotation);
+   m_move->place_tile_at(m_tile_x, m_tile_y, m_rotation);
    m_selection_ok = false;
    return true;
 }

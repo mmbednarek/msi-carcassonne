@@ -1,7 +1,7 @@
 #ifndef MSI_CARCASSONNE_FIGURESVIEW_H
 #define MSI_CARCASSONNE_FIGURESVIEW_H
 #include "Camera.h"
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <Graphics/Context.h>
 
 namespace carcassonne::frontend {

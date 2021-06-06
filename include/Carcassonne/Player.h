@@ -1,5 +1,8 @@
 #ifndef MSI_CARCASSONNE_PLAYER_H
 #define MSI_CARCASSONNE_PLAYER_H
+#include <array>
+#include <tuple>
+#include <mb/int.h>
 
 namespace carcassonne {
 
@@ -10,7 +13,7 @@ enum class Player : mb::u8 {
    Red = 3,
 };
 
-constexpr std::array<Player, 4> g_players {
+constexpr std::array<Player, 4> g_players{
         Player::Black,
         Player::Blue,
         Player::Yellow,
@@ -75,6 +78,10 @@ constexpr PlayerAssignment &operator|=(PlayerAssignment &left, Player right) {
 
 constexpr Player next_player(Player player, mb::u8 player_count) {
    return static_cast<Player>((static_cast<int>(player) + 1) % player_count);
+}
+
+constexpr Player last_player(Player player, mb::u8 player_count) {
+   return static_cast<Player>((static_cast<int>(player) + player_count - 1) % player_count);
 }
 
 }// namespace carcassonne

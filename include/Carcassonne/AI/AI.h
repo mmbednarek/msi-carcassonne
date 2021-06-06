@@ -1,11 +1,11 @@
 #ifndef MSI_CARCASSONNE_AI_H
 #define MSI_CARCASSONNE_AI_H
-
-// AI implementation
+#include <mb/int.h>
 
 namespace carcassonne::ai {
 
+using NodeId = mb::size;
 
-} // namespace carcassonne::game::ai
+}// namespace carcassonne::ai
 
-#endif //MSI_CARCASSONNE_AI_H
+#endif//MSI_CARCASSONNE_AI_H

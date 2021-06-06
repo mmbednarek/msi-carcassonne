@@ -1,8 +1,9 @@
 #ifndef MSI_CARCASSONNE_GAME_H
 #define MSI_CARCASSONNE_GAME_H
 #include "Board.h"
-#include <Carcassonne/Core.h>
 #include <Carcassonne/Groups.h>
+#include <Carcassonne/IGame.h>
+#include <Carcassonne/Move.h>
 #include <Carcassonne/ScoreBoard.h>
 #include <functional>
 #include <mb/int.h>
@@ -22,10 +23,12 @@ class Game : public IGame {
    mb::size m_player_count = 2;
    mb::size m_move_index = 0;
    std::vector<Figure> m_figures;
-   std::vector<std::function<void(IGame &, Player)>> m_next_move_callbacks;
+   std::vector<NextMoveCallback> m_next_move_callbacks;
    bool m_game_finished = false;
    std::array<mb::u8, 4> m_figure_count{};
    bool m_tour_finished = false;
+   FullMove m_performed_move{};
+   FullMove m_last_move{};
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -36,7 +39,7 @@ class Game : public IGame {
 
  public:
    Game(int player_count, mb::u64 seed);
-
+   [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override;
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
@@ -47,14 +50,15 @@ class Game : public IGame {
    [[nodiscard]] mb::u8 move_index() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) noexcept;
    [[nodiscard]] std::vector<Direction> figure_placements(int x, int y) const noexcept override;
-   void on_next_move(std::function<void(IGame &, Player)> callback) noexcept override;
+   [[nodiscard]] std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move) const noexcept override;
+   void on_next_move(NextMoveCallback callback) noexcept override;
    void start() noexcept override;
    void update(double dt) noexcept override;
 
    [[nodiscard]] bool can_place_figure(int x, int y, Direction d) const;
    [[nodiscard]] bool is_monastery_completed(int x, int y) noexcept;
    [[nodiscard]] mb::u8 player_figure_count(Player p) const noexcept;
-   void notify_tour_finished() noexcept;
+   void notify_tour_finished(FullMove full_move) noexcept;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);
    void on_monastery_completed(int x, int y, Player player);
@@ -73,7 +77,14 @@ class Game : public IGame {
       return m_groups;
    }
 
+   [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
+      return m_player_count;
+   }
+
  private:
+   int score_grass(Player player, Edge edge) const noexcept;
+   int score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction) const noexcept;
+   int score_direction(Player player, TileType tile_type, TileMove move, Direction direction) const noexcept;
    void set_next_player() noexcept;
    void assign_final_points() noexcept;
 };

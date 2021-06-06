@@ -1,7 +1,9 @@
 #ifndef MSI_CARCASSONNE_MOVEITERATOR_H
 #define MSI_CARCASSONNE_MOVEITERATOR_H
-#include "Board.h"
+#include "IBoard.h"
 #include "Player.h"
+#include <mb/result.h>
+#include <memory>
 
 namespace carcassonne {
 
@@ -18,10 +20,25 @@ struct TileMove {
    }
 };
 
+struct FullMove {
+   int x{}, y{};
+   mb::u8 rotation{};
+   bool ignored_figure = true;
+   Direction direction{};
+
+   constexpr bool operator==(const FullMove &other) const {
+      return x == other.x &&
+             y == other.y &&
+             rotation == other.rotation &&
+             ignored_figure == other.ignored_figure &&
+             direction == other.direction;
+   }
+};
+
 class MoveIter {
    TileMove m_move;
-   const TileType m_tile_type;
-   const IBoard &m_board;
+   TileType m_tile_type;
+   std::reference_wrapper<const IBoard> m_board;
 
  public:
    typedef MoveIter self_type;
@@ -126,18 +143,18 @@ class MoveIter {
       }
       m_move.rotation = 0;
 
-      if (m_move.x < m_board.max_x()) {
+      if (m_move.x < m_board.get().max_x()) {
          ++m_move.x;
          return true;
       }
-      m_move.x = m_board.min_x() - 1;
+      m_move.x = m_board.get().min_x() - 1;
 
-      if (m_move.y < m_board.max_y()) {
+      if (m_move.y < m_board.get().max_y()) {
          ++m_move.y;
          return true;
       }
 
-      m_move.y = m_board.max_y() + 1;
+      m_move.y = m_board.get().max_y() + 1;
       return false;
    }
 
@@ -148,31 +165,31 @@ class MoveIter {
       }
       m_move.rotation = 3;
 
-      if (m_move.x >= m_board.min_x()) {
+      if (m_move.x >= m_board.get().min_x()) {
          --m_move.x;
          return true;
       }
-      m_move.x = m_board.max_x();
+      m_move.x = m_board.get().max_x();
 
-      if (m_move.y >= m_board.min_y()) {
+      if (m_move.y >= m_board.get().min_y()) {
          --m_move.y;
          return true;
       }
 
-      m_move.y = m_board.min_y() - 1;
+      m_move.y = m_board.get().min_y() - 1;
       return false;
    }
 
    constexpr void seek_prev() {
       do {
-         if (m_board.can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
+         if (m_board.get().can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
             return;
       } while (regress());
    }
 
    constexpr void seek_next() {
       do {
-         if (m_board.can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
+         if (m_board.get().can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
             return;
       } while (progress());
    }
@@ -197,6 +214,8 @@ enum class MovePhase {
    Done
 };
 
+class IGame;
+
 class IMove {
  public:
    [[nodiscard]] virtual Player player() const noexcept = 0;
@@ -204,9 +223,11 @@ class IMove {
    [[nodiscard]] virtual MovePhase phase() const noexcept = 0;
    [[nodiscard]] virtual bool is_free(Direction d) const noexcept = 0;
    [[nodiscard]] virtual TilePosition position() const noexcept = 0;
-   virtual void place_tile(int x, int y, mb::u8 rotation) noexcept = 0;
-   virtual void place_figure(Direction d) noexcept = 0;
-   virtual void ignore_figure() noexcept = 0;
+   [[nodiscard]] virtual std::unique_ptr<IMove> clone(IGame &game) const noexcept = 0;
+   virtual mb::result<mb::empty> place_tile_at(int x, int y, mb::u8 rotation) noexcept = 0;
+   virtual mb::result<mb::empty> place_tile(TileMove tile_location) noexcept = 0;
+   virtual mb::result<mb::empty> place_figure(Direction d) noexcept = 0;
+   virtual mb::result<mb::empty> ignore_figure() noexcept = 0;
 };
 
 }// namespace carcassonne

@@ -1,4 +1,4 @@
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <Carcassonne/Game/Game.h>
 #include <fmt/core.h>
 #include <gtest/gtest.h>
