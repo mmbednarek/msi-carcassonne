@@ -50,7 +50,7 @@ class MoveIter {
    typedef std::bidirectional_iterator_tag iterator_category;
    typedef mb::size difference_type;
 
-   constexpr explicit MoveIter(const IBoard &board, TileType tt) : m_move{
+   inline explicit MoveIter(const IBoard &board, TileType tt) : m_move{
                                                                            .x = board.min_x() - 1,
                                                                            .y = board.min_y() - 1,
                                                                            .rotation = 0,
@@ -59,7 +59,7 @@ class MoveIter {
       seek_next();
    }
 
-   constexpr explicit MoveIter(const IBoard &board, TileType tt, int x, int y, mb::u8 rotation) : m_move{
+   inline explicit MoveIter(const IBoard &board, TileType tt, int x, int y, mb::u8 rotation) : m_move{
                                                                                                           .x = x,
                                                                                                           .y = y,
                                                                                                           .rotation = rotation,
@@ -67,33 +67,33 @@ class MoveIter {
                                                                                                   m_tile_type(tt), m_board(board) {
    }
 
-   constexpr self_type operator++() {
+   inline self_type operator++() {
       self_type tmp_it(*this);
       progress();
       seek_next();
       return tmp_it;
    }
 
-   constexpr self_type operator++(int) {
+   inline self_type operator++(int) {
       progress();
       seek_next();
       return *this;
    }
 
-   constexpr self_type operator--() {
+   inline self_type operator--() {
       self_type tmp_it(*this);
       regress();
       seek_prev();
       return tmp_it;
    }
 
-   constexpr self_type operator--(int) {
+   inline self_type operator--(int) {
       regress();
       seek_prev();
       return *this;
    }
 
-   constexpr self_type operator+(difference_type count) const {
+   inline self_type operator+(difference_type count) const {
       self_type result(*this);
       for (difference_type i = 0; i < count; ++i) {
          result.progress();
@@ -102,7 +102,7 @@ class MoveIter {
       return result;
    }
 
-   constexpr self_type operator-(difference_type count) const {
+   inline self_type operator-(difference_type count) const {
       self_type result(*this);
       for (difference_type i = 0; i < count; ++i) {
          result.regress();
@@ -111,7 +111,7 @@ class MoveIter {
       return result;
    }
 
-   constexpr difference_type operator-(const self_type &other) const {
+   inline difference_type operator-(const self_type &other) const {
       difference_type count{};
       for (self_type at = other; at != *this; ++at) {
          ++count;
@@ -199,11 +199,11 @@ struct MoveRange {
    MoveIter from;
    MoveIter to;
 
-   [[nodiscard]] constexpr MoveIter begin() const {
+   [[nodiscard]] inline MoveIter begin() const {
       return from;
    }
 
-   [[nodiscard]] constexpr MoveIter end() const {
+   [[nodiscard]] inline MoveIter end() const {
       return to;
    }
 };
