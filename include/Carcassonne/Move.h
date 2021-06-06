@@ -180,14 +180,14 @@ class MoveIter {
       return false;
    }
 
-   constexpr void seek_prev() {
+   inline void seek_prev() {
       do {
          if (m_board.get().can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
             return;
       } while (regress());
    }
 
-   constexpr void seek_next() {
+   inline void seek_next() {
       do {
          if (m_board.get().can_place_at(m_move.x, m_move.y, m_tile_type, m_move.rotation))
             return;
