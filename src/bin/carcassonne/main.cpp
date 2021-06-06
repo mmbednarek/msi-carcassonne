@@ -1,3 +1,5 @@
+#include <Carcassonne/AI/HeuristicPlayer.h>
+#include <Carcassonne/AI/MCTSPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
 #include <Carcassonne/Frontend/GameView.h>
 #include <Carcassonne/Frontend/Resource.h>
@@ -23,7 +25,9 @@ int main() {
 
    auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("9"));
    auto human_player_count = std::stoi(mb::getenv("C_HUMAN_PLAYERS").unwrap("1"));
-   auto random_ai_player_count = std::stoi(mb::getenv("C_AI_RANDOM_PLAYERS").unwrap("1"));
+   auto random_ai_player_count = std::stoi(mb::getenv("C_AI_RANDOM_PLAYERS").unwrap("0"));
+   auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("1"));
+   auto heuristic_ai_player_count = std::stoi(mb::getenv("C_AI_HEURISTIC_PLAYERS").unwrap("0"));
 
    if (!player_range_ok(human_player_count)) {
       fmt::print(stderr, "invalid human player count (0-4): {}", human_player_count);
@@ -35,8 +39,13 @@ int main() {
       return 1;
    }
 
-   if (!player_range_ok(human_player_count + random_ai_player_count)) {
-      fmt::print(stderr, "invalid player count (0-4): {}", human_player_count + random_ai_player_count);
+   if (!player_range_ok(mcts_ai_player_count)) {
+      fmt::print(stderr, "invalid random ai player count (0-4): {}", random_ai_player_count);
+      return 1;
+   }
+
+   if (!player_range_ok(human_player_count + random_ai_player_count + mcts_ai_player_count + heuristic_ai_player_count)) {
+      fmt::print(stderr, "invalid player count (0-4): {}", human_player_count + random_ai_player_count + mcts_ai_player_count + heuristic_ai_player_count);
       return 1;
    }
 
@@ -58,7 +67,7 @@ int main() {
       return 1;
    }
 
-   carcassonne::game::Game game(human_player_count + random_ai_player_count, game_seed);
+   carcassonne::game::Game game(human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count, game_seed);
 
    auto human_players = std::accumulate(
            carcassonne::g_players.begin(),
@@ -69,9 +78,30 @@ int main() {
            });
    carcassonne::frontend::GameView view(game, human_players);
 
-   std::vector<std::unique_ptr<carcassonne::ai::RandomPlayer>> random_players(random_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), random_players.begin(), [&game](carcassonne::Player p) {
-      return std::make_unique<carcassonne::ai::RandomPlayer>(game, p);
+   std::random_device random_device;
+   std::mt19937 random_generator(random_device());
+
+   std::vector<carcassonne::ai::RandomPlayer<>> random_players;
+   random_players.reserve(random_ai_player_count);
+   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), std::back_inserter(random_players), [&random_generator](carcassonne::Player p) {
+      return carcassonne::ai::RandomPlayer<>(random_generator, p);
+   });
+   for (auto &player : random_players) {
+      player.await_turn(game);
+   }
+
+   std::vector<carcassonne::ai::HeuristicPlayer> heuristic_players;
+   heuristic_players.reserve(heuristic_ai_player_count);
+   std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), std::back_inserter(heuristic_players), [](carcassonne::Player p) {
+      return carcassonne::ai::HeuristicPlayer(p);
+   });
+   for (auto &player : heuristic_players) {
+      player.await_turn(game);
+   }
+
+   std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
+   std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
+      return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p);
    });
 
    constexpr double dt = 1000.0 / 60.0;

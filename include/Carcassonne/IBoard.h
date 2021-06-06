@@ -1,5 +1,5 @@
-#ifndef MSI_CARCASSONNE_BOARD_H
-#define MSI_CARCASSONNE_BOARD_H
+#ifndef MSI_CARCASSONNE_IBOARD_H
+#define MSI_CARCASSONNE_IBOARD_H
 #include "Tiles.h"
 
 namespace carcassonne {
@@ -24,4 +24,4 @@ class IBoard {
 
 }
 
-#endif//MSI_CARCASSONNE_BOARD_H
+#endif//MSI_CARCASSONNE_IBOARD_H

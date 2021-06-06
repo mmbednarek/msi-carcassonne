@@ -1,6 +1,6 @@
 #ifndef MSI_CARCASSONNE_PLACETILEVIEW_H
 #define MSI_CARCASSONNE_PLACETILEVIEW_H
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <Carcassonne/Frontend/Camera.h>
 #include <Graphics/Context.h>
 

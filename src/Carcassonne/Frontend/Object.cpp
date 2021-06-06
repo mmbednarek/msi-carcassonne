@@ -1,4 +1,4 @@
-#include <Carcassonne/Core.h>
+#include <Carcassonne/IGame.h>
 #include <Carcassonne/Frontend/Object.h>
 #include <Carcassonne/Frontend/Resource.h>
 
