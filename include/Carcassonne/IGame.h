@@ -6,6 +6,7 @@
 #include "Move.h"
 #include "Player.h"
 #include "ScoreBoard.h"
+#include "Parameters.h"
 #include <mb/view.h>
 #include <memory>
 
@@ -34,6 +35,8 @@ class IGame {
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
    [[nodiscard]] virtual std::vector<Direction> figure_placements(int x, int y) const noexcept = 0;
    [[nodiscard]] virtual std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move) const noexcept = 0;
+   [[nodiscard]] virtual constexpr Parameters &mutable_params() noexcept = 0;
+   [[nodiscard]] virtual constexpr const Parameters &params() const noexcept = 0;
    virtual void start() noexcept = 0;
    virtual void on_next_move(NextMoveCallback callback) noexcept = 0;
    virtual void update(double dt) noexcept = 0;
