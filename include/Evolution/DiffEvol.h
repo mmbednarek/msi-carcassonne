@@ -20,6 +20,7 @@ struct Variables {
    int tile_type_score = 4;
    int tile_close_score = 20000;
    int tile_open_score = 200;
+   int ignore_figure_score_treshold = 900;
 };
 
 struct Parameters {
@@ -41,6 +42,7 @@ struct Constraint {
    Range<> tile_type_score;
    Range<> tile_close_score;
    Range<> tile_open_score;
+   Range<> ignore_figure_score_treshold;
 };
 
 using ObjectiveFunction = std::function<double(const Variables &)>;

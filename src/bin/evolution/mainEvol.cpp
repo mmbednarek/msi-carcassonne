@@ -31,6 +31,7 @@ evolution::ObjectiveFunction make_objective_function(util::IRandomGenerator &ran
       params.tile_type_score = vars.tile_type_score;
       params.tile_close_score = vars.tile_close_score;
       params.tile_open_score = vars.tile_open_score;
+      params.ignore_figure_score_treshold = vars.ignore_figure_score_treshold;
       
       // carcassonne::game::Game game(2, 0);
 
@@ -61,6 +62,7 @@ evolution::ObjectiveFunction make_objective_function(util::IRandomGenerator &ran
       fmt::print("\n  tile_type_score:\t\t{}, ", params.tile_type_score);
       fmt::print("\n  tile_close_score:\t\t{}, ", params.tile_close_score);
       fmt::print("\n  tile_open_score:\t\t{}, ", params.tile_open_score);
+      fmt::print("\n  ignore_figure_score_treshold:\t\t{}, ", params.ignore_figure_score_treshold);
       // fmt::print("\n  Fitness: {}\n", result);
       return 0;//result;
    };
@@ -85,6 +87,7 @@ int main(int argc, char **argv) {
            {1, 100},    // tile_type_score
            {1, 50000},  // tile_close_score
            {1, 1000},   // tile_open_score
+           {0, 10000},   // ignore_figure_score_treshold
    };
 
    evolution::Parameters evo_params{

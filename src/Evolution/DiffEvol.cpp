@@ -23,6 +23,7 @@ Variables FindOptimal(util::IRandomGenerator &rand, const ObjectiveFunction &obj
               rand.next_int(constraint.tile_type_score.min, constraint.tile_type_score.max),
               rand.next_int(constraint.tile_close_score.min, constraint.tile_close_score.max),
               rand.next_int(constraint.tile_open_score.min, constraint.tile_open_score.max),
+              rand.next_int(constraint.ignore_figure_score_treshold.min, constraint.ignore_figure_score_treshold.max),
       };
    });
 
@@ -42,6 +43,7 @@ Variables FindOptimal(util::IRandomGenerator &rand, const ObjectiveFunction &obj
             mutate<int>(constraint.tile_type_score.min, constraint.tile_type_score.max, chosen[0].tile_type_score, chosen[1].tile_type_score, chosen[2].tile_type_score),
             mutate<int>(constraint.tile_close_score.min, constraint.tile_close_score.max, chosen[0].tile_close_score, chosen[1].tile_close_score, chosen[2].tile_close_score),
             mutate<int>(constraint.tile_open_score.min, constraint.tile_open_score.max, chosen[0].tile_open_score, chosen[1].tile_open_score, chosen[2].tile_open_score),
+            mutate<int>(constraint.ignore_figure_score_treshold.min, constraint.ignore_figure_score_treshold.max, chosen[0].ignore_figure_score_treshold, chosen[1].ignore_figure_score_treshold, chosen[2].ignore_figure_score_treshold),
          };
 
          if (rand.next_double(1.0) < g_cross) {
@@ -64,6 +66,9 @@ Variables FindOptimal(util::IRandomGenerator &rand, const ObjectiveFunction &obj
          }
          if (rand.next_double(1.0) < g_cross) {
             mutant.tile_open_score = population[p].tile_open_score;
+         }
+         if (rand.next_double(1.0) < g_cross) {
+            mutant.ignore_figure_score_treshold = population[p].ignore_figure_score_treshold;
          }
 
          auto mutant_fitness = objective_function(mutant);
