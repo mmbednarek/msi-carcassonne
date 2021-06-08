@@ -360,7 +360,7 @@ std::unique_ptr<IGame> Game::clone() const noexcept {
    return game;
 }
 
-static int score_monastery(const Board &board, int x, int y) {
+static int score_monastery(const Board &board, int x, int y, int moastery_score) {
    int score = 0;
    for (auto cy = y - 1; cy <= y + 1; ++cy) {
       for (auto cx = x - 1; cx <= x + 1; ++cx) {
@@ -368,7 +368,7 @@ static int score_monastery(const Board &board, int x, int y) {
             continue;
 
          if (board.tile_at(cx, cy).type != 0)
-            score += 50;
+            score += moastery_score;
       }
    }
    return score;
@@ -376,9 +376,9 @@ static int score_monastery(const Board &board, int x, int y) {
 
 int Game::score_grass(Player player, Edge edge) const noexcept {
    if (!m_groups.is_free(edge))
-      return -20;
+      return -params().grass_penalty;
 
-   if (player_figure_count(player) < 4)
+   if (player_figure_count(player) < params().min_figure_count)
       return 0;
 
    const auto count = std::count_if(m_towns.begin(), m_towns.end(), [this, expected = m_groups.group_of(edge)](std::pair<Edge, Edge> town_grass_pair) {
@@ -386,7 +386,7 @@ int Game::score_grass(Player player, Edge edge) const noexcept {
          return false;
       return town_grass_pair.second == expected;
    });
-   return static_cast<int>(count);
+   return params().grass_score * static_cast<int>(count);
 }
 
 struct EdgeState {
@@ -467,8 +467,8 @@ int Game::score_tile(Player player, const Tile &tile, TileMove move, Direction t
          continue;
 
       auto own_score = state.our ? 1 : (state.free ? 0 : -1);
-      auto type_score = state.type == EdgeType::Town ? 4 : 1;
-      score += 20 * type_score * own_score * (10 * state.closes + state.opens) * state.tile_count;
+      auto type_score = state.type == EdgeType::Town ? params().tile_type_score : 1;
+      score += type_score * own_score * (params().tile_close_score * state.closes + params().tile_open_score * state.opens) * state.tile_count;
    }
 
    return score;
@@ -477,7 +477,7 @@ int Game::score_tile(Player player, const Tile &tile, TileMove move, Direction t
 int Game::score_direction(Player player, TileType tile_type, TileMove move, Direction direction) const noexcept {
    const auto tile = g_tiles[tile_type].rotate(move.rotation);
    if (tile.monastery && direction == Direction::Middle) {
-      return score_monastery(m_board, move.x, move.y);
+      return score_monastery(m_board, move.x, move.y, params().moastery_score);
    }
 
    auto edge = make_edge(move.x, move.y, direction);

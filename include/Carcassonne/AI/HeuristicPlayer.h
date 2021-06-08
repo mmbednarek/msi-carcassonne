@@ -8,6 +8,7 @@ namespace carcassonne::ai {
 
 class HeuristicPlayer {
    Player m_player;
+   
  public:
    constexpr explicit HeuristicPlayer(Player player) noexcept : m_player(player) {}
 

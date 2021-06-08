@@ -27,6 +27,7 @@ class Game : public IGame {
    bool m_game_finished = false;
    std::array<mb::u8, 4> m_figure_count{};
    bool m_tour_finished = false;
+   Parameters m_params;
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -77,6 +78,14 @@ class Game : public IGame {
 
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
       return m_player_count;
+   }
+   
+   [[nodiscard]] constexpr Parameters &mutable_params() noexcept override {
+      return m_params;
+   }
+   
+   [[nodiscard]] constexpr const Parameters &params()  const noexcept override {
+      return m_params;
    }
 
  private:

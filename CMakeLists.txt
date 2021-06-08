@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 project(msi_carcassonne)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS -O3)
+# set(CMAKE_CXX_FLAGS -O3)
 
 add_compile_options(-fconcepts)
 
@@ -25,4 +25,6 @@ add_subdirectory(src/Carcassonne/Game)
 add_subdirectory(src/Carcassonne/AI)
 add_subdirectory(src/Carcassonne/Frontend)
 add_subdirectory(src/bin/carcassonne)
+add_subdirectory(src/bin/evolution)
+add_subdirectory(src/Evolution)
 add_subdirectory(src/Test)

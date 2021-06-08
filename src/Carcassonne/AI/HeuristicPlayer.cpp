@@ -40,7 +40,7 @@ mb::result<FullMove> HeuristicPlayer::make_move(IGame &game) noexcept {
       };
    }
 
-   if (best_score < 0) {
+   if (best_score < 900) {
       move->ignore_figure();
       return FullMove{
               .x = best_move.x,

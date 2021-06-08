@@ -23,7 +23,7 @@ constexpr bool player_range_ok(int count) {
 int main() {
    using carcassonne::frontend::Status;
 
-   auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("9"));
+   auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("11"));
    auto human_player_count = std::stoi(mb::getenv("C_HUMAN_PLAYERS").unwrap("1"));
    auto random_ai_player_count = std::stoi(mb::getenv("C_AI_RANDOM_PLAYERS").unwrap("0"));
    auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("1"));
