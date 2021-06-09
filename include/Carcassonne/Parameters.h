@@ -5,14 +5,14 @@
 namespace carcassonne {
 
 struct Parameters {
-   int moastery_score = 2000;
-   int grass_penalty = 20;
-   mb::u8 min_figure_count = 2;
-   int grass_score = 4;
-   int tile_type_score = 4;
-   int tile_close_score = 20000;
-   int tile_open_score = 200;
-   int ignore_figure_score_treshold = 900;
+   int monastery_score = 3090;
+   int grass_penalty = 41;
+   int min_figure_count = 2;
+   int grass_score = 79;
+   int tile_type_score = 1;
+   int tile_close_score = 430;
+   int tile_open_score = 740;
+   int ignore_figure_score_threshold = 619;
 };
 
 }// namespace carcassonne

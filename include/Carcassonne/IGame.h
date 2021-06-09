@@ -34,9 +34,7 @@ class IGame {
    [[nodiscard]] virtual mb::u8 move_index() const noexcept = 0;
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
    [[nodiscard]] virtual std::vector<Direction> figure_placements(int x, int y) const noexcept = 0;
-   [[nodiscard]] virtual std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move) const noexcept = 0;
-   [[nodiscard]] virtual constexpr Parameters &mutable_params() noexcept = 0;
-   [[nodiscard]] virtual constexpr const Parameters &params() const noexcept = 0;
+   [[nodiscard]] virtual std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move, const Parameters &parameters) const noexcept = 0;
    virtual void start() noexcept = 0;
    virtual void on_next_move(NextMoveCallback callback) noexcept = 0;
    virtual void update(double dt) noexcept = 0;

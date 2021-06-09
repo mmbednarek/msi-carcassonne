@@ -1,3 +1,3 @@
 project(msi_evolution_bin)
 add_executable(msi_evolution_bin mainEvol.cpp)
-target_link_libraries(msi_evolution_bin msi_evolution fmt)
+target_link_libraries(msi_evolution_bin msi_evolution msi_carcassonne_game msi_carcassonne_ai fmt)

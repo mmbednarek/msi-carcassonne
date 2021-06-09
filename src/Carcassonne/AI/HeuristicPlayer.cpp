@@ -8,11 +8,11 @@ void HeuristicPlayer::await_turn(IGame &game) {
    game.on_next_move([this](IGame &game, Player player, FullMove) {
       if (player != m_player)
          return;
-      make_move(game);
+      make_move(game, Parameters{});
    });
 }
 
-mb::result<FullMove> HeuristicPlayer::make_move(IGame &game) noexcept {
+mb::result<FullMove> HeuristicPlayer::make_move(IGame &game, const Parameters &params) noexcept {
    auto move = game.new_move(m_player);
 
    Direction best_dir{};
@@ -22,7 +22,7 @@ mb::result<FullMove> HeuristicPlayer::make_move(IGame &game) noexcept {
    for (const auto possible_move : possible_tile_moves) {
       int score;
       Direction dir;
-      std::tie(dir, score) = game.move_score(m_player, move->tile_type(), possible_move);
+      std::tie(dir, score) = game.move_score(m_player, move->tile_type(), possible_move, params);
       if (score > best_score) {
          best_dir = dir;
          best_score = score;
@@ -40,7 +40,7 @@ mb::result<FullMove> HeuristicPlayer::make_move(IGame &game) noexcept {
       };
    }
 
-   if (best_score < game.params().ignore_figure_score_treshold) {
+   if (best_score < params.ignore_figure_score_threshold) {
       move->ignore_figure();
       return FullMove{
               .x = best_move.x,

@@ -29,7 +29,6 @@ class Game : public IGame {
    bool m_tour_finished = false;
    FullMove m_performed_move{};
    FullMove m_last_move{};
-   Parameters m_params;
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -51,7 +50,7 @@ class Game : public IGame {
    [[nodiscard]] mb::u8 move_index() const noexcept override;
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) noexcept;
    [[nodiscard]] std::vector<Direction> figure_placements(int x, int y) const noexcept override;
-   [[nodiscard]] std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move) const noexcept override;
+   [[nodiscard]] std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move, const Parameters &params) const noexcept override;
    void on_next_move(NextMoveCallback callback) noexcept override;
    void start() noexcept override;
    void update(double dt) noexcept override;
@@ -81,19 +80,11 @@ class Game : public IGame {
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
       return m_player_count;
    }
-   
-   [[nodiscard]] constexpr Parameters &mutable_params() noexcept override {
-      return m_params;
-   }
-   
-   [[nodiscard]] constexpr const Parameters &params()  const noexcept override {
-      return m_params;
-   }
 
  private:
-   int score_grass(Player player, Edge edge) const noexcept;
-   int score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction) const noexcept;
-   int score_direction(Player player, TileType tile_type, TileMove move, Direction direction) const noexcept;
+   int score_grass(Player player, Edge edge, const Parameters &params) const noexcept;
+   int score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction, const Parameters &params) const noexcept;
+   int score_direction(Player player, TileType tile_type, TileMove move, Direction direction, const Parameters &params) const noexcept;
    void set_next_player() noexcept;
    void assign_final_points() noexcept;
 };

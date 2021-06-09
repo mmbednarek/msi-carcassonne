@@ -15,7 +15,7 @@ TEST(Evolution, Simple) {
    util::Random r;
 
    auto objective_function = [](const evolution::Variables &vars) -> int {
-      return vars.moastery_score; //score_diff;
+      return vars.monastery_score; //score_diff;
    };
 
    evolution::Constraint constraint{
@@ -40,12 +40,12 @@ TEST(Evolution, Simple) {
    };
 
    auto result = evolution::FindOptimal(r, objective_function, evo_params, constraint);
-   ASSERT_GE(result.moastery_score, 1);
+   ASSERT_GE(result.monastery_score, 1);
    ASSERT_GE(result.grass_penalty, 1);
    ASSERT_GE(result.min_figure_count, 1);
    ASSERT_GE(result.grass_score, 1);
    ASSERT_GE(result.tile_type_score, 1);
    ASSERT_GE(result.tile_close_score, 1);
    ASSERT_GE(result.tile_open_score, 1);
-   ASSERT_GE(result.ignore_figure_score_treshold, 0);
+   ASSERT_GE(result.ignore_figure_score_threshold, 0);
 }
