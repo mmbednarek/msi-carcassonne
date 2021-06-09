@@ -5,7 +5,7 @@
 
 namespace carcassonne::frontend {
 
-constexpr double distance(double ax, double ay, double bx, double by) {
+static double distance(double ax, double ay, double bx, double by) {
    return std::sqrt(std::pow(ax - bx, 2.0) + std::pow(ay - by, 2.0));
 }
 
