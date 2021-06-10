@@ -5,6 +5,8 @@
 #include <random>
 #include <functional>
 #include <cmath>
+#include <future>
+#include <algorithm>
 
 namespace evolution {
 
@@ -73,11 +75,48 @@ Variables FindOptimal(util::IRandomGenerator &rand, const TF& objective_function
    });
 
    std::vector<double> fitness(g_population_size);
+
+
+
+
+
+
+   // std::vector<std::pair<double, Variables>> fits_vars(g_population_size);
+   // std::vector<std::vector<std::pair<double, Variables>>> generations(evo_params.generations_count);
+   // std::vector<double> fitness(g_population_size);
+   // // std::vector<double> fitness_to_normalise(g_population_size);
+   // // double fitness_to_normalise_sum{};
+   // std::vector<std::pair<double, Variables>> normalised_fits(g_population_size);
+   // fmt::print("\nEVALUATING {} HEURISTIC PLAYERS\n", g_population_size);
+
+
+   // std::vector<std::future<double>> future_fitness(g_population_size);
+   // std::transform(population.begin(), population.end(), future_fitness.begin(), [&objective_function](const Variables &vars) {
+   //    return std::async(std::launch::async, objective_function, vars);
+   // });
+   // std::transform(future_fitness.begin(), future_fitness.end(), fitness.begin(), [&ant_nr](std::future<double> &f) {
+   //    ant_nr++;
+   //    fmt::print("ai{}, ", ant_nr);
+   //    return f.get();
+   // });
+
+   // auto it_optimum = std::min(fitness.begin(), fitness.end());
+   // auto it_optimum_population = generations.begin();
+   // std::transform(fitness.begin(), fitness.end(), population.begin(), fits_vars.begin(), [](double fit, Variables vars) {
+   //    return std::make_pair(fit, vars);
+   // });
+
+
+
+
+
    std::transform(population.begin(), population.end(), fitness.begin(), objective_function);
 
    auto it_optimum = std::min(fitness.begin(), fitness.end());
 
    for (std::size_t i = 0; i < g_iteration_count; ++i) {
+      // std::vector<Variables> mutants;
+      // mutants.reserve(g_population_size);
       for (std::size_t p = 0; p < g_population_size; ++p) {
          auto chosen = util::choose_n<Variables, 3>(rand, population);
          Variables mutant{
@@ -115,16 +154,36 @@ Variables FindOptimal(util::IRandomGenerator &rand, const TF& objective_function
          if (rand.next_double(1.0) < g_cross) {
             mutant.ignore_figure_score_threshold = population[p].ignore_figure_score_threshold;
          }
-
+         // mutants.at(p) = mutant;
          auto mutant_fitness = objective_function(mutant);
 
-         if (mutant_fitness < fitness[p]) {
+
+      // fmt::print("\n\nEWALUATING {}/{} GENERATION\n", i, evo_params.generations_count);
+      // std::transform(population.begin(), population.end(), future_fitness.begin(), [&objective_function](const Variables &vars) {
+      //    return std::async(std::launch::async, objective_function, vars);
+      // });
+      // std::transform(future_fitness.begin(), future_fitness.end(), fitness.begin(), [&ant_nr](std::future<double> &f) {
+      //    ant_nr++;
+      //    fmt::print("ant{}, ", ant_nr);
+      //    return f.get();
+      // });
+      // std::transform(fitness.begin(), fitness.end(), population.begin(), fits_vars.begin(), [](double fit, Variables vars) {
+      //    return std::make_pair(fit, vars);
+      // });
+      // auto it_optimum = std::min(fitness.begin(), fitness.end());
+      // optimal_over_generations[i] = population[it_optimum - fitness.begin()];
+      // optimal_fitness[i] = *it_optimum;
+      // fmt::print("\nEVALUATION FINISHED\n\n");
+
+      // for (const auto &fw : fits_vars) {
+         if (mutant_fitness > fitness[p]) {
             fitness[p] = mutant_fitness;
             population[p] = mutant;
-            if (mutant_fitness < *it_optimum) {
+            if (mutant_fitness > *it_optimum) {
                it_optimum = fitness.begin() + p;
             }
          }
+      // }
       }
    }
 
