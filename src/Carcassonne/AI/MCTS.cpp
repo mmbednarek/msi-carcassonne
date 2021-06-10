@@ -34,7 +34,7 @@ void simulate(Tree &tree, NodeId node_id) {
    auto simulated_game = tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
-      auto full_move = g_heuristic_players[static_cast<mb::size>(current_player)].make_move(*simulated_game).unwrap();
+      auto full_move = g_heuristic_players[static_cast<mb::size>(current_player)].make_move(*simulated_game, Parameters{}).unwrap();
       simulated_game->update(0);
 
       parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);

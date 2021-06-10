@@ -13,7 +13,7 @@ class HeuristicPlayer {
 
    void await_turn(IGame &game);
 
-   mb::result<FullMove> make_move(IGame &game) noexcept;
+   mb::result<FullMove> make_move(IGame &game, const Parameters &params = Parameters{}) noexcept;
 };
 
 }
