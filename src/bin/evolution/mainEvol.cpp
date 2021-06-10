@@ -57,7 +57,7 @@ auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Paramete
       }
 
       //      fmt::print("\nfinal result:");
-           fmt::print("\n  moastery_score:\t\t{}, ", params.monastery_score);
+      //      fmt::print("\n  moastery_score:\t\t{}, ", params.monastery_score);
       //      fmt::print("\n  grass_penalty:\t\t{}, ", params.grass_penalty);
       //      fmt::print("\n  min_figure_count:\t\t{}, ", params.min_figure_count);
       //      fmt::print("\n  grass_score:\t\t{}, ", params.grass_score);
@@ -65,7 +65,7 @@ auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Paramete
       //      fmt::print("\n  tile_close_score:\t\t{}, ", params.tile_close_score);
       //      fmt::print("\n  tile_open_score:\t\t{}, ", params.tile_open_score);
       //      fmt::print("\n  ignore_figure_score_treshold:\t\t{}, ", params.ignore_figure_score_threshold);
-           fmt::print("\t  Fitness: {}\n", score);
+      //      fmt::print("\n  Fitness: {}\n", score);
       return score;
    };
 }

@@ -118,10 +118,10 @@ Variables FindOptimal(util::IRandomGenerator &rand, const TF& objective_function
 
          auto mutant_fitness = objective_function(mutant);
 
-         if (mutant_fitness > fitness[p]) {
+         if (mutant_fitness < fitness[p]) {
             fitness[p] = mutant_fitness;
             population[p] = mutant;
-            if (mutant_fitness > *it_optimum) {
+            if (mutant_fitness < *it_optimum) {
                it_optimum = fitness.begin() + p;
             }
          }
