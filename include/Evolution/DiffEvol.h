@@ -7,6 +7,7 @@
 #include <cmath>
 #include <future>
 #include <algorithm>
+#include <fmt/core.h>
 
 namespace evolution {
 
@@ -185,6 +186,21 @@ Variables FindOptimal(util::IRandomGenerator &rand, const TF& objective_function
          }
       // }
       }
+      fmt::print("\nGeneration nr {}:\n", i);
+      for (auto it = population.begin(); it != population.end(); it++) {
+         auto fit = fitness[it - population.begin()];
+         fmt::print("winner is {}", fit > 0 ? "Blue! :)" : "Black :(");
+         fmt::print("\tFitness: {}, ", fit);
+         fmt::print("\tmoastery_score: {},  ", it->monastery_score);
+         fmt::print("\tgrass_penalty: {}, ", it->grass_penalty);
+         fmt::print("\tmin_figure_count: {}, ", it->min_figure_count);
+         fmt::print("\tgrass_score: {}, ", it->grass_score);
+         fmt::print("\ttile_type_score: {}, ", it->tile_type_score);
+         fmt::print("\ttile_open_score: {}, ", it->tile_open_score);
+         fmt::print("\tignore_figure_score_treshold: {}, ", it->ignore_figure_score_threshold);
+         fmt::print("\ttile_close_score: {}\n", it->tile_close_score);
+      }
+      fmt::print("\n");
    }
 
    return population[it_optimum - fitness.begin()];

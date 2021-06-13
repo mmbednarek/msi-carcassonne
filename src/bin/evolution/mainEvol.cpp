@@ -63,16 +63,8 @@ auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Paramete
       std::nth_element(scores.begin(), scores.begin() + n, scores.end());
       auto median_score = scores[games_count / 2];
 
-      fmt::print("winner is {}", median_score > 0 ? "Blue! :)" : "Black :(");
-      fmt::print("\tFitness: {}, ", median_score);
-      fmt::print("\tmoastery_score: {},  ", params.monastery_score);
-      fmt::print("\tgrass_penalty: {}, ", params.grass_penalty);
-      fmt::print("\tmin_figure_count: {}, ", params.min_figure_count);
-      fmt::print("\tgrass_score: {}, ", params.grass_score);
-      fmt::print("\ttile_type_score: {}, ", params.tile_type_score);
-      fmt::print("\ttile_open_score: {}, ", params.tile_open_score);
-      fmt::print("\tignore_figure_score_treshold: {}, ", params.ignore_figure_score_threshold);
-      fmt::print("\ttile_close_score: {}\n", params.tile_close_score);
+      // fmt::print("winner is {}", median_score > 0 ? "Blue! :)" : "Black :(");
+      // fmt::print("\tFitness: {}\n", median_score);
       return median_score;
    };
 }
