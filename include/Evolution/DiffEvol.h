@@ -30,12 +30,9 @@ struct Variables {
 struct Parameters {
    std::size_t population_size;
    std::size_t generations_count;
-   // double mutation_chance;
    double cross_chance;
    double mutation_rate_initial;
-   // double mutation_rate_final;
-   // double optimal_fitness;
-   // std::size_t polynomial_degree;
+   double mutation_rate_final;
 };
 
 struct ParamsRanges {
@@ -50,8 +47,12 @@ struct ParamsRanges {
 };
 
 template <typename T>
-constexpr T mutate(Parameters evo_params, T min, T max, T a, T b, T c) {
-   return std::clamp(a + static_cast<T>(evo_params.mutation_rate_initial * (b - c)), min, max);
+constexpr T mutate(int i, Parameters evo_params, T min, T max, T a, T b, T c) {
+   auto initial = evo_params.mutation_rate_initial;
+   auto final = evo_params.mutation_rate_final;
+   auto N = evo_params.generations_count;
+   auto mutation_rate = i/N * final + (1 - i/N) * initial;
+   return std::clamp(a + static_cast<T>(mutation_rate * (b - c)), min, max);
 }
 
 template<typename TF>
@@ -71,59 +72,29 @@ Variables FindOptimal(util::IRandomGenerator &rand, const TF& objective_function
    });
 
    std::vector<double> fitness(evo_params.population_size);
-
-
-
-
-
-
-   // std::vector<std::pair<double, Variables>> fits_vars(g_population_size);
-   // std::vector<std::vector<std::pair<double, Variables>>> generations(evo_params.generations_count);
-   // std::vector<double> fitness(g_population_size);
-   // // std::vector<double> fitness_to_normalise(g_population_size);
-   // // double fitness_to_normalise_sum{};
-   // std::vector<std::pair<double, Variables>> normalised_fits(g_population_size);
-   // fmt::print("\nEVALUATING {} HEURISTIC PLAYERS\n", g_population_size);
-
-
-   // std::vector<std::future<double>> future_fitness(g_population_size);
-   // std::transform(population.begin(), population.end(), future_fitness.begin(), [&objective_function](const Variables &vars) {
-   //    return std::async(std::launch::async, objective_function, vars);
-   // });
-   // std::transform(future_fitness.begin(), future_fitness.end(), fitness.begin(), [&ant_nr](std::future<double> &f) {
-   //    ant_nr++;
-   //    fmt::print("ai{}, ", ant_nr);
-   //    return f.get();
-   // });
-
-   // auto it_optimum = std::min(fitness.begin(), fitness.end());
-   // auto it_optimum_population = generations.begin();
-   // std::transform(fitness.begin(), fitness.end(), population.begin(), fits_vars.begin(), [](double fit, Variables vars) {
-   //    return std::make_pair(fit, vars);
-   // });
-
-
-
-
-
-   std::transform(population.begin(), population.end(), fitness.begin(), objective_function);
-
+   std::vector<std::future<double>> future_fitness(evo_params.population_size);
+   std::transform(population.begin(), population.end(), future_fitness.begin(), [&objective_function](const Variables &vars) {
+      return std::async(std::launch::async, objective_function, vars);
+   });
+   std::transform(future_fitness.begin(), future_fitness.end(), fitness.begin(), [](std::future<double> &f) {
+      return f.get();
+   });
    auto it_optimum = std::min(fitness.begin(), fitness.end());
 
    for (std::size_t i = 0; i < evo_params.generations_count; ++i) {
-      // std::vector<Variables> mutants;
-      // mutants.reserve(g_population_size);
+      std::vector<Variables> mutants;
+      mutants.reserve(evo_params.population_size);
       for (std::size_t p = 0; p < evo_params.population_size; ++p) {
          auto chosen = util::choose_n<Variables, 3>(rand, population);
          Variables mutant{
-                 mutate(evo_params, constraint.monastery_score.min, constraint.monastery_score.max, chosen[0].monastery_score, chosen[1].monastery_score, chosen[2].monastery_score),
-                 mutate(evo_params, constraint.grass_penalty.min, constraint.grass_penalty.max, chosen[0].grass_penalty, chosen[1].grass_penalty, chosen[2].grass_penalty),
-                 mutate(evo_params, constraint.min_figure_count.min, constraint.min_figure_count.max, chosen[0].min_figure_count, chosen[1].min_figure_count, chosen[2].min_figure_count),
-                 mutate(evo_params, constraint.grass_score.min, constraint.grass_score.max, chosen[0].grass_score, chosen[1].grass_score, chosen[2].grass_score),
-                 mutate(evo_params, constraint.tile_type_score.min, constraint.tile_type_score.max, chosen[0].tile_type_score, chosen[1].tile_type_score, chosen[2].tile_type_score),
-                 mutate(evo_params, constraint.tile_close_score.min, constraint.tile_close_score.max, chosen[0].tile_close_score, chosen[1].tile_close_score, chosen[2].tile_close_score),
-                 mutate(evo_params, constraint.tile_open_score.min, constraint.tile_open_score.max, chosen[0].tile_open_score, chosen[1].tile_open_score, chosen[2].tile_open_score),
-                 mutate(evo_params, constraint.ignore_figure_score_threshold.min, constraint.ignore_figure_score_threshold.max, chosen[0].ignore_figure_score_threshold, chosen[1].ignore_figure_score_threshold, chosen[2].ignore_figure_score_threshold),
+                 mutate(i, evo_params, constraint.monastery_score.min, constraint.monastery_score.max, chosen[0].monastery_score, chosen[1].monastery_score, chosen[2].monastery_score),
+                 mutate(i, evo_params, constraint.grass_penalty.min, constraint.grass_penalty.max, chosen[0].grass_penalty, chosen[1].grass_penalty, chosen[2].grass_penalty),
+                 mutate(i, evo_params, constraint.min_figure_count.min, constraint.min_figure_count.max, chosen[0].min_figure_count, chosen[1].min_figure_count, chosen[2].min_figure_count),
+                 mutate(i, evo_params, constraint.grass_score.min, constraint.grass_score.max, chosen[0].grass_score, chosen[1].grass_score, chosen[2].grass_score),
+                 mutate(i, evo_params, constraint.tile_type_score.min, constraint.tile_type_score.max, chosen[0].tile_type_score, chosen[1].tile_type_score, chosen[2].tile_type_score),
+                 mutate(i, evo_params, constraint.tile_close_score.min, constraint.tile_close_score.max, chosen[0].tile_close_score, chosen[1].tile_close_score, chosen[2].tile_close_score),
+                 mutate(i, evo_params, constraint.tile_open_score.min, constraint.tile_open_score.max, chosen[0].tile_open_score, chosen[1].tile_open_score, chosen[2].tile_open_score),
+                 mutate(i, evo_params, constraint.ignore_figure_score_threshold.min, constraint.ignore_figure_score_threshold.max, chosen[0].ignore_figure_score_threshold, chosen[1].ignore_figure_score_threshold, chosen[2].ignore_figure_score_threshold),
          };
 
          if (rand.next_double(1.0) < evo_params.cross_chance) {
@@ -150,36 +121,26 @@ Variables FindOptimal(util::IRandomGenerator &rand, const TF& objective_function
          if (rand.next_double(1.0) < evo_params.cross_chance) {
             mutant.ignore_figure_score_threshold = population[p].ignore_figure_score_threshold;
          }
-         // mutants.at(p) = mutant;
-         auto mutant_fitness = objective_function(mutant);
-
-
-      // fmt::print("\n\nEWALUATING {}/{} GENERATION\n", i, evo_params.generations_count);
-      // std::transform(population.begin(), population.end(), future_fitness.begin(), [&objective_function](const Variables &vars) {
-      //    return std::async(std::launch::async, objective_function, vars);
-      // });
-      // std::transform(future_fitness.begin(), future_fitness.end(), fitness.begin(), [&ant_nr](std::future<double> &f) {
-      //    ant_nr++;
-      //    fmt::print("ant{}, ", ant_nr);
-      //    return f.get();
-      // });
-      // std::transform(fitness.begin(), fitness.end(), population.begin(), fits_vars.begin(), [](double fit, Variables vars) {
-      //    return std::make_pair(fit, vars);
-      // });
-      // auto it_optimum = std::min(fitness.begin(), fitness.end());
-      // optimal_over_generations[i] = population[it_optimum - fitness.begin()];
-      // optimal_fitness[i] = *it_optimum;
-      // fmt::print("\nEVALUATION FINISHED\n\n");
-
-      // for (const auto &fw : fits_vars) {
-         if (mutant_fitness > fitness[p]) {
-            fitness[p] = mutant_fitness;
-            population[p] = mutant;
+         mutants.push_back(mutant);
+      }
+      std::vector<double> mutants_fitness(evo_params.population_size);
+      std::vector<std::future<double>> future_fitness(evo_params.population_size);
+      std::transform(mutants.begin(), mutants.end(), future_fitness.begin(), [&objective_function](const Variables &vars) {
+         return std::async(std::launch::async, objective_function, vars);
+      });
+      std::transform(future_fitness.begin(), future_fitness.end(), mutants_fitness.begin(), [](std::future<double> &f) {
+         return f.get();
+      });
+      for (auto it = mutants.begin(); it != mutants.end(); ++it) {
+         auto individual_id = it - mutants.begin();
+         auto mutant_fitness = mutants_fitness[individual_id];
+         if (mutant_fitness > fitness[individual_id]) {
+            fitness[individual_id] = mutant_fitness;
+            population[individual_id] = *it;
             if (mutant_fitness > *it_optimum) {
-               it_optimum = fitness.begin() + p;
+               it_optimum = fitness.begin() + individual_id;
             }
          }
-      // }
       }
       // fmt::print("Generation nr {}:\n", i);
       fmt::print("\nGeneration nr {}: Fitness: ", i);

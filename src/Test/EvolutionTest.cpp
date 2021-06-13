@@ -67,11 +67,9 @@ auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Paramete
 TEST(Evolution, Simple) {
    constexpr auto g_population_size = 36;
    constexpr auto g_generations_count = 200;
-   // constexpr auto g_mutation_chance = 0.9;
    constexpr auto g_cross_chance = .8;
-   constexpr auto g_mutation_rate_initial = 0.2;
-   // constexpr auto g_mutation_rate_final = 0.05;
-   // constexpr auto g_optimal_fitness = 300;
+   constexpr auto g_mutation_rate_initial = 0.8;
+   constexpr auto g_mutation_rate_final = 0.05;
 
 
    util::Random r;
@@ -102,11 +100,9 @@ TEST(Evolution, Simple) {
    evolution::Parameters evo_params{
            .population_size = g_population_size,
            .generations_count = g_generations_count,
-         //   .mutation_chance = g_mutation_chance,
            .cross_chance = g_cross_chance,
            .mutation_rate_initial = g_mutation_rate_initial,
-         //   .mutation_rate_final = g_mutation_rate_final,
-         //   .optimal_fitness = g_optimal_fitness,
+           .mutation_rate_final = g_mutation_rate_final,
    };
 
    auto objective_func = make_objective_function(r, params);

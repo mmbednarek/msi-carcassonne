@@ -2,16 +2,13 @@
 #include <Carcassonne/Game/Game.h>
 #include <Carcassonne/Parameters.h>
 #include <Evolution/DiffEvol.h>
-// #include <boost/program_options.hpp>
 #include <fmt/core.h>
 
-constexpr auto g_population_size = 50;
-constexpr auto g_generations_count = 10;
-// constexpr auto g_mutation_chance = 0.9;
+constexpr auto g_population_size = 36;
+constexpr auto g_generations_count = 100;
 constexpr auto g_cross_chance = .2;
 constexpr auto g_mutation_rate_initial = 0.8;
-// constexpr auto g_mutation_rate_final = 0.05;
-// constexpr auto g_optimal_fitness = 300;
+constexpr auto g_mutation_rate_final = 0.05;
 
 constexpr auto g_switching_operations_count = 10;
 
@@ -63,9 +60,6 @@ auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Paramete
       size_t n = games_count / 2;
       std::nth_element(scores.begin(), scores.begin() + n, scores.end());
       auto median_score = scores[games_count / 2];
-
-      // fmt::print("winner is {}", median_score > 0 ? "Blue! :)" : "Black :(");
-      // fmt::print("\tFitness: {}\n", median_score);
       return median_score;
    };
 }
@@ -103,14 +97,13 @@ int main(int argc, char **argv) {
    evolution::Parameters evo_params{
            .population_size = g_population_size,
            .generations_count = g_generations_count,
-         //   .mutation_chance = g_mutation_chance,
            .cross_chance = g_cross_chance,
            .mutation_rate_initial = g_mutation_rate_initial,
-         //   .mutation_rate_final = g_mutation_rate_final,
-         //   .optimal_fitness = g_optimal_fitness,
+           .mutation_rate_final = g_mutation_rate_final,
    };
 
    for (auto i = 0; i < g_switching_operations_count; ++i) {
+      fmt::print("\nSwitch nr {}:", i);
       auto objective_func = make_objective_function(rand, params);
       auto result = evolution::FindOptimal(rand, objective_func, constraint, initial_params, evo_params);
       params = result;
