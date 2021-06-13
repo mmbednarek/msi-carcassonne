@@ -5,24 +5,25 @@
 // #include <boost/program_options.hpp>
 #include <fmt/core.h>
 
-constexpr auto g_population_size = 360;
-constexpr auto g_generations_count = 200;
-constexpr auto g_mutation_chance = 0.9;
-constexpr auto g_cross_chance = .8;
-constexpr auto g_mutation_rate_initial = 0.2;
-constexpr auto g_mutation_rate_final = 0.05;
-constexpr auto g_optimal_fitness = 300;
+constexpr auto g_population_size = 50;
+constexpr auto g_generations_count = 10;
+// constexpr auto g_mutation_chance = 0.9;
+constexpr auto g_cross_chance = .2;
+constexpr auto g_mutation_rate_initial = 0.8;
+// constexpr auto g_mutation_rate_final = 0.05;
+// constexpr auto g_optimal_fitness = 300;
+
+constexpr auto g_switching_operations_count = 10;
 
 std::array<carcassonne::ai::HeuristicPlayer, 4> g_heuristic_players{
-        carcassonne::ai::HeuristicPlayer(carcassonne::Player::Blue),
         carcassonne::ai::HeuristicPlayer(carcassonne::Player::Black),
+        carcassonne::ai::HeuristicPlayer(carcassonne::Player::Blue),
         carcassonne::ai::HeuristicPlayer(carcassonne::Player::Red),
         carcassonne::ai::HeuristicPlayer(carcassonne::Player::Yellow),
 };
 
-auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Parameters &base_params, evolution::Parameters &evo_params) {
-   return [&evo_params,
-           &base_params,
+auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Parameters &base_params) {
+   return [&base_params,
            &rand](const evolution::Variables &vars) -> double {
       carcassonne::Parameters params;
       params.monastery_score = vars.monastery_score;
@@ -77,7 +78,18 @@ int main(int argc, char **argv) {
    util::Random rand;
    carcassonne::Parameters params;
 
-   evolution::Constraint constraint{
+   evolution::ParamsRanges constraint{
+           {1, 5000}, // moastery_score
+           {1, 100},  // grass_penalty
+           {2, 7},    // min_figure_count
+           {1, 100},  // grass_score
+           {1, 100},  // tile_type_score
+           {1, 50000},// tile_close_score
+           {1, 1000}, // tile_open_score
+           {0, 10000},// ignore_figure_score_treshold
+   };
+
+   evolution::ParamsRanges initial_params{
            {1, 5000}, // moastery_score
            {1, 100},  // grass_penalty
            {2, 7},    // min_figure_count
@@ -91,23 +103,25 @@ int main(int argc, char **argv) {
    evolution::Parameters evo_params{
            .population_size = g_population_size,
            .generations_count = g_generations_count,
-           .mutation_chance = g_mutation_chance,
+         //   .mutation_chance = g_mutation_chance,
            .cross_chance = g_cross_chance,
            .mutation_rate_initial = g_mutation_rate_initial,
-           .mutation_rate_final = g_mutation_rate_final,
-           .optimal_fitness = g_optimal_fitness,
+         //   .mutation_rate_final = g_mutation_rate_final,
+         //   .optimal_fitness = g_optimal_fitness,
    };
 
-   auto objective_func = make_objective_function(rand, params, evo_params);
-   auto result = evolution::FindOptimal(rand, objective_func, evo_params, constraint);
-
-   // fmt::print("\nfinal result:");
-   // fmt::print("\n  monastery_score:\t\t{}, ", result.monastery_score);
-   // fmt::print("\n  grass_penalty:\t\t{}, ", result.grass_penalty);
-   // fmt::print("\n  min_figure_count:\t\t{}, ", result.min_figure_count);
-   // fmt::print("\n  grass_score:\t\t{}, ", result.grass_score);
-   // fmt::print("\n  tile_type_score:\t\t{}, ", result.tile_type_score);
-   // fmt::print("\n  tile_close_score:\t\t{}, ", result.tile_close_score);
-   // fmt::print("\n  tile_open_score:\t\t{}, ", result.tile_open_score);
-   // fmt::print("\n  ignore_figure_score_treshold:\t\t{}, \n", result.ignore_figure_score_threshold);
+   for (auto i = 0; i < g_switching_operations_count; ++i) {
+      auto objective_func = make_objective_function(rand, params);
+      auto result = evolution::FindOptimal(rand, objective_func, constraint, initial_params, evo_params);
+      params = result;
+      fmt::print("\nfinal result:");
+      fmt::print("\tmoastery_score: {},  ", result.monastery_score);
+      fmt::print("\tgrass_penalty: {}, ", result.grass_penalty);
+      fmt::print("\tmin_figure_count: {}, ", result.min_figure_count);
+      fmt::print("\tgrass_score: {}, ", result.grass_score);
+      fmt::print("\ttile_type_score: {}, ", result.tile_type_score);
+      fmt::print("\ttile_open_score: {}, ", result.tile_open_score);
+      fmt::print("\tignore_figure_score_treshold: {}, ", result.ignore_figure_score_threshold);
+      fmt::print("\ttile_close_score: {}\n", result.tile_close_score);
+   }
 }
