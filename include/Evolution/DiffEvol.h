@@ -192,16 +192,16 @@ std::tuple<double, Variables> FindOptimal(util::IRandomGenerator &rand, const TF
       fmt::print("{},", population_center.tile_open_score);
       fmt::print("{}\n", population_center.tile_close_score);
 
-      log_all.print("{},", switch_id * evo_params.generations_count + i);
-      log_all.print("{},", mean_fitness);
-      log_all.print("{},", *it_optimum);
-      log_all.print("{},", population_center.monastery_score);
-      log_all.print("{},", population_center.grass_penalty);
-      log_all.print("{},", population_center.min_figure_count);
-      log_all.print("{},", population_center.grass_score);
-      log_all.print("{},", population_center.tile_type_score);
-      log_all.print("{},", population_center.tile_open_score);
-      log_all.print("{}\n", population_center.tile_close_score);
+      log_gen.print("{},", switch_id * evo_params.generations_count + i);
+      log_gen.print("{},", mean_fitness);
+      log_gen.print("{},", *it_optimum);
+      log_gen.print("{},", population_center.monastery_score);
+      log_gen.print("{},", population_center.grass_penalty);
+      log_gen.print("{},", population_center.min_figure_count);
+      log_gen.print("{},", population_center.grass_score);
+      log_gen.print("{},", population_center.tile_type_score);
+      log_gen.print("{},", population_center.tile_open_score);
+      log_gen.print("{}\n", population_center.tile_close_score);
    }
 
 //   fmt::print("\n({}, {})",

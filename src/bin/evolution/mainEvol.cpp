@@ -116,9 +116,10 @@ int main(int argc, char **argv) {
    log_all.print("iteration,fitness,moastery_score,grass_penalty,min_figure_count,grass_score,tile_type_score,tile_open_score,tile_close_score\n");
    auto log_gen = fmt::output_file("gen_heuristic_params.csv");
    log_gen.print("generation,MeanFitness,MaxFitness,moastery_score,grass_penalty,min_figure_count,grass_score,tile_type_score,tile_open_score,tile_close_score\n");
+   fmt::print("generation,MeanFitness,MaxFitness,moastery_score,grass_penalty,min_figure_count,grass_score,tile_type_score,tile_open_score,tile_close_score\n");
 
    for (auto i = 0; i < g_switching_operations_count; ++i) {
-      fmt::print("\nSwitch nr {}:", i);
+      //fmt::print("\nSwitch nr {}:", i);
       double optimal_fitness;
       auto objective_func = make_objective_function(rand, params);
       std::tie(optimal_fitness, params) = evolution::FindOptimal(rand, objective_func, constraint, initial_params, evo_params, i, log_all, log_gen);
