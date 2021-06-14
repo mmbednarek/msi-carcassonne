@@ -27,7 +27,6 @@ auto make_objective_function(util::IRandomGenerator &rand, carcassonne::Paramete
       params.tile_type_score = vars.tile_type_score;
       params.tile_close_score = vars.tile_close_score;
       params.tile_open_score = vars.tile_open_score;
-      params.ignore_figure_score_threshold = vars.ignore_figure_score_threshold;
 
       auto games_count = 10;
       std::vector<int> scores(games_count);
@@ -83,7 +82,6 @@ TEST(Evolution, Simple) {
            {1, 100},    // tile_type_score
            {1, 50000},  // tile_close_score
            {1, 1000},   // tile_open_score
-           {0, 10000},   // ignore_figure_score_treshold
    };
 
    evolution::ParamsRanges initial_params{
@@ -94,7 +92,6 @@ TEST(Evolution, Simple) {
            {1, 100},  // tile_type_score
            {1, 50000},// tile_close_score
            {1, 1000}, // tile_open_score
-           {0, 10000},// ignore_figure_score_treshold
    };
 
    evolution::Parameters evo_params{
@@ -114,5 +111,4 @@ TEST(Evolution, Simple) {
    ASSERT_GE(result.tile_type_score, 1);
    ASSERT_GE(result.tile_close_score, 1);
    ASSERT_GE(result.tile_open_score, 1);
-   ASSERT_GE(result.ignore_figure_score_threshold, 0);
 }

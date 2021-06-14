@@ -18,6 +18,7 @@ mb::result<mb::empty> Move::place_tile_at(int x, int y, mb::u8 rotation) noexcep
       return mb::error("invalid move phase");
 
    if (!m_game.board().can_place_at(x, y, m_tile_type, rotation)) {
+      fmt::print("OU OU... x={}, y={}, rot={}\n", x, y, rotation);
       return mb::error("cannot place tile at this location");
    }
 
