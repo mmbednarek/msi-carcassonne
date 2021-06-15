@@ -81,7 +81,7 @@ std::tuple<double, Variables> FindOptimal(util::IRandomGenerator &rand, const TF
       return f.get();
    });
    auto it_optimum = std::min(fitness.begin(), fitness.end());
-   Variables population_center;
+   Variables population_center{};
    for (std::size_t i = 0; i < evo_params.generations_count; ++i) {
       std::vector<Variables> mutants;
       mutants.reserve(evo_params.population_size);
