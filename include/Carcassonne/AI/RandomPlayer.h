@@ -13,6 +13,7 @@ class RandomPlayer {
    Player m_player;
 
    Generator &m_random_generator;
+
  public:
    explicit RandomPlayer(Generator &generator, Player player) : m_random_generator(generator),
                                                                 m_player(player) {}
@@ -25,7 +26,7 @@ class RandomPlayer {
       });
    }
 
-   void make_move(IGame &game) noexcept {
+   FullMove make_move(IGame &game) noexcept {
       auto move = game.new_move(m_player);
 
       const auto possible_tile_moves = game.moves(move->tile_type());
@@ -34,7 +35,12 @@ class RandomPlayer {
 
       move->place_tile_at(tile_placement.x, tile_placement.y, tile_placement.rotation);
       if (move->phase() == MovePhase::Done) {
-         return;
+         return FullMove{
+                 .x = tile_placement.x,
+                 .y = tile_placement.y,
+                 .rotation = tile_placement.rotation,
+                 .ignored_figure = true,
+         };
       }
 
       const auto possible_figure_moves = game.figure_placements(tile_placement.x, tile_placement.y);
@@ -42,12 +48,31 @@ class RandomPlayer {
          const auto direction_it = util::random_from_range(m_random_generator, possible_figure_moves.cbegin(), possible_figure_moves.cend());
          if (direction_it == possible_figure_moves.cend()) {
             move->ignore_figure();
-         } else {
-            move->place_figure(*direction_it);
+            return FullMove{
+                    .x = tile_placement.x,
+                    .y = tile_placement.y,
+                    .rotation = tile_placement.rotation,
+                    .ignored_figure = true,
+            };
          }
-      } else {
-         move->ignore_figure();
+
+         move->place_figure(*direction_it);
+         return FullMove{
+                 .x = tile_placement.x,
+                 .y = tile_placement.y,
+                 .rotation = tile_placement.rotation,
+                 .ignored_figure = false,
+                 .direction = *direction_it,
+         };
       }
+
+      move->ignore_figure();
+      return FullMove{
+              .x = tile_placement.x,
+              .y = tile_placement.y,
+              .rotation = tile_placement.rotation,
+              .ignored_figure = true,
+      };
    }
 };
 

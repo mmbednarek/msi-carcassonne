@@ -36,8 +36,8 @@ void MCTSPlayer::prepare_tree(const IGame &game) {
 
 void MCTSPlayer::make_move(IGame &game) noexcept {
    prepare_tree(game);
-   run_mcts(m_tree, 2000);
-   auto best_move = choose_move(m_tree);
+   run_mcts(m_tree, 3000);
+   auto best_move = choose_move(m_tree, game.move_index(), m_player);
    m_last_moves[static_cast<int>(m_player)] = best_move;
 
    auto move = game.new_move(m_player);
