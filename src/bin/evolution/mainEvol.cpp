@@ -6,10 +6,10 @@
 
 constexpr auto g_population_size = 32;
 constexpr auto g_generations_count = 120;
-constexpr auto g_cross_chance_initial = .2;
-constexpr auto g_cross_chance_final = .6;
-constexpr auto g_mutation_rate_initial = 6.;
-constexpr auto g_mutation_rate_final = 0.8;
+constexpr auto g_cross_chance_initial = .1;
+constexpr auto g_cross_chance_final = .5;
+constexpr auto g_mutation_rate_initial = .8;
+constexpr auto g_mutation_rate_final = 0.2;
 
 constexpr auto g_switching_operations_count = 200;
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
    evolution::ParamsRanges constraint{
            {1, 10000}, // moastery_score
            {1, 10000},  // grass_penalty
-           {2, 7},    // min_figure_count
+           {1, 7},    // min_figure_count
            {1, 10000},  // grass_score
            {1, 10000},  // tile_type_score
            {1, 10000},// tile_close_score
@@ -92,9 +92,9 @@ int main(int argc, char **argv) {
    };
 
    evolution::ParamsRanges initial_params{
-           {1, 1000}, // moastery_score
+           {1000, 10000}, // moastery_score
            {1, 1000},  // grass_penalty
-           {2, 7},    // min_figure_count
+           {1, 3},    // min_figure_count
            {1, 1000},  // grass_score
            {1, 1000},  // tile_type_score
            {1, 1000},// tile_close_score
@@ -124,13 +124,13 @@ int main(int argc, char **argv) {
       auto objective_func = make_objective_function(rand, params);
       std::tie(optimal_fitness, params) = evolution::FindOptimal(rand, objective_func, constraint, initial_params, evo_params, i, log_all, log_gen);
       initial_params = evolution::ParamsRanges {
-              {static_cast<int>(params.monastery_score / g_mutation_rate_initial * 2.), static_cast<int>(params.monastery_score * g_mutation_rate_initial / 2.)}, // moastery_score
-              {static_cast<int>(params.grass_penalty / g_mutation_rate_initial * 2.), static_cast<int>(params.grass_penalty * g_mutation_rate_initial / 2.)}, // grass_penalty
-              {static_cast<int>(params.min_figure_count / g_mutation_rate_initial * 2.), static_cast<int>(params.min_figure_count * g_mutation_rate_initial / 2.)}, // min_figure_count
-              {static_cast<int>(params.grass_score / g_mutation_rate_initial * 2.), static_cast<int>(params.grass_score * g_mutation_rate_initial / 2.)}, // grass_score
-              {static_cast<int>(params.tile_type_score / g_mutation_rate_initial * 2.), static_cast<int>(params.tile_type_score * g_mutation_rate_initial / 2.)}, // tile_type_score
-              {static_cast<int>(params.tile_close_score / g_mutation_rate_initial * 2.), static_cast<int>(params.tile_close_score * g_mutation_rate_initial / 2.)}, // tile_close_score
-              {static_cast<int>(params.tile_open_score / g_mutation_rate_initial * 2.), static_cast<int>(params.tile_open_score * g_mutation_rate_initial / 2.)}, // tile_open_score
+              {static_cast<int>(params.monastery_score / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.monastery_score * (1. + 1. / g_mutation_rate_initial))}, // moastery_score
+              {static_cast<int>(params.grass_penalty / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.grass_penalty * (1. + 1. / g_mutation_rate_initial))}, // grass_penalty
+              {static_cast<int>(params.min_figure_count / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.min_figure_count * (1. + 1. / g_mutation_rate_initial))}, // min_figure_count
+              {static_cast<int>(params.grass_score / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.grass_score * (1. - 1. / g_mutation_rate_initial))}, // grass_score
+              {static_cast<int>(params.tile_type_score / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.tile_type_score * (1. + 1. / g_mutation_rate_initial))}, // tile_type_score
+              {static_cast<int>(params.tile_close_score / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.tile_close_score * (1. + 1. / g_mutation_rate_initial))}, // tile_close_score
+              {static_cast<int>(params.tile_open_score / (1. - 1. / g_mutation_rate_initial)), static_cast<int>(params.tile_open_score * (1. + 1. / g_mutation_rate_initial))}, // tile_open_score
       };
 //      fmt::print("\nfinal result:");
 //      fmt::print("\tmoastery_score: {},  ", params.monastery_score);
