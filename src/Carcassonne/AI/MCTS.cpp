@@ -6,7 +6,6 @@
 #include <chrono>
 #include <fmt/core.h>
 #include <Util/CSVLogger.h>
-#include <mb/result.h>
 #include <random>
 
 namespace carcassonne::ai {
@@ -31,26 +30,12 @@ std::array<RandomPlayer<>, 4> g_random_players{
         RandomPlayer(g_random_gen, Player::Yellow),
 };
 
-mb::result<FullMove> find_non_idiotic(Tree &tree, Player player) {
-   auto &children = tree.node_at(g_root_node).children();
-   auto move_it = std::find_if(children.begin(), children.end(), [&tree, player](NodeId child_id) {
-      return tree.node_at(child_id).player_wins(player) > 0;
-   });
-   if (move_it == children.end()) {
-      return mb::error("no winning moves found");
-   }
-
-   auto &node = tree.node_at(*move_it);
-   fmt::print("move id: {}, wins: {}, vc: {}\n", node.game().move_index(), node.player_wins(player), node.simulation_count());
-   return node.move();
-}
-
 void simulate(Tree &tree, NodeId node_id) {
    auto parent_id = node_id;
    auto simulated_game = tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
-      auto full_move = g_random_players[static_cast<mb::size>(current_player)].make_move(*simulated_game);
+      auto full_move = g_heuristic_players[static_cast<mb::size>(current_player)].make_move(*simulated_game).unwrap();
       simulated_game->update(0);
 
       parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);

@@ -12,7 +12,7 @@
 
 namespace carcassonne::ai {
 
-constexpr double g_C = 1.414;
+constexpr double g_C = 0.3;
 
 class Tree;
 

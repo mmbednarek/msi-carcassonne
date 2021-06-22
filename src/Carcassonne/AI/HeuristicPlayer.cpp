@@ -47,8 +47,7 @@ mb::result<FullMove> HeuristicPlayer::make_move(IGame &game, const Parameters &p
               .ignored_figure = true,
       };
    }
-   if (params.ignore_figure_score_threshold != 100000)
-      fmt::print("\nignore_threshold={}", params.ignore_figure_score_threshold);
+
    if (best_score < params.ignore_figure_score_threshold) {
       move->ignore_figure();
       return FullMove{
