@@ -6,15 +6,15 @@
 namespace carcassonne {
 
 struct Parameters {
-   int monastery_score = 3090;
-   int grass_penalty = 41;
+   int monastery_score = 10819;
+   int grass_penalty = 2655;
    int min_figure_count = 2;
-   int grass_score = 79;
-   int tile_type_score = 1;
-   int tile_close_score = 430;
-   int tile_open_score = 740;
+   int grass_score = 22762;
+   int tile_type_score = 4433;
+   int tile_close_score = 6000;
+   int tile_open_score = 9356;
    int ignore_figure_score_threshold = 100000;
-   
+
    Parameters() = default;
    // Parameters(const Parameters &) = default;
    Parameters& operator=(const evolution::Variables &vars) {
