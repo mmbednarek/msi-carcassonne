@@ -18,7 +18,7 @@ void expand(Tree &tree, NodeId node_id);
 void backpropagate(Tree &tree, NodeId node_id, Player winner);
 void run_selection(Tree &tree);
 void run_mcts(Tree &tree, mb::i64 time_limit);
-FullMove choose_move(Tree &tree);
+FullMove choose_move(Tree &tree, int move_index, Player player);
 
 }// namespace carcassonne::ai
 

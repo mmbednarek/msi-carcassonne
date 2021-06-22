@@ -37,23 +37,35 @@ bool Game::can_place(TileType tt) const noexcept {
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
    auto tt = m_tile_set[m_move_index];
    auto move_index = m_move_index;
-   while (m_move_index != 0 && m_move_index < m_tile_set.size() - 1 && !can_place(tt)) {
-      move_index += m_player_count;
-      tt = m_tile_set[move_index];
-      if (move_index + m_player_count >= m_tile_set.size() - 1) {// if there is no tile to be swapped
-         mb::u8 rotations = m_tile_set.size() - move_index;
-         while (!can_place(m_tile_set[m_move_index])) {
-            std::rotate(m_tile_set.begin() + m_move_index, m_tile_set.begin() + m_move_index + 1, m_tile_set.end());
-            if (--rotations == 0) {// if went back to the tile with which rotating started
-               m_move_index++;
-               break;
+
+   const auto possible_tile_moves = moves(tt);
+   std::vector<TileMove> possibilities(possible_tile_moves.begin(), possible_tile_moves.end());
+   int i = 0;
+   while (possibilities.size() == 0) {
+//      fmt::print("NEW_MOVE: possible_tile_moves.size()=0 !!!!!!!!!!!!!!\n"); // appears frequently
+      while (m_move_index != 0 && m_move_index < m_tile_set.size() - 1 && !can_place(tt)) {
+         move_index += m_player_count;
+         tt = m_tile_set[move_index];
+         if (move_index + m_player_count >= m_tile_set.size() - 1) {// if there is no tile to be swapped
+            mb::u8 rotations = m_tile_set.size() - move_index;
+            while (!can_place(m_tile_set[m_move_index])) {
+               std::rotate(m_tile_set.begin() + m_move_index, m_tile_set.begin() + m_move_index + 1, m_tile_set.end());
+               if (--rotations == 0) {// if went back to the tile with which rotating started
+//               m_move_index++;
+                  fmt::print("if went back to the tile with which rotating started\n");
+                  m_tile_set[m_move_index] = m_tile_set[m_move_index - ++i];
+                  move_index = m_move_index;
+                  break;
+               }
             }
+            move_index = m_move_index;
          }
-         move_index = m_move_index;
       }
-   }
-   if (m_move_index != move_index) {
-      std::iter_swap(m_tile_set.begin() + m_move_index, m_tile_set.begin() + move_index);
+      if (m_move_index != move_index) {
+//      fmt::print("m_move_index != move_index={}\n", m_move_index != move_index); // appears frequently
+         std::iter_swap(m_tile_set.begin() + m_move_index, m_tile_set.begin() + move_index);
+      }
+      possibilities = std::vector<TileMove>(moves(tt).begin(), moves(tt).end());
    }
    tt = m_tile_set[m_move_index++];
    return std::make_unique<Move>(p, tt, *this);
