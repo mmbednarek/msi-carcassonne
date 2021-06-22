@@ -1,0 +1,3 @@
+project(msi_tournament_bin)
+add_executable(msi_tournament_bin main.cpp)
+target_link_libraries(msi_tournament_bin fmt msi_carcassonne_game msi_carcassonne_ai)

@@ -1,0 +1,3 @@
+project(msi_tournament)
+add_library(msi_tournament Tournament.cpp)
+target_link_libraries(msi_tournament PUBLIC libmb msi_carcassonne_game msi_carcassonne_ai fmt)
