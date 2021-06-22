@@ -1,11 +1,10 @@
 #include <Carcassonne/AI/MCTSPlayer.h>
-#include <Carcassonne/AI/MCTS.h>
 #include <Carcassonne/AI/Tree.h>
 #include <fmt/core.h>
 
 namespace carcassonne::ai {
 
-MCTSPlayer::MCTSPlayer(IGame &game, Player player) : m_player(player), m_tree(game, player), m_player_count(game.player_count()) {
+MCTSPlayer::MCTSPlayer(IGame &game, Player player, SimulationType sim_type) : m_player(player), m_tree(game, player), m_player_count(game.player_count()), m_simulation_type(sim_type) {
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
       if (player != m_player)
@@ -36,7 +35,7 @@ void MCTSPlayer::prepare_tree(const IGame &game) {
 
 void MCTSPlayer::make_move(IGame &game) noexcept {
    prepare_tree(game);
-   run_mcts(m_tree, 2000);
+   run_mcts(m_tree, 2000, m_simulation_type);
    auto best_move = choose_move(m_tree, game.move_index(), m_player);
    m_last_moves[static_cast<int>(m_player)] = best_move;
 
