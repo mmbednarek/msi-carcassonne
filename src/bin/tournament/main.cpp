@@ -42,11 +42,17 @@ int main() {
                                         random_vs_heuristic_games,
                                         random_vs_mcts_random_games,
                                         random_vs_mcts_heuristic_games,
+                                        heuristic_vs_random,
                                         heuristic_vs_heuristic_games,
                                         heuristic_vs_mcts_random_games,
                                         heuristic_vs_mcts_heuristic_games,
+                                        mcts_random_vs_random_games,
+                                        mcts_random_vs_heuristic_games,
                                         mcts_random_vs_mcts_random_games,
                                         mcts_random_vs_mcts_heuristic_games,
+                                        mcts_heuristic_vs_random_games,
+                                        mcts_heuristic_vs_heuristic_games,
+                                        mcts_heuristic_vs_mcts_random_games,
                                         mcts_heuristic_vs_mcts_heuristic_games;
 
    return 0;
