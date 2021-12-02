@@ -7,8 +7,8 @@ namespace carcassonne::frontend {
 class Camera {
    const IBoard &m_board;
    double m_scale = 96.0;
-   double m_x = 67.0;
-   double m_y = 67.0;
+   double m_x = 17.0;
+   double m_y = 17.0;
 public:
   constexpr explicit Camera(const IBoard &board) : m_board(board) {}
 

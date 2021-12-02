@@ -61,6 +61,7 @@ mb::result<mb::empty> Move::place_figure(Direction d) noexcept {
            .tile_x = m_x,
            .tile_y = m_y,
            .edge = edge,
+           .dir = d,
    });
 
    m_game.mutable_groups().assign(make_edge(m_x, m_y, d), m_player);

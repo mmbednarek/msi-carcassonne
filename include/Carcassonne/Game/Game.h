@@ -17,10 +17,13 @@ using Towns = std::vector<std::pair<Edge, Edge>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
 
+constexpr mb::size g_initial_figures_count = 7;
+constexpr mb::size g_max_possible_score = 255;
+
 class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
-   mb::size m_player_count = 2;
+   mb::size m_player_count;
    mb::size m_move_index = 0;
    std::vector<Figure> m_figures;
    std::vector<NextMoveCallback> m_next_move_callbacks;
@@ -80,6 +83,7 @@ class Game : public IGame {
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
       return m_player_count;
    }
+   mb::result<mb::empty> board_to_caffe_X(std::vector<bool>& output) const noexcept override;
 
  private:
    int score_grass(Player player, Edge edge, const Parameters &params) const noexcept;

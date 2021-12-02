@@ -1,0 +1,10 @@
+net: "modelXOR.prototxt"
+base_lr: 0.02
+lr_policy: "step"
+gamma: 0.5
+stepsize: 50000
+display: 2000
+max_iter: 500000
+snapshot: 100000
+snapshot_prefix: "XOR"
+solver_mode: CPU

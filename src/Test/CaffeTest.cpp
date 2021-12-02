@@ -36,7 +36,7 @@ void test_net() {
 
   if (caffe::Caffe::mode() == caffe::Caffe::CPU) printf("mode=CPU\n");
   if (caffe::Caffe::mode() == caffe::Caffe::GPU) printf("mode=GPU\n");
-  caffe::Caffe::set_mode(caffe::Caffe::CPU);
+  caffe::Caffe::set_mode(caffe::Caffe::GPU);
   if (caffe::Caffe::mode() == caffe::Caffe::CPU) printf("mode=CPU\n");
   if (caffe::Caffe::mode() == caffe::Caffe::GPU) printf("mode=GPU\n");
   caffe::Caffe::SetDevice(0);
@@ -54,30 +54,20 @@ void test_net() {
 
   dataLayer_trainnet->Reset(data, label, 25600);
 
-  fmt::print("Training: \n");
-  for (int i = 99; i >= 0; --i) {
+  fmt::print("Training:\n");
+  for (int i = 49; i >= 0; --i) {
     fmt::print("{} :", i);
     fflush(stdout);
-    solver->Step(5000);
-    ;
-    // solver->net()->blobs()->data()
-    // fmt::print("loss={} ", *(solver->losses_.end() - 1));
-    auto loss1 = solver->history().at(0)->cpu_data();
-    auto loss2 = solver->history().at(1)->cpu_data();
-    auto loss3 = solver->history().at(2)->cpu_data();
-    auto loss4 = solver->history().at(3)->cpu_data();
-    // const auto loss = (float *)(solver->history().end()->get()->data()->cpu_data());
-    fmt::print("loss1={:6.3e} ", *loss1);
-    fmt::print("loss2={:6.3e} ", *loss2);
-    fmt::print("loss3={:6.3e} ", *loss3);
-    fmt::print("loss4={:6.3e} ", *loss4);
+    solver->Step(1);
+    for (int layer_id = 0; layer_id < solver->history().size(); ++layer_id) 
+      fmt::print("loss{}={:9.2e} ", layer_id, *solver->history().at(layer_id)->cpu_data());
     fmt::print("\n");
   }
 
   fmt::print("Testing preparation\n");
   std::shared_ptr<caffe::Net<float>> testnet;
   testnet.reset(new caffe::Net<float>("./model.prototxt", caffe::TEST));
-  testnet->CopyTrainedLayersFrom("XOR_iter_500000.caffemodel");
+  testnet->CopyTrainedLayersFrom("XOR_iter_50.caffemodel");
 
   fmt::print("Passing the input to it for testing\n");
   float testab[] = {0, 0, 0, 1, 1, 0, 1, 1};
