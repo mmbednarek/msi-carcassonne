@@ -1,0 +1,2 @@
+/bin/x86_64-linux-gnu-ar qc libmsi_carcassonne_ai.a CMakeFiles/msi_carcassonne_ai.dir/RandomPlayer.cpp.o CMakeFiles/msi_carcassonne_ai.dir/MCTSPlayer.cpp.o CMakeFiles/msi_carcassonne_ai.dir/Tree.cpp.o CMakeFiles/msi_carcassonne_ai.dir/Node.cpp.o CMakeFiles/msi_carcassonne_ai.dir/HeuristicPlayer.cpp.o CMakeFiles/msi_carcassonne_ai.dir/MCTS.cpp.o
+/bin/x86_64-linux-gnu-ranlib libmsi_carcassonne_ai.a

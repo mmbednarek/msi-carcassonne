@@ -14,6 +14,7 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 pkg_search_module(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 
 include_directories(include)
+include_directories(include ${SDL2_INCLUDE_DIRS})
 
 set(BUILD_GMOCK OFF)
 
@@ -30,3 +31,10 @@ add_subdirectory(src/bin/carcassonne)
 add_subdirectory(src/bin/evolution)
 add_subdirectory(src/Evolution)
 add_subdirectory(src/Test)
+
+find_library(caffe libcaffe ${CMAKE_LIBRARY_PATH})
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+find_package(GLog REQUIRED)
+
+find_package(Protobuf REQUIRED)

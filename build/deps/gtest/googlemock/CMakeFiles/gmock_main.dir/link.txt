@@ -1,0 +1,2 @@
+/bin/x86_64-linux-gnu-ar qc ../../../lib/libgmock_maind.a CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+/bin/x86_64-linux-gnu-ranlib ../../../lib/libgmock_maind.a

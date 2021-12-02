@@ -1,0 +1,240 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "src/bin/carcassonne/msi_carcassonne_bin"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"add_compile_options",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"src/bin/carcassonne/CMakeLists.txt",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 2,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 3,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 8,
+				"parent" : 3
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 16,
+				"parent" : 3
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 17,
+				"parent" : 3
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-O3 -g"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "-fconcepts"
+				},
+				{
+					"fragment" : "-std=gnu++2a"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 5,
+					"path" : "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "/usr/include/SDL2"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "libmb::@bab9a03f0a0c03b6ceb8"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "fmt::@c1a9231e0206e99398e7"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "msi_graphics::@a847294f9d82f855e779"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "msi_input::@d8fb087ca0f7f8518676"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "msi_carcassonne_game::@26997515180619398531"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "msi_carcassonne_ai::@d616659a787cfa677454"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "msi_carcassonne_frontend::@4a34d37d882c75f77119"
+		}
+	],
+	"id" : "msi_carcassonne_bin::@109cebfc0588a7dc92e9",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-O3 -g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "../../../deps/fmt/libfmtd.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "../../Carcassonne/Frontend/libmsi_carcassonne_frontend.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "../../Carcassonne/Game/libmsi_carcassonne_game.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "../../Carcassonne/AI/libmsi_carcassonne_ai.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lm",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "../../Graphics/libmsi_graphics.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lSDL2_image",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lSDL2_ttf",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "../../Input/libmsi_input.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lSDL2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "../../../deps/fmt/libfmtd.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "../../../deps/mb/liblibmb.a",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "msi_carcassonne_bin",
+	"nameOnDisk" : "msi_carcassonne_bin",
+	"paths" : 
+	{
+		"build" : "src/bin/carcassonne",
+		"source" : "src/bin/carcassonne"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/bin/carcassonne/main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

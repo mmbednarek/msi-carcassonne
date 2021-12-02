@@ -1,0 +1,2 @@
+/bin/x86_64-linux-gnu-ar qc libmsi_carcassonne_frontend.a CMakeFiles/msi_carcassonne_frontend.dir/GameView.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/Resource.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/BoardView.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/Object.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/PlaceTileView.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/PlaceFigureView.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/FiguresView.cpp.o CMakeFiles/msi_carcassonne_frontend.dir/ScoreBoardView.cpp.o
+/bin/x86_64-linux-gnu-ranlib libmsi_carcassonne_frontend.a

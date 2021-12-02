@@ -1,0 +1,2 @@
+/bin/x86_64-linux-gnu-ar qc libmsi_carcassonne_game.a CMakeFiles/msi_carcassonne_game.dir/Game.cpp.o CMakeFiles/msi_carcassonne_game.dir/Board.cpp.o CMakeFiles/msi_carcassonne_game.dir/Move.cpp.o
+/bin/x86_64-linux-gnu-ranlib libmsi_carcassonne_game.a

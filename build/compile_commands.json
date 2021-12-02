@@ -1,0 +1,192 @@
+[
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/gtest/googlemock",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fconcepts -std=c++2a -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock/src/gmock-all.cc",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock/src/gmock-all.cc"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/gtest/googlemock",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fconcepts -std=c++2a -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock/src/gmock_main.cc",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googlemock/src/gmock_main.cc"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/gtest/googletest",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fconcepts -std=c++2a -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/src/gtest-all.cc",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/src/gtest-all.cc"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/gtest/googletest",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fconcepts -std=c++2a -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/src/gtest_main.cc",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/src/gtest_main.cc"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/mb",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -O3 -g -fconcepts -std=gnu++17 -o CMakeFiles/libmb.dir/src/error.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/src/error.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/src/error.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/mb",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -O3 -g -fconcepts -std=gnu++17 -o CMakeFiles/libmb.dir/src/core.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/src/core.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/src/core.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/fmt",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/fmt.dir/src/format.cc.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/src/format.cc",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/src/format.cc"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/deps/fmt",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/fmt.dir/src/os.cc.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/src/os.cc",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/src/os.cc"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Surface.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Surface.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Surface.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Context.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Context.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Context.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Texture.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Texture.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Texture.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_graphics.dir/TextCache.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/TextCache.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/TextCache.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Font.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Font.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Graphics/Font.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Input",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_input.dir/Input.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Input/Input.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Input/Input.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Game",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_game.dir/Game.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Game/Game.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Game/Game.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Game",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_game.dir/Board.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Game/Board.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Game/Board.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Game",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_game.dir/Move.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Game/Move.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Game/Move.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/RandomPlayer.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/RandomPlayer.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/RandomPlayer.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/MCTSPlayer.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/MCTSPlayer.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/MCTSPlayer.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/Tree.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/Tree.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/Tree.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/Node.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/Node.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/Node.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/HeuristicPlayer.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/HeuristicPlayer.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/HeuristicPlayer.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/MCTS.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/MCTS.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/AI/MCTS.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/GameView.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/GameView.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/GameView.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/Resource.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/Resource.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/Resource.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/BoardView.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/BoardView.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/BoardView.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/Object.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/Object.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/Object.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/PlaceTileView.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/PlaceTileView.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/PlaceTileView.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/PlaceFigureView.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/PlaceFigureView.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/PlaceFigureView.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/FiguresView.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/FiguresView.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/FiguresView.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/ScoreBoardView.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/ScoreBoardView.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Carcassonne/Frontend/ScoreBoardView.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/bin/carcassonne",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_carcassonne_bin.dir/main.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/bin/carcassonne/main.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/bin/carcassonne/main.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/bin/evolution",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_evolution_bin.dir/mainEvol.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/bin/evolution/mainEvol.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/bin/evolution/mainEvol.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Evolution",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_evolution.dir/DiffEvol.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Evolution/DiffEvol.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Evolution/DiffEvol.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_test.dir/TileTest.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/TileTest.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/TileTest.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_test.dir/UtilTest.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/UtilTest.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/UtilTest.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_test.dir/BoardTest.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/BoardTest.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/BoardTest.cpp"
+},
+{
+  "directory": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/include -I/usr/include/SDL2 -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/mb/include -I/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/fmt/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest/include -isystem /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/deps/gtest/googletest -O3 -g -fconcepts -std=gnu++2a -o CMakeFiles/msi_test.dir/EvolutionTest.cpp.o -c /home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/EvolutionTest.cpp",
+  "file": "/home/kmro/Documents/pw_mini/S1/msi/msi-carcassonne/src/Test/EvolutionTest.cpp"
+}
+]

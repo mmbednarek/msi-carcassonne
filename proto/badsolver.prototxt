@@ -1,0 +1,13 @@
+net: "proto/model.prototxt"
+base_lr: 0.02
+lr_policy: "step"
+gamma: 0.5
+stepsize: 500000
+test_iter: 1
+test_interval: 2000
+display: 10
+max_iter: 5000
+snapshot: 1000000
+snapshot_prefix: "XOR"
+solver_mode: GPU
+type: "SGD"
