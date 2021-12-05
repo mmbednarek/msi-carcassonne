@@ -18,7 +18,7 @@ using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
 
 constexpr mb::size g_initial_figures_count = 7;
-constexpr mb::size g_max_possible_score = 255;
+constexpr short g_max_possible_score = 255;
 
 class Game : public IGame {
    Board m_board;
@@ -83,7 +83,7 @@ class Game : public IGame {
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
       return m_player_count;
    }
-   mb::result<mb::empty> board_to_caffe_X(std::vector<bool>& output) const noexcept override;
+   void board_to_caffe_X(std::vector<bool>& output) const override;
 
  private:
    int score_grass(Player player, Edge edge, const Parameters &params) const noexcept;
