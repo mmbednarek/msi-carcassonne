@@ -1,5 +1,5 @@
-#ifndef MSI_CARCASSONNE_DEEP_RL_H
-#define MSI_CARCASSONNE_DEEP_RL_H
+#ifndef MSI_CARCASSONNE_DEEPRL_H
+#define MSI_CARCASSONNE_DEEPRL_H
 #include "AI.h"
 #include <Carcassonne/Player.h>
 #include <mb/int.h>
@@ -27,4 +27,4 @@ FullMove choose_move(Tree &tree, int move_index, Player player);
 
 }// namespace carcassonne::ai
 
-#endif//MSI_CARCASSONNE_DEEP_RL_H
+#endif//MSI_CARCASSONNE_DEEPRL_H

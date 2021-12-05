@@ -6,6 +6,8 @@
 
 namespace carcassonne {
 
+constexpr int g_contact_types_count = 24; // None is ignored
+
 enum class Contact : mb::u64 {
    None = 0,
    NorthNWX = 1 << 0,
