@@ -4,12 +4,14 @@
 
 namespace carcassonne {
 
-constexpr mb::size g_board_width = 141;
-constexpr mb::size g_board_height = 141;
+constexpr mb::size g_board_width = 41;
+constexpr mb::size g_board_height = 41;
+constexpr mb::size g_board_center_x = 20;
+constexpr mb::size g_board_center_y = 20;
 
 /*
- The maximal board size is 141x141
- Starting tile is at x = 70, y = 70
+ The maximal board size is 41x41
+ Starting tile is at x = 20, y = 20
  */
 class IBoard {
  public:

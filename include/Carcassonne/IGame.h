@@ -17,6 +17,7 @@ struct Figure {
    double x, y;
    int tile_x, tile_y;
    Edge edge;
+   Direction dir;
 };
 
 using NextMoveCallback = std::function<void(IGame &, Player, FullMove)>;
@@ -48,6 +49,7 @@ class IGame {
               .to = MoveIter(board(), tile_type, board().min_x() - 1, board().max_y() + 1, 0),
       };
    }
+   virtual mb::result<mb::empty> board_to_caffe_X(std::vector<bool>& output) const noexcept = 0;
 };
 
 }// namespace carcassonne

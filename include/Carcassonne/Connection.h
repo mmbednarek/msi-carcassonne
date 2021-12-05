@@ -5,6 +5,8 @@
 
 namespace carcassonne {
 
+constexpr int g_connection_types_count = 22; // None is ignored
+
 enum class Connection : mb::u64 {
    None = 0,
    NorthX = 1 << 0,

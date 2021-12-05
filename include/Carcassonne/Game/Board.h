@@ -9,10 +9,10 @@ namespace carcassonne::game {
 
 class Board : public IBoard {
    mb::vector2d<TilePlacement> m_board;
-   int m_min_x = 70;
-   int m_min_y = 70;
-   int m_max_x = 71;
-   int m_max_y = 71;
+   int m_min_x = 20;
+   int m_min_y = 20;
+   int m_max_x = 21;
+   int m_max_y = 21;
 
  public:
    [[nodiscard]] int min_x() const noexcept override;

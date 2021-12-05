@@ -5,3 +5,5 @@ out
 cmake-install
 testRot.sh
 run.sh
+cmake.sh
+logs

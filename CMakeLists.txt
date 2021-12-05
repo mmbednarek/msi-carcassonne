@@ -14,6 +14,7 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 pkg_search_module(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 
 include_directories(include)
+include_directories(deps/mb/include)
 include_directories(include ${SDL2_INCLUDE_DIRS})
 
 set(BUILD_GMOCK OFF)
