@@ -524,16 +524,13 @@ std::pair<Direction, int> Game::move_score(Player player, TileType tile_type, Ti
 }
 
 template <typename E>
-constexpr inline typename std::underlying_type<E>::type to_underlying(E e) noexcept {
+constexpr typename std::underlying_type<E>::type to_underlying(E e) noexcept {
     return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
 template <typename T, typename U>
-inline mb::result<mb::empty> flags_to_states(const T flags, const int neurons_to_set, U output_it) {
+inline void flags_to_states(const T flags, const int neurons_to_set, U output_it) noexcept {
    auto num = to_underlying(flags);
-   // check commented out for speed
-   // if (neurons_to_set != log2(num) + 1)
-   //    return mb::error("invalid neurons_to_set");
    std::vector<bool> states(neurons_to_set, false);
    for (int i = 0; num; ++i) {
        states[i] = num % 2;
@@ -541,14 +538,10 @@ inline mb::result<mb::empty> flags_to_states(const T flags, const int neurons_to
    }
    reverse_copy(states.begin(), states.end(), output_it);
    std::advance(output_it, neurons_to_set);
-   return mb::ok;
 }
 
 template <typename T, typename U>
-inline mb::result<mb::empty> vector_to_states(const T vector, const size_t neurons_to_set, U& output_it) {
-   // check commented out for speed
-   if (neurons_to_set % vector.size())
-      return mb::error("invalid neurons_to_set");
+inline void vector_to_states(const T vector, const size_t neurons_to_set, U& output_it) noexcept {
    std::vector<bool> states(neurons_to_set, false);
    for (int i = 0; i < vector.size(); ++i) {
       auto val = to_underlying(vector.at(i));
@@ -556,27 +549,22 @@ inline mb::result<mb::empty> vector_to_states(const T vector, const size_t neuro
    }
    copy(states.begin(), states.end(), output_it);
    std::advance(output_it, neurons_to_set);
-   return mb::ok;
 }
 
 template <typename U>
-inline mb::result<mb::empty> tile_to_caffe(const Tile& tile, U& output_it) {
-   auto result = mb::ok;
+inline void tile_to_caffe(const Tile& tile, const U it) noexcept {
+   auto output_it = it;
    // edges: neurons_to_set = 4 * 3
-   if (auto res = vector_to_states(tile.edges, 4 * 3, output_it); !res.ok())
-      return res;
+   vector_to_states(tile.edges, 4 * 3, output_it);
    
    // field edges: neurons_to_set = 8 * 3
-   if (auto res = vector_to_states(tile.field_edges, 8 * 3, output_it); !res.ok())
-      return res;
+   vector_to_states(tile.field_edges, 8 * 3, output_it);
    
    // contacts: neurons_to_set = g_contact_types_count
-   if (auto res = flags_to_states(tile.contacts, g_contact_types_count, output_it); !res.ok())
-      return res;
+   flags_to_states(tile.contacts, g_contact_types_count, output_it);
    
    // connections:  neurons_to_set = g_connection_types_count
-   if (auto res = flags_to_states(tile.connections, g_connection_types_count, output_it); !res.ok())
-      return res;
+   flags_to_states(tile.connections, g_connection_types_count, output_it);
    
    // pennant: neurons_to_set = 1
    if (tile.pennant) *output_it = true; 
@@ -585,19 +573,17 @@ inline mb::result<mb::empty> tile_to_caffe(const Tile& tile, U& output_it) {
    // moastery: neurons_to_set = 1
    if (tile.pennant) *output_it = true;
    std::advance(output_it, 1);
-   
-   return result;
 }
 
 
 template <typename F, typename U>
-inline mb::result<mb::empty> figures_to_caffe(const F& figures, int x, int y, U output_edges_it, mb::size player_count, U output_it) {
-   auto result = mb::ok;
+inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, mb::size player_count, const U it) noexcept {
+   auto output_it = it;
    // figures: neurons_to_set = player_count
    auto figure_it = std::find_if(figures.begin(), figures.end(), [x,y](const Figure &f){
       return f.tile_x == x && f.tile_y == y;
    });
-   if (figure_it == figures.end()) return result;
+   if (figure_it == figures.end()) return;
    switch (figure_it->player) {
    case Player::Black:  *std::next(output_it, 0) = true; break;
    case Player::Blue:   *std::next(output_it, 1) = true; break;
@@ -663,12 +649,12 @@ inline mb::result<mb::empty> figures_to_caffe(const F& figures, int x, int y, U 
 
    // figure role: neurons_to_set = 4
    *std::next(output_it, role) = true;
-   return result;
+   advance(output_it, 4);
 }
 
 
 
-mb::result<mb::empty> Game::board_to_caffe_X(std::vector<bool>& output) const noexcept {
+void Game::board_to_caffe_X(std::vector<bool>& output) const {
    // tiles = g_board_width * g_board_height * sum_of:
       // edges          = 4 * city_or_field_or_path[3]
       // field edges    = 8 * city_or_field[3]
@@ -682,13 +668,15 @@ mb::result<mb::empty> Game::board_to_caffe_X(std::vector<bool>& output) const no
    // remaining figures          = figs[7] * npcs[2]
    // current tile               = sum_of_above[87]
    // remaining tiles            = m_tile_set[70]
-   // best score <1<2<3...<255   = g_max_possible_score[255]
-   // RLPlayer score <1<2...<255 = g_max_possible_score[255] * npcs[2]
+   // best score <1<2<3...<255   = g_max_possible_score+1[256]
+   // current player score       = g_max_possible_score+1[256]
+   // best player id             = npcs[2]
+   // current player id          = npcs[2]
    auto result = mb::ok;
    const size_t tile_features_count = (4*3) + (8*3) + 24 + 22 + 1 + 1 + m_player_count + 9 + 4; // 87;
    const size_t board_features_count = (g_board_width * g_board_height * tile_features_count)
        + (g_initial_figures_count * m_player_count) + tile_features_count + m_tile_set.size()
-       + 2 * g_max_possible_score; // 166'784;
+       + 2 * (g_max_possible_score + 1) + 2 * m_player_count; // 166'784;
    if (output.size() == 0) {
       output = std::vector<bool>(board_features_count, false);
    } else {
@@ -701,16 +689,11 @@ mb::result<mb::empty> Game::board_to_caffe_X(std::vector<bool>& output) const no
          if (0 == placed_tile.type) continue;
          int neurons_offset = (x + y * g_board_width) * tile_features_count;
          output_it = std::next(output.begin(), neurons_offset);
-         if (auto res = tile_to_caffe(placed_tile.tile(), output_it); !res.ok()) {
-            fmt::print("[tile_to_caffe internal error]: {}\n", res.msg());
-            return res;
-         }
          auto output_edges_it = std::next(output.begin(), neurons_offset);
+         tile_to_caffe(placed_tile.tile(), output_it);
+
          output_it = std::next(output.begin(), neurons_offset + tile_features_count - (m_player_count + 9 + 4));
-         if (auto res = figures_to_caffe(m_figures, x, y, output_edges_it, m_player_count, output_it); !res.ok()) {
-            fmt::print("[figures_to_caffe internal error]: {}\n", res.msg());
-            return res;
-         }
+         figures_to_caffe(m_figures, x, y, output_edges_it, m_player_count, output_it);
       }
    }
    output_it = std::next(output.begin(), (g_board_height * g_board_width) * tile_features_count);
@@ -720,52 +703,69 @@ mb::result<mb::empty> Game::board_to_caffe_X(std::vector<bool>& output) const no
       *std::next(output_it, m_figure_count[i]) = true;
       std::advance(output_it, g_initial_figures_count);
    }
-   std::advance(output_it, m_player_count * g_initial_figures_count);
    
    // current tile: neurons_to_set =  g_tiles.size()
    const Tile& tile = g_tiles[ m_tile_set[m_move_index] ];
-   if (auto res = tile_to_caffe(tile, output_it); !res.ok()) {
-      fmt::print("[board_to_caffe_X internal error]: {}\n", res.msg());
-      return res;
-   }
+   tile_to_caffe(tile, output_it);
    std::advance(output_it, tile_features_count);
    
    // remaining tiles: neurons_to_set = m_tile_set.size()
+   if  (0 == m_tile_set.size()) {
+      fmt::print("m_tile_set can't be of size 0!\n");
+   }
    if (m_move_index > 0 && m_move_index < m_tile_set.size() - 1)
       *std::next(output_it, m_move_index) = true;
    else
-      return result;
+      return;
    std::advance(output_it, m_tile_set.size());
-
+   
    // best score: neurons_to_set = g_max_possible_score
+   if (m_scores.begin() == m_scores.end())
+      return; // is a frequent error
    auto best_player_it = std::max_element(m_scores.begin(), m_scores.end(), 
-      [](PlayerScore a, PlayerScore b){
+      [](PlayerScore a, PlayerScore b) {
          return a.score < b.score;
       });
-   if (best_player_it == m_scores.end()) return result;
    if (best_player_it->score < g_max_possible_score)
       *std::next(output_it, g_max_possible_score) = true;
    else
       *std::next(output_it, best_player_it->score) = true;
-   std::advance(output_it, g_max_possible_score);
+   std::advance(output_it, g_max_possible_score + 1);
    
    // RLPlayer score: neurons_to_set = g_max_possible_score
    const Player& p = current_player();
    auto current_player_it = std::find_if(m_scores.begin(), m_scores.end(),
       [p](const PlayerScore& score) { return score.player == p; });
-   if (current_player_it->score < g_max_possible_score)
+   if (current_player_it->score > g_max_possible_score)
       *std::next(output_it, g_max_possible_score) = true;
    else
       *std::next(output_it, current_player_it->score) = true;
+   std::advance(output_it, g_max_possible_score + 1);
+
+   // best player id: neurons_to_set = m_player_count
+   auto tmp1 = to_underlying(best_player_it->player);
+   if (tmp1 >= m_player_count) return; // is a frequent error
+   // fmt::print("t1={} ", tmp1);
+   *std::next(output_it, tmp1) = true;
+   std::advance(output_it, m_player_count);
+   
+   // current player id: neurons_to_set = m_player_count
+   auto tmp2 = to_underlying(current_player_it->player);
+   if (tmp2 >= m_player_count) return; // is a frequent error
+   // fmt::print("t2={} ", tmp2);
+   *std::next(output_it, tmp2) = true;
+   std::advance(output_it, m_player_count);
+   
+   // ultimate size check
+   if (output_it != output.end()) {
+      fmt::print("something in memory gone wrong\n");
+      return;
+   }
    
    // printing X:
-   // if (current_player_it->player != Player::Black) {
-   //    for (int i = board_features_count - 1; i > board_features_count - 20000; --i)
-   //       fmt::print("{} ", (int)output.at(i));
-   //    fmt::print("\n\n");
-   // }
-   
-   return result;
+   // for (auto it = output.rbegin(); it != output.rbegin() + 20; ++it)
+   //    fmt::print("{} ", (int)*it);
+   // fmt::print("\n");
 }
 
 }// namespace carcassonne::game
