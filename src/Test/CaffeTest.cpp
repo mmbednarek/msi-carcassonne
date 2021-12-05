@@ -60,7 +60,7 @@ void test_net() {
     values[i] = (i % 3) + 1;
   }
   fmt::print("generating done\n");
-  
+
   if (caffe::Caffe::mode() == caffe::Caffe::CPU) printf("mode=CPU\n");
   if (caffe::Caffe::mode() == caffe::Caffe::GPU) printf("mode=GPU\n");
   caffe::Caffe::set_mode(caffe::Caffe::GPU);
@@ -88,7 +88,7 @@ void test_net() {
   fmt::print("size={}\n", solver->net()->input_blobs().size() );
   for (int i = 0; i < solver->net()->input_blobs().size(); ++i)
     fmt::print("{}: size={}\n", i, solver->net()->input_blob_indices()[i] );
-  
+
   boost::shared_ptr<caffe::Blob<float>> input_data_blob = solver->net()->blob_by_name("input_data");
   boost::shared_ptr<caffe::Blob<float>> output_data_blob = solver->net()->blob_by_name("output_probas");
   boost::shared_ptr<caffe::Blob<float>> label_value_blob = solver->net()->blob_by_name("label_value");
@@ -108,7 +108,7 @@ void test_net() {
     fmt::print("{} :", i);
     fflush(stdout);
     solver->Step(1);
-    for (int layer_id = 0; layer_id < solver->history().size(); ++layer_id) 
+    for (int layer_id = 0; layer_id < solver->history().size(); ++layer_id)
       fmt::print("loss{}={:9.2e} ", layer_id, *solver->history().at(layer_id)->cpu_data());
     fmt::print("\n");
   }

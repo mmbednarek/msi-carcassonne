@@ -554,20 +554,20 @@ inline void tile_to_caffe(const Tile& tile, const U it) noexcept {
    auto output_it = it;
    // edges: neurons_to_set = 4 * 3
    vector_to_states(tile.edges, 4 * 3, output_it);
-   
+
    // field edges: neurons_to_set = 8 * 3
    vector_to_states(tile.field_edges, 8 * 3, output_it);
-   
+
    // contacts: neurons_to_set = g_contact_types_count
    flags_to_states(tile.contacts, g_contact_types_count, output_it);
-   
+
    // connections:  neurons_to_set = g_connection_types_count
    flags_to_states(tile.connections, g_connection_types_count, output_it);
-   
+
    // pennant: neurons_to_set = 1
-   if (tile.pennant) *output_it = true; 
+   if (tile.pennant) *output_it = true;
    std::advance(output_it, 1);
-   
+
    // moastery: neurons_to_set = 1
    if (tile.pennant) *output_it = true;
    std::advance(output_it, 1);
@@ -589,7 +589,7 @@ inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, 
    case Player::Red:    *std::next(output_it, 3) = true; break;
    }
    std::advance(output_it, player_count);
-   
+
    // figure position: neurons_to_set = 9
    int role = -1;
    if (output_edges_it > output_it) {
@@ -696,26 +696,26 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
       }
    }
    output_it = std::next(output.begin(), (g_board_height * g_board_width) * tile_features_count);
-   
+
    // remaining figures: neurons_to_set = m_player_count * g_initial_figures_count
    for (mb::size i = 0; i < m_player_count; ++i) {
       *std::next(output_it, m_figure_count[i]) = 1.0f;
       std::advance(output_it, g_initial_figures_count);
    }
-   
+
    // current tile: neurons_to_set =  g_tiles.size()
    const Tile& tile = g_tiles[ m_tile_set[m_move_index] ];
    tile_to_caffe(tile, output_it);
    std::advance(output_it, tile_features_count);
-   
+
    // remaining tiles: neurons_to_set = m_tile_set.size()
    *std::next(output_it, m_move_index) = 1.0f;
    std::advance(output_it, m_tile_set.size());
-   
+
    // best score: neurons_to_set = g_max_possible_score
    if (m_scores.begin() == m_scores.end())
       return; // is a frequent error
-   auto best_player_it = std::max_element(m_scores.begin(), m_scores.end(), 
+   auto best_player_it = std::max_element(m_scores.begin(), m_scores.end(),
       [](PlayerScore a, PlayerScore b) {
          return a.score < b.score;
       });
@@ -724,7 +724,7 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    else
       *std::next(output_it, best_player_it->score) = 1.0f;
    std::advance(output_it, g_max_possible_score + 1);
-   
+
    // RLPlayer score: neurons_to_set = g_max_possible_score
    const Player& p = current_player();
    auto current_player_it = std::find_if(m_scores.begin(), m_scores.end(),
@@ -743,18 +743,18 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    // best player id: neurons_to_set = m_player_count
    *std::next(output_it, to_underlying(best_player_it->player)) = 1.0f;
    std::advance(output_it, m_player_count);
-   
+
    // current player id: neurons_to_set = m_player_count
    auto tmp2 = to_underlying(p);
    *std::next(output_it, tmp2) = 1.0f;
    std::advance(output_it, m_player_count);
-   
+
    // ultimate size check
    if (output_it != output.end()) {
       spdlog::error("state encoding: something in memory gone wrong");
       return;
    }
-   
+
    // printing X:
    // for (auto it = output.rbegin(); it != output.rbegin() + 20; ++it)
    //    fmt::print("{} ", (int)*it);
@@ -785,7 +785,7 @@ bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_typ
    }
 
    auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
-   
+
    switch (d) {
    case Direction::North:
    case Direction::East:
