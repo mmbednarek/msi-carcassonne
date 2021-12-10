@@ -318,7 +318,7 @@ layer {
 	}
 }
 
-### Probas head ###
+############## Probas head ################
 
 layer {
     name: "Probas_conv1"
