@@ -710,13 +710,7 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
    std::advance(output_it, tile_features_count);
    
    // remaining tiles: neurons_to_set = m_tile_set.size()
-   if  (0 == m_tile_set.size()) {
-      fmt::print("m_tile_set can't be of size 0!\n");
-   }
-   if (m_move_index > 0 && m_move_index < m_tile_set.size() - 1)
-      *std::next(output_it, m_move_index) = true;
-   else
-      return;
+   *std::next(output_it, m_move_index) = true;
    std::advance(output_it, m_tile_set.size());
    
    // best score: neurons_to_set = g_max_possible_score
@@ -743,16 +737,15 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
    std::advance(output_it, g_max_possible_score + 1);
 
    // best player id: neurons_to_set = m_player_count
-   auto tmp1 = to_underlying(best_player_it->player);
-   if (tmp1 >= m_player_count) return; // is a frequent error
-   // fmt::print("t1={} ", tmp1);
-   *std::next(output_it, tmp1) = true;
+   *std::next(output_it, to_underlying(best_player_it->player)) = true;
    std::advance(output_it, m_player_count);
    
    // current player id: neurons_to_set = m_player_count
    auto tmp2 = to_underlying(current_player_it->player);
-   if (tmp2 >= m_player_count) return; // is a frequent error
-   // fmt::print("t2={} ", tmp2);
+   if (tmp2 >= m_player_count){
+      fmt::print("t2={}\n", tmp2);
+      return; // is a frequent error
+   }
    *std::next(output_it, tmp2) = true;
    std::advance(output_it, m_player_count);
    

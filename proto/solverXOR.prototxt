@@ -1,4 +1,4 @@
-net: "modelXOR.prototxt"
+net: "net_tic_tac_6_4_2_res_block.prototxt"
 base_lr: 0.02
 lr_policy: "step"
 gamma: 0.5
