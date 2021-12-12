@@ -406,6 +406,20 @@ class Layer {
   DISABLE_COPY_AND_ASSIGN(Layer);
 };  // class Layer
 
+
+
+static inline void tokenize(const std::string &s, char delim, std::vector<std::string> *tokens)
+{
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (getline(ss, item, delim)) {
+        item.erase (std::remove (item.begin(), item.end(), ' '), item.end()); // remove whitespace.
+        tokens->push_back(item);
+    }
+}
+
+
 // Forward and backward wrappers. You should implement the cpu and
 // gpu specific implementations instead, and should not change these
 // functions.
@@ -414,19 +428,48 @@ inline Dtype Layer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   Dtype loss = 0;
   Reshape(bottom, top);
-  switch (Caffe::mode()) {
+  auto mode = Caffe::mode();
+  const char *CAFFE_DB_str = getenv("CAFFE_DB");
+  long int CAFFE_DB = CAFFE_DB_str ? strtoul(CAFFE_DB_str, nullptr, 0) : 0x0;
+
+// TODO - remove, debug code:
+  std::vector<std::string> forceCpu;
+  const char *CAFFE_FORCE_CPU = getenv("CAFFE_FORCE_CPU");
+  if (CAFFE_FORCE_CPU) {
+      tokenize(CAFFE_FORCE_CPU, ',', &forceCpu);
+      for (auto o=forceCpu.begin(); o!=forceCpu.end(); o++) {
+          if ((*o == type())) {
+              if (CAFFE_DB & 0x1) {
+                  printf ("force CPU for fwd layer %s\n", o->c_str());
+              }
+              mode = Caffe::CPU;
+          }
+      }
+  }
+  if (CAFFE_DB & 0x1) {
+      printf ("run fwd layer %s mode=%s name=%s\n", type(), mode==Caffe::CPU ? "CPU" : "GPU", layer_param().name().c_str());
+  }
+  std::string layerName(type()); layerName += '.'; layerName += layer_param().name();
+  switch (mode) {
   case Caffe::CPU:
+    HIP_BEGIN_MARKER(layerName.c_str() , "CAFFE-fwd");
     Forward_cpu(bottom, top);
+    HIP_END_MARKER();
     for (int top_id = 0; top_id < top.size(); ++top_id) {
       if (!this->loss(top_id)) { continue; }
       const int count = top[top_id]->count();
       const Dtype* data = top[top_id]->cpu_data();
       const Dtype* loss_weights = top[top_id]->cpu_diff();
-      loss += caffe_cpu_dot(count, data, loss_weights);
+      Dtype blob_loss  = caffe_cpu_dot(count, data, loss_weights);
+      loss += blob_loss;
+      //printf ("cpu: loss += %6.2f = %6.2f\n", blob_loss, loss);
     }
     break;
+    HIP_END_MARKER();
   case Caffe::GPU:
+    HIP_BEGIN_MARKER(layerName.c_str(),  "CAFFE-fwd");
     Forward_gpu(bottom, top);
+    HIP_END_MARKER();
 #ifndef CPU_ONLY
     for (int top_id = 0; top_id < top.size(); ++top_id) {
       if (!this->loss(top_id)) { continue; }
@@ -436,7 +479,9 @@ inline Dtype Layer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom,
       Dtype blob_loss = 0;
       caffe_gpu_dot(count, data, loss_weights, &blob_loss);
       loss += blob_loss;
+      //printf ("gpu: loss += %6.2f = %6.2f\n", blob_loss, loss);
     }
+    HIP_END_MARKER();
 #endif
     break;
   default:
@@ -449,12 +494,38 @@ template <typename Dtype>
 inline void Layer<Dtype>::Backward(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  switch (Caffe::mode()) {
+// TODO - remove, debug code:
+  const char *CAFFE_DB_str = getenv("CAFFE_DB");
+  long int CAFFE_DB = CAFFE_DB_str ? strtoul(CAFFE_DB_str, nullptr, 0) : 0x0;
+
+  auto mode = Caffe::mode();
+  std::vector<std::string> forceCpu;
+  const char *CAFFE_FORCE_CPU_BACK = getenv("CAFFE_FORCE_CPU_BACK");
+  if (CAFFE_FORCE_CPU_BACK) {
+      tokenize(CAFFE_FORCE_CPU_BACK, ',', &forceCpu);
+      for (auto o=forceCpu.begin(); o!=forceCpu.end(); o++) {
+          if ((*o == type())) {
+              if (CAFFE_DB & 0x2) {
+                  printf ("force CPU for bwd layer %s\n", o->c_str());
+              }
+              mode = Caffe::CPU;
+          }
+      }
+  }
+  if (CAFFE_DB & 0x2) {
+      printf ("run bwd layer %s mode=%s name=%s\n", type(), mode==Caffe::CPU ? "CPU" : "GPU", layer_param().name().c_str());
+  }
+  std::string layerName(type()); layerName += '.'; layerName += layer_param().name();
+  switch (mode) {
   case Caffe::CPU:
+    HIP_BEGIN_MARKER(layerName.c_str(),  "CAFFE-back");
     Backward_cpu(top, propagate_down, bottom);
+    HIP_END_MARKER();
     break;
   case Caffe::GPU:
+    HIP_BEGIN_MARKER(layerName.c_str(),  "CAFFE-back");
     Backward_gpu(top, propagate_down, bottom);
+    HIP_END_MARKER();
     break;
   default:
     LOG(FATAL) << "Unknown caffe mode.";

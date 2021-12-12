@@ -17,9 +17,6 @@ using Towns = std::vector<std::pair<Edge, Edge>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
 
-constexpr mb::size g_initial_figures_count = 7;
-constexpr short g_max_possible_score = 255;
-
 class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;

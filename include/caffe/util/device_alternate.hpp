@@ -29,64 +29,80 @@ void classname<Dtype>::funcname##_##gpu(const vector<Blob<Dtype>*>& top, \
     const vector<bool>& propagate_down, \
     const vector<Blob<Dtype>*>& bottom) { NO_GPU; } \
 
+#define HIP_BEGIN_MARKER(u,g)
+#define HIP_END_MARKER()
+
 #else  // Normal GPU + CPU Caffe.
 
-#include <cublas_v2.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <curand.h>
-#include <driver_types.h>  // cuda driver types
-#ifdef USE_CUDNN  // cuDNN acceleration library.
+#include <hip/hip_runtime.h>
+#ifndef DISABLE_HIP_PROFILE
+#include <hip/hip_profile.h> 
+#else
+#define HIP_BEGIN_MARKER(u,g)
+#define HIP_END_MARKER()
+#define HIP_SCOPED_MARKER(u,g)
+#endif
+
+#include <hipblas.h>
+#include <hiprand.h>
+#ifdef USE_ACCMI
 #include "caffe/util/cudnn.hpp"
 #endif
 
 //
-// CUDA macros
+// HIP macros
 //
 
-// CUDA: various checks for different function calls.
-#define CUDA_CHECK(condition) \
+// HIP: various checks for different function calls.
+#define HIP_CHECK(condition) \
   /* Code block avoids redefinition of cudaError_t error */ \
   do { \
-    cudaError_t error = condition; \
-    CHECK_EQ(error, cudaSuccess) << " " << cudaGetErrorString(error); \
-  } while (0)
+       hipError_t error  = condition;\
+       if (error != hipSuccess) { \
+          fprintf(stderr, "error: '%s'(%d) at %s:%d\n", hipGetErrorString(error), error,__FILE__, __LINE__); \
+          exit(EXIT_FAILURE);\
+       }\
+     }while (0)
 
-#define CUBLAS_CHECK(condition) \
+#define HIPBLAS_CHECK(condition) \
   do { \
-    cublasStatus_t status = condition; \
-    CHECK_EQ(status, CUBLAS_STATUS_SUCCESS) << " " \
-      << caffe::cublasGetErrorString(status); \
+    hipblasStatus_t status = condition; \
+    CHECK_EQ(status, HIPBLAS_STATUS_SUCCESS) << " " \
+      << caffe::hipblasGetErrorString(status); \
   } while (0)
 
-#define CURAND_CHECK(condition) \
+#define HIPRAND_CHECK(condition) \
   do { \
-    curandStatus_t status = condition; \
-    CHECK_EQ(status, CURAND_STATUS_SUCCESS) << " " \
-      << caffe::curandGetErrorString(status); \
+    hiprandStatus_t status = condition; \
+    CHECK_EQ(status,HIPRAND_STATUS_SUCCESS) << " " \
+      << caffe::hiprandGetErrorString(status); \
   } while (0)
 
-// CUDA: grid stride looping
-#define CUDA_KERNEL_LOOP(i, n) \
-  for (int i = blockIdx.x * blockDim.x + threadIdx.x; \
+// HIP: grid stride looping
+#define HIP_KERNEL_LOOP(i, n) \
+  for (int i = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x; \
        i < (n); \
-       i += blockDim.x * gridDim.x)
+       i += hipBlockDim_x * hipGridDim_x)
 
-// CUDA: check for error after kernel execution and exit loudly if there is one.
-#define CUDA_POST_KERNEL_CHECK CUDA_CHECK(cudaPeekAtLastError())
+// HIP: check for error after kernel execution and exit loudly if there is one.
+#define HIP_POST_KERNEL_CHECK HIP_CHECK(hipPeekAtLastError())
 
 namespace caffe {
 
-// CUDA: library error reporting.
-const char* cublasGetErrorString(cublasStatus_t error);
-const char* curandGetErrorString(curandStatus_t error);
+// HIP: library error reporting.
+const char* hipblasGetErrorString(hipblasStatus_t error);
+const char* hiprandGetErrorString(hiprandStatus_t error);
+// HIP: use 512 threads per block
 
-// CUDA: use 512 threads per block
-const int CAFFE_CUDA_NUM_THREADS = 512;
+#ifdef __HIP_PLATFORM_NVCC__
+const int CAFFE_HIP_NUM_THREADS = 512;
+#else
+const int CAFFE_HIP_NUM_THREADS = 256;
+#endif
 
-// CUDA: number of blocks for threads.
+// HIP: number of blocks for threads.
 inline int CAFFE_GET_BLOCKS(const int N) {
-  return (N + CAFFE_CUDA_NUM_THREADS - 1) / CAFFE_CUDA_NUM_THREADS;
+  return (N + CAFFE_HIP_NUM_THREADS - 1) / CAFFE_HIP_NUM_THREADS;
 }
 
 }  // namespace caffe

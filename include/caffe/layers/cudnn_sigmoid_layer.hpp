@@ -12,7 +12,7 @@
 
 namespace caffe {
 
-#ifdef USE_CUDNN
+#ifdef USE_ACCMI
 /**
  * @brief CuDNN acceleration of SigmoidLayer.
  */
@@ -34,10 +34,19 @@ class CuDNNSigmoidLayer : public SigmoidLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   bool handles_setup_;
+#ifdef USE_MIOPEN
+  miopenHandle_t             handle_;
+  miopenTensorDescriptor_t bottom_desc_;
+  miopenTensorDescriptor_t top_desc_;
+  miopenActivationDescriptor_t activ_desc_;
+#endif
+
+#ifdef USE_CUDNN
   cudnnHandle_t             handle_;
   cudnnTensorDescriptor_t bottom_desc_;
   cudnnTensorDescriptor_t top_desc_;
   cudnnActivationDescriptor_t activ_desc_;
+#endif
 };
 #endif
 

@@ -18,6 +18,26 @@
 
 #include "caffe/util/device_alternate.hpp"
 
+#ifdef USE_MIOPEN
+
+#define USE_MIOPEN_FORWARD_CONV
+#define USE_MIOPEN_FORWARD_BIAS
+
+#define USE_MIOPEN_LRN
+#define USE_MIOPEN_MAX_POOLING
+
+// Uncomment to enable use of MIOPEN backward prop
+#define USE_MIOPEN_BACKWARD_BIAS
+#define USE_MIOPEN_BACKWARD_WEIGHT
+#define USE_MIOPEN_BACKWARD_DATA
+
+#if defined(USE_MIOPEN_BACKWARD_BIAS) or defined(USE_MIOPEN_BACKWARD_WEIGHT) or defined (USE_MIOPEN_BACKWARD_DATA)
+#define USE_MIOPEN_BACKWARD_CONV
+#endif
+
+
+#endif
+
 // Convert macro to string
 #define STRINGIFY(m) #m
 #define AS_STRING(m) STRINGIFY(m)
@@ -98,7 +118,7 @@ using std::vector;
 void GlobalInit(int* pargc, char*** pargv);
 
 // A singleton class to hold common caffe stuff, such as the handler that
-// caffe is going to use for cublas, curand, etc.
+// caffe is going to use for hipblas, hiprand, etc.
 class Caffe {
  public:
   ~Caffe();
@@ -124,7 +144,7 @@ class Caffe {
     shared_ptr<Generator> generator_;
   };
 
-  // Getters for boost rng, curand, and cublas handles
+  // Getters for boost rng, hiprand, and hipblas handles
   inline static RNG& rng_stream() {
     if (!Get().random_generator_) {
       Get().random_generator_.reset(new RNG());
@@ -132,9 +152,9 @@ class Caffe {
     return *(Get().random_generator_);
   }
 #ifndef CPU_ONLY
-  inline static cublasHandle_t cublas_handle() { return Get().cublas_handle_; }
-  inline static curandGenerator_t curand_generator() {
-    return Get().curand_generator_;
+  inline static hipblasHandle_t hipblas_handle() { return Get().hipblas_handle_; }
+  inline static hiprandGenerator_t hiprand_generator() {
+    return Get().hiprand_generator_;
   }
 #endif
 
@@ -146,9 +166,9 @@ class Caffe {
   // freed in a non-pinned way, which may cause problems - I haven't verified
   // it personally but better to note it here in the header file.
   inline static void set_mode(Brew mode) { Get().mode_ = mode; }
-  // Sets the random seed of both boost and curand
+  // Sets the random seed of both boost and hiprand
   static void set_random_seed(const unsigned int seed);
-  // Sets the device. Since we have cublas and curand stuff, set device also
+  // Sets the device. Since we have hipblas and hiprand stuff, set device also
   // requires us to reset those values.
   static void SetDevice(const int device_id);
   // Prints the current GPU status.
@@ -169,8 +189,8 @@ class Caffe {
 
  protected:
 #ifndef CPU_ONLY
-  cublasHandle_t cublas_handle_;
-  curandGenerator_t curand_generator_;
+  hipblasHandle_t hipblas_handle_;
+  hiprandGenerator_t hiprand_generator_;
 #endif
   shared_ptr<RNG> random_generator_;
 

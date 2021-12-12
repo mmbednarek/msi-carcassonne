@@ -17,6 +17,7 @@ float caffe_gpu_atomic_add(const float val, float* address) {
 template <>
 inline __device__
 double caffe_gpu_atomic_add(const double val, double* address) {
+// TODO: HIP Equivalent
   unsigned long long int* address_as_ull =  // NOLINT(runtime/int)
       // NOLINT_NEXT_LINE(runtime/int)
       reinterpret_cast<unsigned long long int*>(address);
@@ -25,9 +26,9 @@ double caffe_gpu_atomic_add(const double val, double* address) {
   do {
     assumed = old;
     old = atomicCAS(address_as_ull, assumed,
-        __double_as_longlong(val + __longlong_as_double(assumed)));
+        (long long)(val + (double)assumed));
   } while (assumed != old);
-  return __longlong_as_double(old);
+  return (double)(old);
 }
 
 }  // namespace caffe

@@ -182,7 +182,7 @@ FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
    Player player = ctx_ptr->player;
    auto root_node = ctx_ptr->trees[std::this_thread::get_id()]->root();
    const auto &children = root_node->children();
-   // 
+   //
    // choose max element
    auto max_sim_count_it = std::max_element(
            children.begin(),

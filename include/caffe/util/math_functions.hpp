@@ -78,6 +78,8 @@ Dtype caffe_nextafter(const Dtype b);
 template <typename Dtype>
 void caffe_rng_uniform(const int n, const Dtype a, const Dtype b, Dtype* r);
 
+void caffe_rng_uniform(const int n, unsigned int* r);
+
 template <typename Dtype>
 void caffe_rng_gaussian(const int n, const Dtype mu, const Dtype sigma,
                         Dtype* r);
@@ -135,8 +137,8 @@ DEFINE_CAFFE_CPU_UNARY_FUNC(sign, y[i] = caffe_sign<Dtype>(x[i]))
 
 // This returns a nonzero value if the input has its sign bit set.
 // The name sngbit is meant to avoid conflicts with std::signbit in the macro.
-// The extra parens are needed because CUDA < 6.5 defines signbit as a macro,
-// and we don't want that to expand here when CUDA headers are also included.
+// The extra parens are needed because HIP < 6.5 defines signbit as a macro,
+// and we don't want that to expand here when HIP headers are also included.
 DEFINE_CAFFE_CPU_UNARY_FUNC(sgnbit, \
     y[i] = static_cast<bool>((std::signbit)(x[i])))
 
@@ -176,7 +178,7 @@ void caffe_gpu_set(const int N, const Dtype alpha, Dtype *X);
 
 inline void caffe_gpu_memset(const size_t N, const int alpha, void* X) {
 #ifndef CPU_ONLY
-  CUDA_CHECK(cudaMemset(X, alpha, N));  // NOLINT(caffe/alt_fn)
+  HIP_CHECK(hipMemset(X, alpha, N));  // NOLINT(caffe/alt_fn)
 #else
   NO_GPU;
 #endif
@@ -226,9 +228,9 @@ void caffe_gpu_rng_uniform(const int n, unsigned int* r);
 
 // caffe_gpu_rng_uniform with four arguments generates floats in the range
 // (a, b] (strictly greater than a, less than or equal to b) due to the
-// specification of curandGenerateUniform.  With a = 0, b = 1, just calls
-// curandGenerateUniform; with other limits will shift and scale the outputs
-// appropriately after calling curandGenerateUniform.
+// specification of hiprandGenerateUniform.  With a = 0, b = 1, just calls
+// hiprandGenerateUniform; with other limits will shift and scale the outputs
+// appropriately after calling hiprandGenerateUniform.
 template <typename Dtype>
 void caffe_gpu_rng_uniform(const int n, const Dtype a, const Dtype b, Dtype* r);
 
@@ -260,20 +262,20 @@ void caffe_gpu_scale(const int n, const Dtype alpha, const Dtype *x, Dtype* y);
 #define DEFINE_AND_INSTANTIATE_GPU_UNARY_FUNC(name, operation) \
 template<typename Dtype> \
 __global__ void name##_kernel(const int n, const Dtype* x, Dtype* y) { \
-  CUDA_KERNEL_LOOP(index, n) { \
+  HIP_KERNEL_LOOP(index, n) { \
     operation; \
   } \
 } \
 template <> \
 void caffe_gpu_##name<float>(const int n, const float* x, float* y) { \
   /* NOLINT_NEXT_LINE(whitespace/operators) */ \
-  name##_kernel<float><<<CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS>>>( \
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(name##_kernel<float>), dim3(CAFFE_GET_BLOCKS(n)), dim3(CAFFE_HIP_NUM_THREADS), 0, 0, \
       n, x, y); \
 } \
 template <> \
 void caffe_gpu_##name<double>(const int n, const double* x, double* y) { \
   /* NOLINT_NEXT_LINE(whitespace/operators) */ \
-  name##_kernel<double><<<CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS>>>( \
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(name##_kernel<double>), dim3(CAFFE_GET_BLOCKS(n)), dim3(CAFFE_HIP_NUM_THREADS), 0, 0, \
       n, x, y); \
 }
 
