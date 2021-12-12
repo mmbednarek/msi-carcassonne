@@ -35,8 +35,6 @@ bool Game::can_place(TileType tt) const noexcept {
 }
 
 std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
-   std::vector<bool> X;
-   board_to_caffe_X(X);
    auto tt = m_tile_set[m_move_index];
    auto move_index = m_move_index;
 
@@ -654,7 +652,7 @@ inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, 
 
 
 
-void Game::board_to_caffe_X(std::vector<bool>& output) const {
+void Game::board_to_caffe_X(std::vector<float> &output) const {
    // tiles = g_board_width * g_board_height * sum_of:
       // edges          = 4 * city_or_field_or_path[3]
       // field edges    = 8 * city_or_field[3]
@@ -678,9 +676,9 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
        + (g_initial_figures_count * m_player_count) + tile_features_count + m_tile_set.size()
        + 2 * (g_max_possible_score + 1) + 2 * m_player_count; // 166'784;
    if (output.size() == 0) {
-      output = std::vector<bool>(board_features_count, false);
+      output = std::vector<float>(board_features_count, 0.0f);
    } else {
-      std::fill(output.begin(), output.end(), false);
+      std::fill(output.begin(), output.end(), 0.0f);
    }
    auto output_it = output.begin();
    for (int x = 0; x < g_board_width; ++x) {
@@ -700,7 +698,7 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
    
    // remaining figures: neurons_to_set = m_player_count * g_initial_figures_count
    for (int i = 0; i < m_player_count; ++i) {
-      *std::next(output_it, m_figure_count[i]) = true;
+      *std::next(output_it, m_figure_count[i]) = 1.0f;
       std::advance(output_it, g_initial_figures_count);
    }
    
@@ -710,7 +708,7 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
    std::advance(output_it, tile_features_count);
    
    // remaining tiles: neurons_to_set = m_tile_set.size()
-   *std::next(output_it, m_move_index) = true;
+   *std::next(output_it, m_move_index) = 1.0f;
    std::advance(output_it, m_tile_set.size());
    
    // best score: neurons_to_set = g_max_possible_score
@@ -721,9 +719,9 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
          return a.score < b.score;
       });
    if (best_player_it->score < g_max_possible_score)
-      *std::next(output_it, g_max_possible_score) = true;
+      *std::next(output_it, g_max_possible_score) = 1.0f;
    else
-      *std::next(output_it, best_player_it->score) = true;
+      *std::next(output_it, best_player_it->score) = 1.0f;
    std::advance(output_it, g_max_possible_score + 1);
    
    // RLPlayer score: neurons_to_set = g_max_possible_score
@@ -731,13 +729,13 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
    auto current_player_it = std::find_if(m_scores.begin(), m_scores.end(),
       [p](const PlayerScore& score) { return score.player == p; });
    if (current_player_it->score > g_max_possible_score)
-      *std::next(output_it, g_max_possible_score) = true;
+      *std::next(output_it, g_max_possible_score) = 1.0f;
    else
-      *std::next(output_it, current_player_it->score) = true;
+      *std::next(output_it, current_player_it->score) = 1.0f;
    std::advance(output_it, g_max_possible_score + 1);
 
    // best player id: neurons_to_set = m_player_count
-   *std::next(output_it, to_underlying(best_player_it->player)) = true;
+   *std::next(output_it, to_underlying(best_player_it->player)) = 1.0f;
    std::advance(output_it, m_player_count);
    
    // current player id: neurons_to_set = m_player_count
@@ -746,7 +744,7 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
       fmt::print("t2={}\n", tmp2);
       return; // is a frequent error
    }
-   *std::next(output_it, tmp2) = true;
+   *std::next(output_it, tmp2) = 1.0f;
    std::advance(output_it, m_player_count);
    
    // ultimate size check
@@ -759,6 +757,45 @@ void Game::board_to_caffe_X(std::vector<bool>& output) const {
    // for (auto it = output.rbegin(); it != output.rbegin() + 20; ++it)
    //    fmt::print("{} ", (int)*it);
    // fmt::print("\n");
+}
+
+static int pc_find(const std::array<int, g_directions.size()> &dirs, int value) {
+   while (dirs[value] != value) {
+      value = dirs[value];
+   }
+   return value;
+}
+
+static void pc_join(std::array<int, g_directions.size()> &dirs, int a, int b) {
+   auto fa = pc_find(dirs, a);
+   auto fb = pc_find(dirs, b);
+   dirs[fa] = fb;
+}
+
+bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
+   if (!board().can_place_at(x, y, tile_type, rot)) {
+      return false;
+   }
+
+   std::array<int, g_directions.size()> dirs{};
+   std::iota(dirs.begin(), dirs.end(), 0);
+
+   auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
+   auto connections = tile.connections;
+
+   while (connections != Connection::None) {
+      Direction a, b;
+      std::tie(connections, a, b) = read_connections(connections);
+      pc_join(dirs, static_cast<int>(a), static_cast<int>(b));
+   }
+
+   auto pc_d = static_cast<Direction>(pc_find(dirs, static_cast<int>(d)));
+
+   if (!m_groups.is_free(make_edge(x, y, pc_d))) {
+      return false;
+   }
+
+   return true;
 }
 
 }// namespace carcassonne::game

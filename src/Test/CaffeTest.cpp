@@ -1,14 +1,13 @@
+#define DISABLE_HIP_PROFILE
 #include <fmt/core.h>
 #include <caffe/caffe.hpp>
 #include <caffe/filler.hpp>
-#include <caffe/layers/input_layer.hpp>
 #include <caffe/net.hpp>
 #include <caffe/util/math_functions.hpp>
 #include <caffe/sgd_solvers.hpp>
 #include <google/protobuf/text_format.h>
 #include <string>
-#include <fstream>
-#include <streambuf>
+#include <filesystem>
 
 namespace caffe {
 
@@ -64,7 +63,7 @@ void test_net() {
   
   if (caffe::Caffe::mode() == caffe::Caffe::CPU) printf("mode=CPU\n");
   if (caffe::Caffe::mode() == caffe::Caffe::GPU) printf("mode=GPU\n");
-  caffe::Caffe::set_mode(caffe::Caffe::CPU);
+  caffe::Caffe::set_mode(caffe::Caffe::GPU);
   if (caffe::Caffe::mode() == caffe::Caffe::CPU) printf("mode=CPU\n");
   if (caffe::Caffe::mode() == caffe::Caffe::GPU) printf("mode=GPU\n");
   caffe::Caffe::SetDevice(0);

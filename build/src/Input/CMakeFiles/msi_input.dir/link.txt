@@ -1,2 +1,0 @@
-/bin/x86_64-linux-gnu-ar qc libmsi_input.a CMakeFiles/msi_input.dir/Input.cpp.o
-/bin/x86_64-linux-gnu-ranlib libmsi_input.a

@@ -1,0 +1,2 @@
+add_library(carcassonne_rl Network.cpp)
+target_link_libraries(carcassonne_rl caffe carcassonne_decoder)

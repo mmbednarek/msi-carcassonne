@@ -5,13 +5,13 @@
 #include <cassert>
 #include <chrono>
 #include <fmt/core.h>
-#include <Util/CSVLogger.h>
+//#include <Util/CSVLogger.h>
 #include <random>
 
 namespace carcassonne::ai {
 
-util::CSVLogger g_mcts_logger("logs/mcts.csv",
-                              "move_number", "ai_wins", "best_utc", "node_sim_count", "rollout_count", "node_count");
+//util::CSVLogger g_mcts_logger("logs/mcts.csv",
+//                              "move_number", "ai_wins", "best_utc", "node_sim_count", "rollout_count", "node_count");
 
 std::array<HeuristicPlayer, 4> g_heuristic_players{
         HeuristicPlayer(Player::Black),
@@ -199,7 +199,7 @@ FullMove choose_move(Tree &tree, int move_index, Player player) {
            });
    assert(selected_child_it != children.end());
    auto &node = tree.node_at(*selected_child_it);
-   g_mcts_logger.log(move_index, node.player_wins(player), node.UCT1(root_node.simulation_count()), node.simulation_count(), root_node.simulation_count(), tree.node_count());
+//   g_mcts_logger.log(move_index, node.player_wins(player), node.UCT1(root_node.simulation_count()), node.simulation_count(), root_node.simulation_count(), tree.node_count());
    return node.move();
 }
 

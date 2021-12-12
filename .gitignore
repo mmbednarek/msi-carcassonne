@@ -7,3 +7,6 @@ testRot.sh
 run.sh
 cmake.sh
 logs
+build
+build-debug
+build-release

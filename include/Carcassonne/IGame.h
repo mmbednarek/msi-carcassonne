@@ -12,6 +12,9 @@
 
 namespace carcassonne {
 
+constexpr mb::size g_initial_figures_count = 7;
+constexpr short g_max_possible_score = 255;
+
 struct Figure {
    Player player;
    double x, y;
@@ -36,9 +39,12 @@ class IGame {
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
    [[nodiscard]] virtual std::vector<Direction> figure_placements(int x, int y) const noexcept = 0;
    [[nodiscard]] virtual std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move, const Parameters &parameters) const noexcept = 0;
+   [[nodiscard]] virtual bool can_place_figure(int x, int y, Direction d) const = 0;
+   [[nodiscard]] virtual bool can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const = 0;
    virtual void start() noexcept = 0;
    virtual void on_next_move(NextMoveCallback callback) noexcept = 0;
    virtual void update(double dt) noexcept = 0;
+   virtual void board_to_caffe_X(std::vector<float> &output) const = 0;
 
    [[nodiscard]] inline MoveRange moves(TileType tile_type = 0) const {
       if (tile_type == 0) {
@@ -49,7 +55,6 @@ class IGame {
               .to = MoveIter(board(), tile_type, board().min_x() - 1, board().max_y() + 1, 0),
       };
    }
-   virtual void board_to_caffe_X(std::vector<bool>& output) const = 0;
 };
 
 }// namespace carcassonne

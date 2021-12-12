@@ -1,3 +1,4 @@
+#include "Carcassonne/AI/DeepRLPlayer.h"
 #include <Carcassonne/AI/HeuristicPlayer.h>
 #include <Carcassonne/AI/MCTSPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
@@ -8,6 +9,7 @@
 #include <Input/Input.h>
 #include <chrono>
 #include <fmt/core.h>
+#include <google/protobuf/text_format.h>
 #include <mb/core.h>
 
 uint64_t now_milis() {
@@ -20,14 +22,36 @@ constexpr bool player_range_ok(int count) {
    return count >= 0 && count <= 4;
 }
 
+
+mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
+   caffe::Caffe::set_mode(caffe::Caffe::GPU);
+
+   caffe::SolverParameter solver_param;
+   caffe::ReadSolverParamsFromTextFileOrDie("./solver.prototxt", &solver_param);
+
+   caffe::NetParameter net_parameter;
+   std::ifstream t("./net_tic_tac_6_4_2_res_block.prototxt");
+   std::string model((std::istreambuf_iterator<char>(t)),
+                     std::istreambuf_iterator<char>());
+   bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
+   if (!success) {
+      return mb::error("could not parse protobuf file");
+   }
+
+   net_parameter.mutable_state()->set_phase(caffe::TRAIN);
+
+   return std::make_unique<carcassonne::rl::Network>(net_parameter, solver_param);
+}
+
 int main() {
    using carcassonne::frontend::Status;
 
    auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("9"));
    auto human_player_count = std::stoi(mb::getenv("C_HUMAN_PLAYERS").unwrap("1"));
    auto random_ai_player_count = std::stoi(mb::getenv("C_AI_RANDOM_PLAYERS").unwrap("0"));
-   auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("1"));
+   auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("0"));
    auto heuristic_ai_player_count = std::stoi(mb::getenv("C_AI_HEURISTIC_PLAYERS").unwrap("0"));
+   auto rl_ai_player_count = std::stoi(mb::getenv("C_AI_RL_PLAYERS").unwrap("1"));
 
    if (!player_range_ok(human_player_count)) {
       fmt::print(stderr, "invalid human player count (0-4): {}", human_player_count);
@@ -44,14 +68,20 @@ int main() {
       return 1;
    }
 
-   if (!player_range_ok(human_player_count + random_ai_player_count + mcts_ai_player_count + heuristic_ai_player_count)) {
+   auto player_count = human_player_count +
+                       random_ai_player_count +
+                       heuristic_ai_player_count +
+                       mcts_ai_player_count +
+                       rl_ai_player_count;
+
+   if (!player_range_ok(player_count)) {
       fmt::print(stderr, "invalid player count (0-4): {}", human_player_count + random_ai_player_count + mcts_ai_player_count + heuristic_ai_player_count);
       return 1;
    }
 
    graphics::Config cfg{
-           .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("800")),
-           .height = std::stoi(mb::getenv("WND_HEIGHT").unwrap("600")),
+           .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("960")),
+           .height = std::stoi(mb::getenv("WND_HEIGHT").unwrap("540")),
            .title = "Carcassonne",
    };
    auto surface_re = graphics::Surface::create(cfg);
@@ -67,7 +97,7 @@ int main() {
       return 1;
    }
 
-   carcassonne::game::Game game(human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count, game_seed);
+   carcassonne::game::Game game(player_count, game_seed);
 
    auto human_players = std::accumulate(
            carcassonne::g_players.begin(),
@@ -81,27 +111,46 @@ int main() {
    std::random_device random_device;
    std::mt19937 random_generator(random_device());
 
+   auto player_id = human_player_count;
+
    std::vector<carcassonne::ai::RandomPlayer<>> random_players;
    random_players.reserve(random_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), std::back_inserter(random_players), [&random_generator](carcassonne::Player p) {
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + random_ai_player_count), std::back_inserter(random_players), [&random_generator](carcassonne::Player p) {
       return carcassonne::ai::RandomPlayer<>(random_generator, p);
    });
    for (auto &player : random_players) {
       player.await_turn(game);
    }
 
+   player_id += random_ai_player_count;
+
    std::vector<carcassonne::ai::HeuristicPlayer> heuristic_players;
    heuristic_players.reserve(heuristic_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), std::back_inserter(heuristic_players), [](carcassonne::Player p) {
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + heuristic_ai_player_count), std::back_inserter(heuristic_players), [](carcassonne::Player p) {
       return carcassonne::ai::HeuristicPlayer(p);
    });
    for (auto &player : heuristic_players) {
       player.await_turn(game);
    }
 
+   player_id += heuristic_ai_player_count;
+
    std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p, carcassonne::ai::SimulationType::Heuristic);
+   });
+
+   auto net_res = load_network();
+   if (!net_res.ok()) {
+      return EXIT_FAILURE;
+   }
+   auto net = net_res.unwrap();
+
+   player_id += mcts_ai_player_count;
+
+   std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &net](carcassonne::Player p) {
+      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, *net);
    });
 
    constexpr double dt = 1000.0 / 60.0;
@@ -126,5 +175,6 @@ int main() {
       carcassonne::frontend::ResourceManager::the().post_render_hook();
       input::handle_events(view);
    }
-   return 0;
+
+   return EXIT_SUCCESS;
 }

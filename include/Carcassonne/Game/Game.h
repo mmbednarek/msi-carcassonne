@@ -17,9 +17,6 @@ using Towns = std::vector<std::pair<Edge, Edge>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
 
-constexpr mb::size g_initial_figures_count = 7;
-constexpr short g_max_possible_score = 255;
-
 class Game : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
@@ -54,11 +51,12 @@ class Game : public IGame {
    [[nodiscard]] bool is_town_field_connected(Edge town, Edge field) noexcept;
    [[nodiscard]] std::vector<Direction> figure_placements(int x, int y) const noexcept override;
    [[nodiscard]] std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move, const Parameters &params) const noexcept override;
+   [[nodiscard]] bool can_place_figure(int x, int y, Direction d) const override;
+   [[nodiscard]] bool can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const override;
    void on_next_move(NextMoveCallback callback) noexcept override;
    void start() noexcept override;
    void update(double dt) noexcept override;
 
-   [[nodiscard]] bool can_place_figure(int x, int y, Direction d) const;
    [[nodiscard]] bool is_monastery_completed(int x, int y) noexcept;
    [[nodiscard]] mb::u8 player_figure_count(Player p) const noexcept;
    void notify_tour_finished(FullMove full_move) noexcept;
@@ -83,7 +81,7 @@ class Game : public IGame {
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
       return m_player_count;
    }
-   void board_to_caffe_X(std::vector<bool>& output) const override;
+   void board_to_caffe_X(std::vector<float> &output) const override;
 
  private:
    int score_grass(Player player, Edge edge, const Parameters &params) const noexcept;

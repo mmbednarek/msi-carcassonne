@@ -1,0 +1,1 @@
+add_library(carcassonne_decoder Decoder.cpp)
