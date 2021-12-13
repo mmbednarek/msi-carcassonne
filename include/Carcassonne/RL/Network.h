@@ -16,7 +16,7 @@ class Network {
    boost::shared_ptr<caffe::Blob<float>> m_input;
    boost::shared_ptr<caffe::Blob<float>> m_output;
 //   boost::shared_ptr<caffe::Blob<float>> m_label;
-   std::vector<float> m_neuron_output;
+   std::vector<float> m_neuron_input;
    std::vector<bool> m_allowed_moves;
 
  public:

@@ -766,36 +766,63 @@ static int pc_find(const std::array<int, g_directions.size()> &dirs, int value) 
    return value;
 }
 
-static void pc_join(std::array<int, g_directions.size()> &dirs, int a, int b) {
+static void pc_join(std::array<int, g_directions.size()> &dirs, std::array<bool, g_directions.size()> &free, int a, int b) {
    auto fa = pc_find(dirs, a);
    auto fb = pc_find(dirs, b);
    dirs[fa] = fb;
+   free[fa] = free[fa] && free[fb];
+   free[fb] = free[fa];
 }
 
 bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
-   if (!board().can_place_at(x, y, tile_type, rot)) {
-      return false;
+//   if (!board().can_place_at(x, y, tile_type, rot)) {
+//      return false;
+//   }
+
+   auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
+   if (d == Direction::Middle) {
+      return tile.monastery;
+   }
+
+   switch (d) {
+   case Direction::North:
+   case Direction::East:
+   case Direction::South:
+   case Direction::West:
+      if (tile.edges[static_cast<int>(d)] == EdgeType::Grass)
+         return false;
+      break;
+   case Direction::EastNorth:
+   case Direction::NorthEast:
+   case Direction::SouthEast:
+   case Direction::EastSouth:
+   case Direction::WestSouth:
+   case Direction::SouthWest:
+   case Direction::NorthWest:
+   case Direction::WestNorth:
+      if (tile.field_edges[static_cast<int>(d) - 5] != EdgeType::Grass)
+         return false;
+      break;
    }
 
    std::array<int, g_directions.size()> dirs{};
    std::iota(dirs.begin(), dirs.end(), 0);
 
-   auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
+   std::array<bool, g_directions.size()> free{};
+   std::generate(free.begin(), free.end(), [this, x, y, dir = 0]() mutable {
+      return m_groups.is_free(make_edge(x, y, static_cast<Direction>(dir++)));
+   });
+
    auto connections = tile.connections;
 
    while (connections != Connection::None) {
       Direction a, b;
       std::tie(connections, a, b) = read_connections(connections);
-      pc_join(dirs, static_cast<int>(a), static_cast<int>(b));
+      pc_join(dirs, free, static_cast<int>(a), static_cast<int>(b));
    }
 
-   auto pc_d = static_cast<Direction>(pc_find(dirs, static_cast<int>(d)));
-
-   if (!m_groups.is_free(make_edge(x, y, pc_d))) {
-      return false;
-   }
-
-   return true;
+   auto pc_d = pc_find(dirs, static_cast<int>(d));
+   return free[pc_d];
 }
 
 }// namespace carcassonne::game

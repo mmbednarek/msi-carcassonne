@@ -74,36 +74,19 @@ FullMove decode_move(const IGame &game, TileType tile, std::vector<bool> &allowe
    for (int y = 0; y < g_board_width; ++y) {
       for (int x = 0; x < g_board_height; ++x) {
          for (mb::u8 rot = 0; rot < 4; ++rot) {
-            if (!*(allowed_it)) {
-               for (int i = 0; i < 14; ++i) {
-                  ++allowed_it;
-               }
-               for (int i = 0; i < 10; ++i) {
-                  ++blob_it;
-               }
-               continue;
-            }
-
             for (auto dir : g_directions) {
-               if (!*(allowed_it)) {
-                  ++allowed_it;
-                  if (!should_skip_iter(dir)) {
-                     ++blob_it;
+               if (*allowed_it) {
+                  sum += *blob_it;
+                  if (sum >= threshold) {
+                     return FullMove{
+                             .x = x,
+                             .y = y,
+                             .rotation = rot,
+                             .ignored_figure = false,
+                             .direction = dir,
+                     };
                   }
-                  continue;
                }
-
-               sum += *blob_it;
-               if (sum >= threshold) {
-                  return FullMove{
-                          .x = x,
-                          .y = y,
-                          .rotation = rot,
-                          .ignored_figure = false,
-                          .direction = dir,
-                  };
-               }
-
 
                ++allowed_it;
                if (!should_skip_iter(dir)) {
@@ -111,14 +94,16 @@ FullMove decode_move(const IGame &game, TileType tile, std::vector<bool> &allowe
                }
             }
 
-            sum += *blob_it;
-            if (sum >= threshold) {
-               return FullMove{
-                       .x = x,
-                       .y = y,
-                       .rotation = rot,
-                       .ignored_figure = true,
-               };
+            if (*allowed_it) {
+               sum += *blob_it;
+               if (sum >= threshold) {
+                  return FullMove{
+                          .x = x,
+                          .y = y,
+                          .rotation = rot,
+                          .ignored_figure = true,
+                  };
+               }
             }
             ++blob_it;
             ++allowed_it;

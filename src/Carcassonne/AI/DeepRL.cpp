@@ -44,7 +44,7 @@ void simulate_random(Context &ctx, NodeId node_id) {
 }
 
 static FullMove get_move(Context &ctx, IGame &game) {
-   return ctx.network.do_move(game, game.tile_set()[game.move_index()], static_cast<float>(1000 * rand()) / 1000.0f); // rand is a hash
+   return ctx.network.do_move(game, game.tile_set()[game.move_index()], static_cast<float>(rand() % 1000) / 1000.0f); // rand is a hash
 }
 
 void simulate(Context &ctx, NodeId node_id) {
@@ -53,6 +53,7 @@ void simulate(Context &ctx, NodeId node_id) {
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
       auto full_move = get_move(ctx, *simulated_game);
+      fmt::print("network move: {} {} {}\n", full_move.x, full_move.y, full_move.rotation);
       simulated_game->update(0);
 
       parent_id = ctx.tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);

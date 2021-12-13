@@ -19,8 +19,8 @@ Network::Network(const caffe::NetParameter &net_param, const caffe::SolverParame
 
 FullMove Network::do_move(IGame &g, TileType tile, float prob) {
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
-   g.board_to_caffe_X(m_neuron_output);
-   std::copy(m_neuron_output.begin(), m_neuron_output.end(), m_input->mutable_cpu_data());
+   g.board_to_caffe_X(m_neuron_input);
+   std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
 
    m_net->Forward();
    std::span<float> out_span(m_output->mutable_cpu_data(), output_neuron_count);

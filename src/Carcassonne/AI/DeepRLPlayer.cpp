@@ -46,8 +46,15 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
            .network = m_network,
    };
    rl::run_mcts(ctx, 2000);
+   auto tile = game.tile_set()[game.move_index()];
    auto best_move = rl::choose_move(ctx, game.move_index(), m_player);
    m_last_moves[static_cast<int>(m_player)] = best_move;
+
+   while (!game.can_place_tile_and_figure(best_move.x, best_move.y, best_move.rotation, tile, best_move.direction)) {
+      rl::run_mcts(ctx, 1000);
+      best_move = rl::choose_move(ctx, game.move_index(), m_player);
+      m_last_moves[static_cast<int>(m_player)] = best_move;
+   }
 
    auto move = game.new_move(m_player);
    if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {
