@@ -777,8 +777,34 @@ static void pc_join(std::array<int, g_directions.size()> &dirs, std::array<bool,
 }
 
 bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
-   if (!board().can_place_at(x, y, tile_type, rot)) {
-      return false;
+//   if (!board().can_place_at(x, y, tile_type, rot)) {
+//      return false;
+//   }
+
+   auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
+   if (d == Direction::Middle) {
+      return tile.monastery;
+   }
+
+   switch (d) {
+   case Direction::North:
+   case Direction::East:
+   case Direction::South:
+   case Direction::West:
+      if (tile.edges[static_cast<int>(d)] == EdgeType::Grass)
+         return false;
+      break;
+   case Direction::EastNorth:
+   case Direction::NorthEast:
+   case Direction::SouthEast:
+   case Direction::EastSouth:
+   case Direction::WestSouth:
+   case Direction::SouthWest:
+   case Direction::NorthWest:
+   case Direction::WestNorth:
+      if (tile.field_edges[static_cast<int>(d) - 5] != EdgeType::Grass)
+         return false;
+      break;
    }
    if (player_figure_count(current_player()) == 0) {
       return false;
