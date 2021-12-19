@@ -1,11 +1,12 @@
+#include <Carcassonne/AI/DeepRL.h>
 #include <Carcassonne/AI/HeuristicPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
-#include <Carcassonne/AI/DeepRL.h>
 #include <Carcassonne/AI/Tree.h>
+#include <Util/CSVLogger.h>
+#include <Util/Time.h>
 #include <cassert>
 #include <chrono>
 #include <fmt/core.h>
-#include <Util/CSVLogger.h>
 #include <random>
 
 namespace carcassonne::ai::rl {
@@ -44,7 +45,7 @@ void simulate_random(Context &ctx, NodeId node_id) {
 }
 
 static FullMove get_move(Context &ctx, IGame &game) {
-   return ctx.network.do_move(game, game.tile_set()[game.move_index()], static_cast<float>(rand() % 1000) / 1000.0f); // rand is a hash
+   return ctx.network.do_move(game, game.tile_set()[game.move_index()], static_cast<float>(rand() % 1000) / 1000.0f);// rand is a hash
 }
 
 void simulate(Context &ctx, NodeId node_id) {
@@ -56,7 +57,7 @@ void simulate(Context &ctx, NodeId node_id) {
       auto move = simulated_game->new_move(current_player);
       move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
       move->place_figure(full_move.direction);
-      fmt::print("network move: {} {} {}\n", full_move.x, full_move.y, full_move.rotation);
+//      fmt::print("network move: {} {} {}\n", full_move.x, full_move.y, full_move.rotation);
       simulated_game->update(0);
 
       parent_id = ctx.tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
@@ -79,7 +80,9 @@ void backpropagate(Context &ctx, NodeId node_id, Player winner) {
 
 void expand(Context &ctx, NodeId node_id) {
    if (ctx.tree.node_at(node_id).simulation_count() == 0) {
+      auto start = util::unix_time();
       simulate(ctx, node_id);
+      fmt::print("simulation lasted {}ms\n", (util::unix_time() - start));
    }
 
    auto &node_children = ctx.tree.node_at(node_id).children();
@@ -189,15 +192,29 @@ void run_mcts(Context &ctx, mb::i64 time_limit) {
 FullMove choose_move(Context &ctx, int move_index, Player player) {
    auto &root_node = ctx.tree.node_at(g_root_node);
    const auto &children = root_node.children();
-   auto selected_child_it = std::max_element(
+   auto max_sim_count_it = std::max_element(
            children.begin(),
            children.end(),
            [&ctx](NodeId lhs, NodeId rhs) -> bool {
               return ctx.tree.node_at(lhs).simulation_count() < ctx.tree.node_at(rhs).simulation_count();
            });
-   assert(selected_child_it != children.end());
-   auto &node = ctx.tree.node_at(*selected_child_it);
+   auto max_sim_count = ctx.tree.node_at(*max_sim_count_it).simulation_count();
+
+   auto selected = std::max_element(
+           children.begin(), children.end(), [&ctx, player, max_sim_count](NodeId lhs, NodeId rhs) {
+              auto lhs_sc = ctx.tree.node_at(lhs).simulation_count();
+              auto rhs_sc = ctx.tree.node_at(rhs).simulation_count();
+              if (lhs_sc != max_sim_count && rhs_sc == max_sim_count)
+                 return true;
+              if (rhs_sc != max_sim_count)
+                 return false;
+              return ctx.tree.node_at(lhs).player_wins(player) > ctx.tree.node_at(rhs).player_wins(player);
+           });
+
+
+   assert(selected != children.end());
+   auto &node = ctx.tree.node_at(*selected);
    return node.move();
 }
 
-}// namespace carcassonne::ai
+}// namespace carcassonne::ai::rl

@@ -5,7 +5,7 @@
 #include <cassert>
 #include <chrono>
 #include <fmt/core.h>
-//#include <Util/CSVLogger.h>
+#include <Util/Time.h>
 #include <random>
 
 namespace carcassonne::ai {
@@ -75,9 +75,12 @@ void backpropagate(Tree &tree, NodeId node_id, Player winner) {
 void expand(Tree &tree, NodeId node_id, SimulationType simulation_type) {
    if (tree.node_at(node_id).simulation_count() == 0) {
       switch (simulation_type) {
-      case SimulationType::Heuristic:
+      case SimulationType::Heuristic: {
+         auto start = util::unix_time();
          simulate(tree, node_id);
+         fmt::print("simulation lasted {}ms\n", (util::unix_time() - start));
          break;
+      }
       case SimulationType::Random:
          simulate_random(tree, node_id);
          break;
@@ -191,14 +194,27 @@ void run_mcts(Tree &tree, mb::i64 time_limit, SimulationType sim_type) {
 FullMove choose_move(Tree &tree, int move_index, Player player) {
    auto &root_node = tree.node_at(g_root_node);
    const auto &children = root_node.children();
-   auto selected_child_it = std::max_element(
+   auto max_sim_count_it = std::max_element(
            children.begin(),
            children.end(),
            [&tree](NodeId lhs, NodeId rhs) -> bool {
-              return tree.node_at(lhs).simulation_count() < tree.node_at(rhs).simulation_count();
+             return tree.node_at(lhs).simulation_count() < tree.node_at(rhs).simulation_count();
            });
-   assert(selected_child_it != children.end());
-   auto &node = tree.node_at(*selected_child_it);
+   auto max_sim_count = tree.node_at(*max_sim_count_it).simulation_count();
+
+   auto selected = std::max_element(
+           children.begin(), children.end(), [&tree, player, max_sim_count](NodeId lhs, NodeId rhs) {
+             auto lhs_sc = tree.node_at(lhs).simulation_count();
+             auto rhs_sc = tree.node_at(rhs).simulation_count();
+             if (lhs_sc != max_sim_count && rhs_sc == max_sim_count)
+                return true;
+             if (rhs_sc != max_sim_count)
+                return false;
+             return tree.node_at(lhs).player_wins(player) > tree.node_at(rhs).player_wins(player);
+           });
+
+   assert(selected != children.end());
+   auto &node = tree.node_at(*selected);
 //   g_mcts_logger.log(move_index, node.player_wins(player), node.UCT1(root_node.simulation_count()), node.simulation_count(), root_node.simulation_count(), tree.node_count());
    return node.move();
 }
