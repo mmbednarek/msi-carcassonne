@@ -53,6 +53,9 @@ void simulate(Context &ctx, NodeId node_id) {
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
       auto full_move = get_move(ctx, *simulated_game);
+      auto move = simulated_game->new_move(current_player);
+      move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
+      move->place_figure(full_move.direction);
       fmt::print("network move: {} {} {}\n", full_move.x, full_move.y, full_move.rotation);
       simulated_game->update(0);
 
