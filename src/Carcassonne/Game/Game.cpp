@@ -1,7 +1,8 @@
 #include <Carcassonne/Game/Game.h>
 #include <Carcassonne/Game/Move.h>
 #include <algorithm>
-#include <fmt/core.h>
+#define SPDLOG_FMT_EXTERNAL
+#include <spdlog/spdlog.h>
 #include <set>
 
 namespace carcassonne::game {
@@ -42,7 +43,6 @@ std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
    std::vector<TileMove> possibilities(possible_tile_moves.begin(), possible_tile_moves.end());
    int i = 0;
    while (possibilities.size() == 0) {
-//      fmt::print("NEW_MOVE: possible_tile_moves.size()=0 !!!!!!!!!!!!!!\n"); // appears frequently
       while (m_move_index != 0 && m_move_index < m_tile_set.size() - 1 && !can_place(tt)) {
          move_index += m_player_count;
          tt = m_tile_set[move_index];
@@ -52,7 +52,7 @@ std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
                std::rotate(m_tile_set.begin() + m_move_index, m_tile_set.begin() + m_move_index + 1, m_tile_set.end());
                if (--rotations == 0) {// if went back to the tile with which rotating started
 //               m_move_index++;
-                  fmt::print("if went back to the tile with which rotating started\n");
+                  spdlog::debug("state encoding: if went back to the tile with which rotating started\n");
                   m_tile_set[m_move_index] = m_tile_set[m_move_index - ++i];
                   move_index = m_move_index;
                   break;
@@ -592,7 +592,9 @@ inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, 
    
    // figure position: neurons_to_set = 9
    int role = -1;
-   if (output_edges_it > output_it) fmt::print("somethong gone bad\n");
+   if (output_edges_it > output_it) {
+      spdlog::error("state encoding: something gone bad");
+   }
    switch (figure_it->dir) {
      case Direction::North:
        *std::next(output_it, 0) = true;
@@ -728,10 +730,15 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    const Player& p = current_player();
    auto current_player_it = std::find_if(m_scores.begin(), m_scores.end(),
       [p](const PlayerScore& score) { return score.player == p; });
-   if (current_player_it->score > g_max_possible_score)
+   int player_score = 0;
+   if (current_player_it != m_scores.end()) {
+      player_score = current_player_it->score;
+   }
+
+   if (player_score > g_max_possible_score)
       *std::next(output_it, g_max_possible_score) = 1.0f;
    else
-      *std::next(output_it, current_player_it->score) = 1.0f;
+      *std::next(output_it, player_score) = 1.0f;
    std::advance(output_it, g_max_possible_score + 1);
 
    // best player id: neurons_to_set = m_player_count
@@ -739,17 +746,13 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    std::advance(output_it, m_player_count);
    
    // current player id: neurons_to_set = m_player_count
-   auto tmp2 = to_underlying(current_player_it->player);
-   if (tmp2 >= m_player_count){
-      fmt::print("t2={}\n", tmp2);
-      return; // is a frequent error
-   }
+   auto tmp2 = to_underlying(p);
    *std::next(output_it, tmp2) = 1.0f;
    std::advance(output_it, m_player_count);
    
    // ultimate size check
    if (output_it != output.end()) {
-      fmt::print("something in memory gone wrong\n");
+      spdlog::error("state encoding: something in memory gone wrong");
       return;
    }
    

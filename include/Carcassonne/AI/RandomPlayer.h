@@ -3,6 +3,8 @@
 #include <Carcassonne/IGame.h>
 #include <Util/Random.h>
 #include <random>
+#define SPDLOG_FMT_EXTERNAL
+#include <spdlog/spdlog.h>
 
 // AI implementation
 
@@ -27,6 +29,7 @@ class RandomPlayer {
    }
 
    FullMove make_move(IGame &game) noexcept {
+      spdlog::info("random: selecting move");
       auto move = game.new_move(m_player);
 
       const auto possible_tile_moves = game.moves(move->tile_type());

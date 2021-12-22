@@ -24,14 +24,10 @@ FullMove Network::do_move(IGame &g, TileType tile, float prob) {
    g.board_to_caffe_X(m_neuron_input);
    std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
 
-   auto start = util::unix_time();
    m_net->Forward();
-   fmt::print("forward lasted: {}ms\n", (util::unix_time() - start));
 
    std::span<float> out_span(m_output->mutable_cpu_data(), output_neuron_count);
-   start = util::unix_time();
    auto move = decoder::decode_move(g, tile, m_allowed_moves, out_span, prob);
-   fmt::print("decode lasted: {}ms\n", (util::unix_time() - start));
    return move;
 }
 

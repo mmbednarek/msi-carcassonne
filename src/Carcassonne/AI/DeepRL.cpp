@@ -6,7 +6,8 @@
 #include <Util/Time.h>
 #include <cassert>
 #include <chrono>
-#include <fmt/core.h>
+#define SPDLOG_FMT_EXTERNAL
+#include <spdlog/spdlog.h>
 #include <random>
 
 namespace carcassonne::ai::rl {
@@ -57,7 +58,6 @@ void simulate(Context &ctx, NodeId node_id) {
       auto move = simulated_game->new_move(current_player);
       move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
       move->place_figure(full_move.direction);
-//      fmt::print("network move: {} {} {}\n", full_move.x, full_move.y, full_move.rotation);
       simulated_game->update(0);
 
       parent_id = ctx.tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
@@ -82,7 +82,7 @@ void expand(Context &ctx, NodeId node_id) {
    if (ctx.tree.node_at(node_id).simulation_count() == 0) {
       auto start = util::unix_time();
       simulate(ctx, node_id);
-      fmt::print("simulation lasted {}ms\n", (util::unix_time() - start));
+      spdlog::debug("deep rl: simulation lasted {}ms", util::unix_time() - start);
    }
 
    auto &node_children = ctx.tree.node_at(node_id).children();

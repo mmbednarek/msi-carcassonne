@@ -1,6 +1,7 @@
 #include <Carcassonne/AI/DeepRLPlayer.h>
 #include <Carcassonne/AI/Tree.h>
-#include <fmt/core.h>
+#define SPDLOG_FMT_EXTERNAL
+#include <spdlog/spdlog.h>
 
 namespace carcassonne::ai {
 
@@ -8,7 +9,7 @@ DeepRLPlayer::DeepRLPlayer(IGame &game, Player player, carcassonne::rl::Network 
                                                                                         m_tree(game, player),
                                                                                         m_player_count(game.player_count()),
                                                                                         m_network(net) {
-   fmt::print("creating deep rl player\n");
+   spdlog::info("deep rl: initialising agent");
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
       if (player != m_player)
@@ -28,17 +29,17 @@ void DeepRLPlayer::prepare_tree(const IGame &game) {
    } while (player != m_player);
 
    if (node_id == 0) {
-      fmt::print("node not in DeepRL building a new tree\n");
+      spdlog::debug("deep rl: building MCTS tree from scratch");
       m_tree.reset(game, m_player);
       return;
    }
 
-   fmt::print("node found in existing DeepRL tree!\n");
+   spdlog::debug("deep rl: reusing existing MCTS tree node");
    m_tree.change_root(node_id);
 }
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {
-   fmt::print("doing move\n");
+   spdlog::info("deep rl: preparing move");
 
    prepare_tree(game);
    rl::Context ctx{
@@ -51,6 +52,7 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    m_last_moves[static_cast<int>(m_player)] = best_move;
 
    while (!game.can_place_tile_and_figure(best_move.x, best_move.y, best_move.rotation, tile, best_move.direction)) {
+      spdlog::info("deep rl: selected incorrect move, running MCTS again");
       rl::run_mcts(ctx, 1000);
       best_move = rl::choose_move(ctx, game.move_index(), m_player);
       m_last_moves[static_cast<int>(m_player)] = best_move;
@@ -58,7 +60,7 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
 
    auto move = game.new_move(m_player);
    if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {
-      fmt::print("[DeepRL internal error] selected tile placement is not feasible: {}\n", res.msg());
+      spdlog::error("deep rl: selected tile placement is not feasible: {}", res.msg());
       return;
    }
 
@@ -67,13 +69,13 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
 
    if (best_move.ignored_figure) {
       if (auto res = move->ignore_figure(); !res.ok()) {
-         fmt::print("[DeepRL internal error] cannot ignore figure at this point: {}\n", res.msg());
+         spdlog::error("deep rl: cannot ignore figure at this location: {}", res.msg());
       }
       return;
    }
 
    if (auto res = move->place_figure(best_move.direction); !res.ok()) {
-      fmt::print("[DeepRL internal error] error placing figure: {}\n", res.msg());
+      spdlog::error("deep rl: error placing figure: {}", res.msg());
    }
 }
 

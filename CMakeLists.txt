@@ -3,7 +3,7 @@ project(msi_carcassonne)
 
 set(CMAKE_CXX_STANDARD 20)
 option(HIP_PLATFORM_AMD "should be built for AMD" ON)
-set(CMAKE_CXX_FLAGS "-std=c++20 -O3")
+set(CMAKE_CXX_FLAGS "-std=c++20 -O0 -g")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-fconcepts)
@@ -11,6 +11,7 @@ endif()
 
 find_package(fmt REQUIRED)
 find_package(GTest REQUIRED)
+find_package(Boost REQUIRED COMPONENTS program_options)
 
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
@@ -43,6 +44,7 @@ add_subdirectory(src/Carcassonne/AI)
 add_subdirectory(src/Carcassonne/Frontend)
 add_subdirectory(src/bin/carcassonne)
 add_subdirectory(src/bin/evolution)
+add_subdirectory(src/bin/headless)
 add_subdirectory(src/Evolution)
 add_subdirectory(src/Test)
 
