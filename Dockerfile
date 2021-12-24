@@ -45,15 +45,27 @@ RUN apt -y install libboost-all-dev libhdf5-dev
 WORKDIR /root
 RUN git config --global http.sslverify false
 RUN git clone https://github.com/BVLC/caffe.git
-WORKDIR /root/caffe
-COPY Makefile.config /root/caffe/Makefile.config
+RUN mv caffe caffe-1.0
+RUN wget -O opencv.patch 'https://raw.githubusercontent.com/AlexandrParkhomenko/aur/master/caffe/readmeFix!!!.patch'
+RUN patch -Np1 -i opencv.patch
+WORKDIR /root/caffe-1.0
+COPY caffe_makefile.config /root/caffe-1.0/Makefile.config
 RUN make clean
 RUN make all -j$(nproc)
-
+RUN cp /root/caffe-1.0/.build_release/lib/* /usr/lib
 # bulding carcassonne
 
+RUN apt -y install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libspdlog-dev
+
 COPY . /root/carcassonne
+RUN rm -rf /root/carcassonne/include/caffe
+RUN cp -r /root/caffe-1.0/include/* /root/carcassonne/include
+RUN cp -r /root/caffe-1.0/.build_release/src/caffe/proto /root/carcassonne/include/caffe
 RUN mkdir -p /root/carcassonne/build-docker
 
 WORKDIR /root/carcassonne/build-docker
-RUN cmake ..
+RUN cmake .. -DHIP_PLATFORM_AMD=OFF -DCMAKE_BUILD_TYPE=release
+RUN cmake --build .
+
+WORKDIR /root/carcassonne
+CMD ["/root/carcassonne/build-docker/src/bin/headless/carcassonne_headless"]

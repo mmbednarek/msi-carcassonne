@@ -3,13 +3,13 @@ project(msi_carcassonne)
 
 set(CMAKE_CXX_STANDARD 20)
 option(HIP_PLATFORM_AMD "should be built for AMD" ON)
-set(CMAKE_CXX_FLAGS "-std=c++20 -O0 -g")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-fconcepts)
 endif()
 
 find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
 find_package(GTest REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
@@ -28,6 +28,8 @@ if(${HIP_PLATFORM_AMD})
     include_directories(/opt/rocm/hipblas/include)
     include_directories(/opt/rocm/hip/include)
     add_definitions(-D__HIP_PLATFORM_AMD__ -D__HIP_PLATFORM_HCC__)
+else()
+    include_directories(/usr/local/cuda-11.5/targets/x86_64-linux/include)
 endif()
 
 set(BUILD_GMOCK OFF)
