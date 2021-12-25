@@ -1,5 +1,5 @@
-#ifndef MSI_CARCASSONNE_GAME_H
-#define MSI_CARCASSONNE_GAME_H
+#ifndef MSI_CARCASSONNE_GAME_GPU_H
+#define MSI_CARCASSONNE_GAME_GPU_H
 #include "Board.h"
 #include <Carcassonne/Groups.h>
 #include <Carcassonne/IGame.h>
@@ -17,7 +17,7 @@ using Towns = std::vector<std::pair<Edge, Edge>>;
 using EdgeGroups = Groups<g_edges_max>;
 using TileSet = std::vector<TileType>;
 
-class Game : public IGame {
+class Game_GPU : public IGame {
    Board m_board;
    Player m_current_player = Player::Black;
    mb::size m_player_count;
@@ -38,9 +38,9 @@ class Game : public IGame {
    std::mt19937_64 m_random_generator;
 
  public:
-   Game(int player_count, mb::u64 seed);
-   Game(Game&& game) = default;
-   Game(const Game& game) = default;
+   Game_GPU(int player_count, mb::u64 seed);
+   Game_GPU(Game_GPU&& game) = default;
+   Game_GPU(const Game_GPU& game) = default;
    [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override;
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
@@ -95,4 +95,4 @@ class Game : public IGame {
 
 }// namespace carcassonne::game
 
-#endif//MSI_CARCASSONNE_GAME_H
+#endif//MSI_CARCASSONNE_GAME_GPU_H

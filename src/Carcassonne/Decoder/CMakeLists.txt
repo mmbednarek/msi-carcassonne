@@ -1,1 +1,2 @@
 add_library(carcassonne_decoder Decoder.cpp)
+target_link_libraries(carcassonne_decoder fmt)

@@ -6,8 +6,8 @@
 
 namespace carcassonne::ai {
 
-Tree::Tree(const IGame &game, const Player &player) {
-   m_nodes.emplace_back(game.clone(), player, FullMove{});
+Tree::Tree(const std::unique_ptr<IGame> &game, const Player &player) {
+   m_nodes.emplace_back(game->clone(), player, FullMove{});
 }
 
 struct NodePair {
@@ -73,9 +73,9 @@ NodeId Tree::find_node_by_move(NodeId base_id, const FullMove &move) {
    return *node_it;
 }
 
-void Tree::reset(const IGame &game, Player player) {
+void Tree::reset(const std::unique_ptr<IGame> &game, Player player) {
    m_nodes.clear();
-   m_nodes.emplace_back(game.clone(), player, FullMove{});
+   m_nodes.emplace_back(game->clone(), player, FullMove{});
 }
 
 

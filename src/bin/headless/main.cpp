@@ -1,6 +1,7 @@
 #include "Carcassonne/AI/DeepRLPlayer.h"
 #include "Carcassonne/AI/RandomPlayer.h"
 #include "Carcassonne/Game/Game.h"
+#include "Carcassonne/Game/Game_GPU.h"
 #include <boost/program_options.hpp>
 #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
@@ -55,15 +56,23 @@ std::string_view direction_to_string(carcassonne::Direction dir) {
 }
 
 class Gameplay {
-   carcassonne::game::Game m_game;
+   caffe::Caffe::Brew m_device_type = caffe::Caffe::GPU;
+   std::unique_ptr<carcassonne::IGame> m_igame;
    std::vector<carcassonne::ai::DeepRLPlayer> m_rl_players;
    std::vector<carcassonne::ai::RandomPlayer<>> m_random_players;
    carcassonne::Player m_next_player = carcassonne::Player::Black;
 
  public:
-   Gameplay(int player_count, uint64_t seed) : m_game(player_count, seed) {
-      m_game.on_next_move([] (carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
-         auto tile = game.tile_set()[game.move_index()];
+   Gameplay(int player_count, uint64_t seed, int device_id) {
+      if (device_id > 7) m_device_type = caffe::Caffe::CPU;
+      if (device_id == caffe::Caffe::CPU) {
+         // m_igame = std::unique_ptr<carcassonne::game::Game>(new carcassonne::game::Game{player_count, seed});
+         m_igame = std::make_unique<carcassonne::game::Game>(player_count, seed);
+      } else {
+         m_igame = std::make_unique<carcassonne::game::Game_GPU>(player_count, seed);
+      }
+      m_igame->on_next_move([] (std::unique_ptr<carcassonne::IGame> game, carcassonne::Player player, carcassonne::FullMove move) {
+         auto tile = game->tile_set()[game->move_index()];
          spdlog::info("game: Player {} places tile {} at location ({}, {}, {})", player_to_string(player), tile, move.x, move.y, move.rotation);
          if (move.ignored_figure) {
             spdlog::info("game: Player {} did not place any figure", player_to_string(player));
@@ -74,26 +83,28 @@ class Gameplay {
    }
 
    void add_rl_player(carcassonne::rl::Network &net) {
-      m_rl_players.emplace_back(m_game, m_next_player, net);
+      m_rl_players.emplace_back(m_igame, m_next_player, net);
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
    void add_random_player(std::mt19937 &generator) {
       m_random_players.emplace_back(generator, m_next_player);
-      m_random_players.back().await_turn(m_game);
+      m_random_players.back().await_turn(m_igame);
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
    void run() {
-      m_game.start();
-      while(m_game.move_index() < carcassonne::g_max_moves) {
-         m_game.update(0);
+      m_igame->start();
+      while(m_igame->move_index() < carcassonne::g_max_moves) {
+         m_igame->update(0);
       }
    }
 };
 
-mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
-   caffe::Caffe::set_mode(caffe::Caffe::GPU);
+mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network(int device_id) {
+   caffe::Caffe::Brew device = caffe::Caffe::GPU;
+   if (device_id > 7) device = caffe::Caffe::CPU;
+   caffe::Caffe::set_mode(device);
 
    caffe::SolverParameter solver_param;
    caffe::ReadSolverParamsFromTextFileOrDie("./solver.prototxt", &solver_param);
@@ -119,7 +130,8 @@ int main(int argc, char **argv) {
            ("seed,s", po::value<int>()->default_value(10), "seed of a game")
            ("rl-ai-count,l", po::value<int>()->default_value(1), "number of rl agents")
            ("random-ai-count,r", po::value<int>()->default_value(1), "number of random agents")
-           ("verbose,v", "verbose output");
+           ("verbose,v", "verbose output")
+           ("device,d", po::value<int>()->default_value(8), "0-7 if gpu >=8 if cpu");
 
    po::variables_map values;
    po::store(po::command_line_parser(argc, argv).options(desc).run(), values);
@@ -127,6 +139,7 @@ int main(int argc, char **argv) {
    auto seed = values["seed"].as<int>();
    auto rl_count = values["rl-ai-count"].as<int>();
    auto random_count = values["random-ai-count"].as<int>();
+   auto device_id = values["device"].as<int>();
 
    if (values.contains("verbose")) {
       spdlog::set_level(spdlog::level::debug);
@@ -138,9 +151,9 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
    }
 
-   Gameplay gameplay(total_player_count, seed);
+   Gameplay gameplay(total_player_count, seed, device_id);
 
-   auto network_res = load_network();
+   auto network_res = load_network(device_id);
    if (!network_res.ok()) {
       spdlog::error("could not load network: {}", network_res.msg());
       return EXIT_FAILURE;

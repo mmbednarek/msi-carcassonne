@@ -18,16 +18,6 @@ struct Range {
    T min, max;
 };
 
-struct Variables {
-   int monastery_score;
-   int grass_penalty;
-   int min_figure_count;
-   int grass_score;
-   int tile_type_score;
-   int tile_close_score;
-   int tile_open_score;
-};
-
 struct Parameters {
    std::size_t population_size;
    std::size_t generations_count;

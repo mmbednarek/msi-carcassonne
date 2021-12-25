@@ -15,10 +15,10 @@ class MCTSPlayer {
    mb::size m_player_count;
    SimulationType m_simulation_type{};
  public:
-   explicit MCTSPlayer(IGame &game, Player player, SimulationType sim_type);
+   explicit MCTSPlayer(std::unique_ptr<IGame> &game, Player player, SimulationType sim_type);
 
-   void prepare_tree(const IGame &game);
-   void make_move(IGame &game) noexcept;
+   void prepare_tree(const std::unique_ptr<IGame> &game);
+   void make_move(std::unique_ptr<IGame> &game) noexcept;
 };
 
 } // namespace carcassonne::game::ai

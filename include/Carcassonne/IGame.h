@@ -3,7 +3,7 @@
 #include "IBoard.h"
 #include "Direction.h"
 #include "Edge.h"
-#include "Move.h"
+#include "IMove.h"
 #include "Player.h"
 #include "ScoreBoard.h"
 #include "Parameters.h"
@@ -23,7 +23,7 @@ struct Figure {
    Direction dir;
 };
 
-using NextMoveCallback = std::function<void(IGame &, Player, FullMove)>;
+using NextMoveCallback = std::function<void(std::unique_ptr<IGame> , Player, FullMove)>;
 
 class IGame {
  public:

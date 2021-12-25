@@ -1,1 +1,2 @@
 add_library(carcassonne_encoder GameState.cpp)
+target_link_libraries(carcassonne_encoder fmt)

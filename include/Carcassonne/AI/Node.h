@@ -2,7 +2,7 @@
 #define MSI_CARCASSONNE_NODE_H
 #include "AI.h"
 #include <Carcassonne/Player.h>
-#include <Carcassonne/Move.h>
+#include <Carcassonne/IMove.h>
 #include <Carcassonne/IGame.h>
 #include <functional>
 #include <mb/int.h>

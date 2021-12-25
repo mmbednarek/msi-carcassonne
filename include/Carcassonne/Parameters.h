@@ -1,9 +1,20 @@
 #ifndef MSI_CARCASSONNE_PARAMETERS_H
 #define MSI_CARCASSONNE_PARAMETERS_H
-#include <Evolution/DiffEvol.h>
+// #include <Evolution/DiffEvol.h>
 #include <mb/int.h>
 
 namespace carcassonne {
+
+
+struct Variables {
+   int monastery_score;
+   int grass_penalty;
+   int min_figure_count;
+   int grass_score;
+   int tile_type_score;
+   int tile_close_score;
+   int tile_open_score;
+};
 
 struct Parameters {
    // 7560,10499,2,1506608,8415,6819,7877
@@ -18,7 +29,7 @@ struct Parameters {
    
    Parameters() = default;
    // Parameters(const Parameters &) = default;
-   Parameters& operator=(const evolution::Variables &vars) {
+   Parameters& operator=(const Variables &vars) {
       monastery_score = vars.monastery_score;
       grass_penalty = vars.grass_penalty;
       min_figure_count = vars.min_figure_count;

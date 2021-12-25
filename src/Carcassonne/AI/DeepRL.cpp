@@ -34,7 +34,7 @@ void simulate_random(Context &ctx, NodeId node_id) {
    auto simulated_game = ctx.tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
-      auto full_move = g_random_players[static_cast<mb::size>(current_player)].make_move(*simulated_game);
+      auto full_move = g_random_players[static_cast<mb::size>(current_player)].make_move(simulated_game);
       simulated_game->update(0);
       parent_id = ctx.tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
    }
@@ -45,8 +45,8 @@ void simulate_random(Context &ctx, NodeId node_id) {
    backpropagate(ctx, parent_id, winner);
 }
 
-static FullMove get_move(Context &ctx, IGame &game) {
-   return ctx.network.do_move(game, game.tile_set()[game.move_index()], static_cast<float>(rand() % 1000) / 1000.0f);// rand is a hash
+static FullMove get_move(Context &ctx, std::unique_ptr<IGame> &game) {
+   return ctx.network.do_move(game, game->tile_set()[game->move_index()], static_cast<float>(rand() % 1000) / 1000.0f);// rand is a hash
 }
 
 void simulate(Context &ctx, NodeId node_id) {
@@ -54,7 +54,7 @@ void simulate(Context &ctx, NodeId node_id) {
    auto simulated_game = ctx.tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
-      auto full_move = get_move(ctx, *simulated_game);
+      auto full_move = get_move(ctx, simulated_game);
       auto move = simulated_game->new_move(current_player);
       move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
       move->place_figure(full_move.direction);
@@ -111,7 +111,7 @@ void expand(Context &ctx, NodeId node_id) {
          auto game_clone_clone = game_clone->clone();
 
          {
-            auto move_clone = move->clone(*game_clone_clone);
+            auto move_clone = move->clone(game_clone_clone);
             move_clone->place_figure(figure_move);
          }
          game_clone_clone->update(0);

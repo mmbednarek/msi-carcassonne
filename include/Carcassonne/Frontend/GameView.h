@@ -19,7 +19,7 @@ enum class Status {
 };
 
 class GameView {
-   IGame &m_game;
+   std::unique_ptr<IGame> &m_game;
    std::unique_ptr<IMove> m_move;
 
    PlayerAssignment m_controlled_players;
@@ -36,7 +36,7 @@ class GameView {
 
 
  public:
-   explicit GameView(IGame &game, PlayerAssignment controlled_players);
+   explicit GameView(std::unique_ptr<IGame> &game, PlayerAssignment controlled_players);
 
    void update(double dt);
    void render(const graphics::Context &ctx) const noexcept;

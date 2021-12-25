@@ -19,9 +19,9 @@ Network::Network(const caffe::NetParameter &net_param, const caffe::SolverParame
    m_solver.net() = m_net;
 }
 
-FullMove Network::do_move(IGame &g, TileType tile, float prob) {
+FullMove Network::do_move(std::unique_ptr<IGame> &g, TileType tile, float prob) {
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
-   g.board_to_caffe_X(m_neuron_input);
+   g->board_to_caffe_X(m_neuron_input);
    std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
 
    m_net->Forward();

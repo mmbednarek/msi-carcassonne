@@ -1,13 +1,13 @@
-#ifndef MSI_CARCASSONNE_GAME_MOVE_H
-#define MSI_CARCASSONNE_GAME_MOVE_H
+#ifndef MSI_CARCASSONNE_GAME_MOVE_GPU_H
+#define MSI_CARCASSONNE_GAME_MOVE_GPU_H
 #include <Carcassonne/IGame.h>
 
 namespace carcassonne::game {
 
-class Game;
+class Game_GPU;
 
-class Move : public IMove {
-   Game &m_game;
+class Move_GPU : public IMove {
+   Game_GPU &m_game;
    Player m_player;
    TileType m_tile_type;
    MovePhase m_phase = MovePhase::PlaceTile;
@@ -15,9 +15,9 @@ class Move : public IMove {
    mb::u8 m_rotation{};
 
  public:
-   constexpr Move(Player p, TileType t, Game &game) : m_game(game), m_player(p), m_tile_type(t) {}
+   constexpr Move_GPU(Player p, TileType t, Game_GPU &game) : m_game(game), m_player(p), m_tile_type(t) {}
 
-   constexpr Move(Game &game, Player player, TileType tile_type, int x, int y) : m_game(game),
+   constexpr Move_GPU(Game_GPU &game, Player player, TileType tile_type, int x, int y) : m_game(game),
                                                                                  m_player(player),
                                                                                  m_tile_type(tile_type),
                                                                                  m_x(x),
@@ -38,4 +38,4 @@ class Move : public IMove {
 
 }// namespace carcassonne::game
 
-#endif//MSI_CARCASSONNE_GAME_MOVE_H
+#endif//MSI_CARCASSONNE_GAME_MOVE_GPU_H

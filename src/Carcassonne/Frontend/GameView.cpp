@@ -6,15 +6,15 @@
 
 namespace carcassonne::frontend {
 
-GameView::GameView(IGame &game, PlayerAssignment controlled_players) : m_game(game),
+GameView::GameView(std::unique_ptr<IGame> &game, PlayerAssignment controlled_players) : m_game(game),
                                                                        m_move(),
-                                                                       m_camera(game.board()),
-                                                                       m_board_view(game.board(), m_camera),
+                                                                       m_camera(game->board()),
+                                                                       m_board_view(game->board(), m_camera),
                                                                        m_figures_view(game, m_camera),
-                                                                       m_place_tile_view(game.board(), m_camera, m_move),
+                                                                       m_place_tile_view(game->board(), m_camera, m_move),
                                                                        m_place_figure_view(m_camera, m_move),
-                                                                       m_score_board_view(game.scores()), m_controlled_players(controlled_players) {
-   game.on_next_move([this](IGame &game, Player p, FullMove) {
+                                                                       m_score_board_view(game->scores()), m_controlled_players(controlled_players) {
+   game->on_next_move([this](std::unique_ptr<IGame> &game, Player p, FullMove) {
       if (m_controlled_players & p) {
          next_move();
       }
@@ -130,7 +130,7 @@ void GameView::on_mouse_wheel(int y) {
 }
 
 void GameView::next_move() {
-   m_move = m_game.new_move(m_game.current_player());
+   m_move = m_game->new_move(m_game->current_player());
 }
 
 }// namespace carcassonne::frontend

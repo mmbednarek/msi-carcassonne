@@ -15,12 +15,12 @@ class DeepRLPlayer {
    Tree m_tree;
    mb::size m_player_count;
 
-   void prepare_tree(const IGame &game);
+   void prepare_tree(const std::unique_ptr<IGame> &game);
 
  public:
-   explicit DeepRLPlayer(IGame &game, Player player, carcassonne::rl::Network &net);
-   void train_network(const IGame &game);
-   void make_move(IGame &game) noexcept;
+   explicit DeepRLPlayer(std::unique_ptr<IGame> &game, Player player, carcassonne::rl::Network &net);
+   void train_network(const std::unique_ptr<IGame> &game);
+   void make_move(std::unique_ptr<IGame> &game) noexcept;
 };
 
 }// namespace carcassonne::ai

@@ -20,19 +20,19 @@ class RandomPlayer {
    explicit RandomPlayer(Generator &generator, Player player) : m_random_generator(generator),
                                                                 m_player(player) {}
 
-   void await_turn(IGame &game) {
-      game.on_next_move([this](IGame &game, Player player, FullMove) {
+   void await_turn(std::unique_ptr<IGame> &igame) {
+      igame->on_next_move([this](std::unique_ptr<IGame> igame, Player player, FullMove) {
          if (player != m_player)
             return;
-         make_move(game);
+         make_move(igame);
       });
    }
 
-   FullMove make_move(IGame &game) noexcept {
+   FullMove make_move(std::unique_ptr<IGame> &game) noexcept {
       spdlog::info("random: selecting move");
-      auto move = game.new_move(m_player);
+      auto move = game->new_move(m_player);
 
-      const auto possible_tile_moves = game.moves(move->tile_type());
+      const auto possible_tile_moves = game->moves(move->tile_type());
       auto tile_placement_it = util::random_from_range(m_random_generator, possible_tile_moves.begin(), possible_tile_moves.end() - 1);
       const auto tile_placement = *tile_placement_it;
 
@@ -46,7 +46,7 @@ class RandomPlayer {
          };
       }
 
-      const auto possible_figure_moves = game.figure_placements(tile_placement.x, tile_placement.y);
+      const auto possible_figure_moves = game->figure_placements(tile_placement.x, tile_placement.y);
       if (!possible_figure_moves.empty()) {
          const auto direction_it = util::random_from_range(m_random_generator, possible_figure_moves.cbegin(), possible_figure_moves.cend());
          if (direction_it == possible_figure_moves.cend()) {

@@ -11,9 +11,9 @@ class HeuristicPlayer {
  public:
    constexpr explicit HeuristicPlayer(Player player) noexcept : m_player(player) {}
 
-   void await_turn(IGame &game);
+   void await_turn(std::unique_ptr<IGame> &game);
 
-   mb::result<FullMove> make_move(IGame &game, const Parameters &params = Parameters{}) noexcept;
+   mb::result<FullMove> make_move(std::unique_ptr<IGame> &game, const Parameters &params = Parameters{}) noexcept;
 };
 
 }

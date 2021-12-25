@@ -22,7 +22,7 @@ class Network {
  public:
    Network(const caffe::NetParameter &net_param, const caffe::SolverParameter &solver_param);
 
-   FullMove do_move(IGame &g, TileType tile, float prob);
+   FullMove do_move(std::unique_ptr<IGame> &g, TileType tile, float prob);
 
 };
 

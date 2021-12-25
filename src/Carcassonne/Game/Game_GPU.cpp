@@ -1,5 +1,5 @@
-#include <Carcassonne/Game/Game.h>
-#include <Carcassonne/Game/Move.h>
+#include <Carcassonne/Game/Game_GPU.h>
+#include <Carcassonne/Game/Move_GPU.h>
 #include <algorithm>
 #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
@@ -7,35 +7,35 @@
 
 namespace carcassonne::game {
 
-Game::Game(int player_count, mb::u64 seed) : m_random_generator(seed),
+Game_GPU::Game_GPU(int player_count, mb::u64 seed) : m_random_generator(seed),
                                              m_player_count(player_count) {
    std::fill(m_figure_count.begin(), m_figure_count.end(), g_initial_figures_count);
    apply_tile(g_board_center_x, g_board_center_y, 1, 3);
    draw_tiles();
 }
 
-const IBoard &Game::board() const noexcept {
+const IBoard &Game_GPU::board() const noexcept {
    return m_board;
 }
 
-Player Game::current_player() const noexcept {
+Player Game_GPU::current_player() const noexcept {
    return m_current_player;
 }
 
-mb::u8 Game::move_index() const noexcept {
+mb::u8 Game_GPU::move_index() const noexcept {
    return m_move_index;
 }
 
-const TileSet &Game::tile_set() const noexcept {
+const TileSet &Game_GPU::tile_set() const noexcept {
    return m_tile_set;
 }
 
-bool Game::can_place(TileType tt) const noexcept {
+bool Game_GPU::can_place(TileType tt) const noexcept {
    auto move_range = moves(tt);
    return move_range.begin() != move_range.end();
 }
 
-std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
+std::unique_ptr<IMove> Game_GPU::new_move(Player p) noexcept {
    auto tt = m_tile_set[m_move_index];
    auto move_index = m_move_index;
 
@@ -68,19 +68,19 @@ std::unique_ptr<IMove> Game::new_move(Player p) noexcept {
       possibilities = std::vector<TileMove>(moves(tt).begin(), moves(tt).end());
    }
    tt = m_tile_set[m_move_index++];
-   return std::make_unique<Move>(p, tt, *this);
+   return std::make_unique<Move_GPU>(p, tt, *this);
 }
 
-mb::view<Figure> Game::figures() const noexcept {
+mb::view<Figure> Game_GPU::figures() const noexcept {
    return m_figures;
 }
 
-void Game::add_figure(Figure f) {
+void Game_GPU::add_figure(Figure f) {
    --m_figure_count[static_cast<mb::size>(f.player)];
    m_figures.push_back(f);
 }
 
-void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
+void Game_GPU::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    m_board.set_tile(x, y, tt, rot);
 
    auto tile = TilePlacement{.type = tt, .rotation = rot}.tile();
@@ -162,7 +162,7 @@ void Game::apply_tile(int x, int y, TileType tt, mb::u8 rot) noexcept {
    }
 }
 
-void Game::on_structure_completed(Group g) {
+void Game_GPU::on_structure_completed(Group g) {
    switch (m_groups.type_of(g)) {
    case EdgeType::Path:
       m_scores.add_points(m_groups.assigment(g), m_groups.tile_count(g));
@@ -183,7 +183,7 @@ void Game::on_structure_completed(Group g) {
                  });
 }
 
-bool Game::is_monastery_completed(int x, int y) noexcept {
+bool Game_GPU::is_monastery_completed(int x, int y) noexcept {
    for (auto _x = x - 1; _x <= x + 1; _x++) {
       for (auto _y = y - 1; _y <= y + 1; _y++) {
          if (m_board.tile_at(_x, _y).type == 0) {
@@ -194,7 +194,7 @@ bool Game::is_monastery_completed(int x, int y) noexcept {
    return true;
 }
 
-void Game::on_monastery_completed(int x, int y, Player player) {
+void Game_GPU::on_monastery_completed(int x, int y, Player player) {
    m_scores.add_points(player, 9);
    std::erase_if(m_figures,
                  [&x, &y, this](const Figure &f) {
@@ -206,18 +206,18 @@ void Game::on_monastery_completed(int x, int y, Player player) {
                  });
 }
 
-const ScoreBoard &Game::scores() const noexcept {
+const ScoreBoard &Game_GPU::scores() const noexcept {
    return m_scores;
 }
 
-bool Game::is_town_field_connected(Edge town, Edge field) noexcept {
+bool Game_GPU::is_town_field_connected(Edge town, Edge field) noexcept {
    std::transform(m_towns.begin(), m_towns.end(), m_towns.begin(), [this](std::pair<Edge, Edge> &pair) {
       return std::make_pair(static_cast<Edge>(m_groups.group_of(pair.first)), static_cast<Edge>(m_groups.group_of(pair.second)));
    });
    return std::find(m_towns.cbegin(), m_towns.cend(), std::make_pair(static_cast<Edge>(m_groups.group_of(town)), static_cast<Edge>(m_groups.group_of(field)))) != m_towns.end();
 }
 
-void Game::draw_tiles() {
+void Game_GPU::draw_tiles() {
    TileType tt = 0;
    m_tile_set.reserve(70);
    for (const auto &tile : g_tiles) {
@@ -229,11 +229,11 @@ void Game::draw_tiles() {
    std::shuffle(m_tile_set.begin(), m_tile_set.end(), m_random_generator);
 }
 
-void Game::on_next_move(NextMoveCallback callback) noexcept {
+void Game_GPU::on_next_move(NextMoveCallback callback) noexcept {
    m_next_move_callbacks.push_back(callback);
 }
 
-std::vector<Direction> Game::figure_placements(int x, int y) const noexcept {
+std::vector<Direction> Game_GPU::figure_placements(int x, int y) const noexcept {
    std::vector<Direction> result;
    result.reserve(13);
    for (const auto dir : g_directions) {
@@ -260,7 +260,7 @@ std::vector<Direction> Game::figure_placements(int x, int y) const noexcept {
    return result;
 }
 
-bool Game::can_place_figure(int x, int y, Direction d) const {
+bool Game_GPU::can_place_figure(int x, int y, Direction d) const {
    if (d == Direction::Middle) {
       return m_board.tile_at(x, y).tile().monastery;
    }
@@ -294,13 +294,13 @@ bool Game::can_place_figure(int x, int y, Direction d) const {
    return m_groups.is_free(edge);
 }
 
-void Game::start() noexcept {
+void Game_GPU::start() noexcept {
    for (const auto &callback : m_next_move_callbacks) {
-      callback(std::make_unique<Game>(std::move(*this)), m_current_player, m_last_move);
+      callback(std::make_unique<Game_GPU>(std::move(*this)), m_current_player, m_last_move);
    }
 }
 
-void Game::set_next_player() noexcept {
+void Game_GPU::set_next_player() noexcept {
    if (m_move_index >= m_tile_set.size()) {
       if (!m_game_finished) {
          m_game_finished = true;
@@ -311,11 +311,11 @@ void Game::set_next_player() noexcept {
 
    m_current_player = next_player(m_current_player, m_player_count);
    for (const auto &callback : m_next_move_callbacks) {
-      callback(std::make_unique<Game>(std::move(*this)), m_current_player, m_last_move);
+      callback(std::make_unique<Game_GPU>(std::move(*this)), m_current_player, m_last_move);
    }
 }
 
-void Game::assign_final_points() noexcept {
+void Game_GPU::assign_final_points() noexcept {
    for (const auto figure : m_figures) {
       auto tile_type = m_groups.type_of(figure.edge);
 
@@ -354,11 +354,11 @@ void Game::assign_final_points() noexcept {
    }
 }
 
-mb::u8 Game::player_figure_count(Player p) const noexcept {
+mb::u8 Game_GPU::player_figure_count(Player p) const noexcept {
    return m_figure_count[static_cast<mb::size>(p)];
 }
 
-void Game::update(double dt) noexcept {
+void Game_GPU::update(double dt) noexcept {
    if (m_tour_finished) {
       m_tour_finished = false;
       m_last_move = m_performed_move;
@@ -366,13 +366,13 @@ void Game::update(double dt) noexcept {
    }
 }
 
-void Game::notify_tour_finished(FullMove full_move) noexcept {
+void Game_GPU::notify_tour_finished(FullMove full_move) noexcept {
    m_tour_finished = true;
    m_performed_move = full_move;
 }
 
-std::unique_ptr<IGame> Game::clone() const noexcept {
-   auto game = std::make_unique<Game>(*this);
+std::unique_ptr<IGame> Game_GPU::clone() const noexcept {
+   auto game = std::make_unique<Game_GPU>(*this);
    game->m_next_move_callbacks.clear();
    return game;
 }
@@ -391,7 +391,7 @@ static int score_monastery(const Board &board, int x, int y, int moastery_score)
    return score;
 }
 
-int Game::score_grass(Player player, Edge edge, const Parameters &params) const noexcept {
+int Game_GPU::score_grass(Player player, Edge edge, const Parameters &params) const noexcept {
    if (!m_groups.is_free(edge))
       return -params.grass_penalty;
 
@@ -424,7 +424,7 @@ static bool owns_edges(bool free_a, bool owns_a, bool free_b, bool owns_b) {
    return owns_a || owns_b;
 }
 
-int Game::score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction, const Parameters &params) const noexcept {
+int Game_GPU::score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction, const Parameters &params) const noexcept {
    std::array<EdgeState, 4> edge_states;
    for (auto i = 0; i < 4; ++i) {
       auto direction = static_cast<Direction>(i);
@@ -491,7 +491,7 @@ int Game::score_tile(Player player, const Tile &tile, TileMove move, Direction t
    return score;
 }
 
-int Game::score_direction(Player player, TileType tile_type, TileMove move, Direction direction, const Parameters &params) const noexcept {
+int Game_GPU::score_direction(Player player, TileType tile_type, TileMove move, Direction direction, const Parameters &params) const noexcept {
    const auto tile = g_tiles[tile_type].rotate(move.rotation);
    if (tile.monastery && direction == Direction::Middle) {
       return score_monastery(m_board, move.x, move.y, params.monastery_score);
@@ -504,7 +504,7 @@ int Game::score_direction(Player player, TileType tile_type, TileMove move, Dire
    return score_tile(player, tile, move, direction, params);
 }
 
-std::pair<Direction, int> Game::move_score(Player player, TileType tile_type, TileMove move, const Parameters &params) const noexcept {
+std::pair<Direction, int> Game_GPU::move_score(Player player, TileType tile_type, TileMove move, const Parameters &params) const noexcept {
    Direction best_dir{};
    auto best_score = std::numeric_limits<int>::min();
    int total_score{};
@@ -654,7 +654,7 @@ inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, 
 
 
 
-void Game::board_to_caffe_X(std::vector<float> &output) const {
+void Game_GPU::board_to_caffe_X(std::vector<float> &output) const {
    // tiles = g_board_width * g_board_height * sum_of:
       // edges          = 4 * city_or_field_or_path[3]
       // field edges    = 8 * city_or_field[3]
@@ -777,7 +777,7 @@ static void pc_join(std::array<int, g_directions.size()> &dirs, std::array<bool,
    free[fb] = free[fa];
 }
 
-bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
+bool Game_GPU::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
 //   if (!board().can_place_at(x, y, tile_type, rot)) {
 //      return false;
 //   }

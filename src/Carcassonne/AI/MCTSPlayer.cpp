@@ -4,8 +4,8 @@
 
 namespace carcassonne::ai {
 
-MCTSPlayer::MCTSPlayer(IGame &game, Player player, SimulationType sim_type) : m_player(player), m_tree(game, player), m_player_count(game.player_count()), m_simulation_type(sim_type) {
-   game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
+MCTSPlayer::MCTSPlayer(std::unique_ptr<IGame> &game, Player player, SimulationType sim_type) : m_player(player), m_tree(game, player), m_player_count(game->player_count()), m_simulation_type(sim_type) {
+   game->on_next_move([this](std::unique_ptr<IGame> game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
       if (player != m_player)
          return;
@@ -13,7 +13,7 @@ MCTSPlayer::MCTSPlayer(IGame &game, Player player, SimulationType sim_type) : m_
    });
 }
 
-void MCTSPlayer::prepare_tree(const IGame &game) {
+void MCTSPlayer::prepare_tree(const std::unique_ptr<IGame> &game) {
    auto player = m_player;
    NodeId node_id = 0;
    do {
@@ -33,13 +33,13 @@ void MCTSPlayer::prepare_tree(const IGame &game) {
    m_tree.change_root(node_id);
 }
 
-void MCTSPlayer::make_move(IGame &game) noexcept {
+void MCTSPlayer::make_move(std::unique_ptr<IGame> &game) noexcept {
    prepare_tree(game);
    run_mcts(m_tree, 2000, m_simulation_type);
-   auto best_move = choose_move(m_tree, game.move_index(), m_player);
+   auto best_move = choose_move(m_tree, game->move_index(), m_player);
    m_last_moves[static_cast<int>(m_player)] = best_move;
 
-   auto move = game.new_move(m_player);
+   auto move = game->new_move(m_player);
    if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {
       fmt::print("[MCTS internal error] selected tile placement is not feasible: {}\n", res.msg());
       return;
