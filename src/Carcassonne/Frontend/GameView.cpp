@@ -14,7 +14,7 @@ GameView::GameView(std::unique_ptr<IGame> &game, PlayerAssignment controlled_pla
                                                                        m_place_tile_view(game->board(), m_camera, m_move),
                                                                        m_place_figure_view(m_camera, m_move),
                                                                        m_score_board_view(game->scores()), m_controlled_players(controlled_players) {
-   game->on_next_move([this](std::unique_ptr<IGame> &game, Player p, FullMove) {
+   game->on_next_move([this](std::unique_ptr<IGame> game, Player p, FullMove) {
       if (m_controlled_players & p) {
          next_move();
       }

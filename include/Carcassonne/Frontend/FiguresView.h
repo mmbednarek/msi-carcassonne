@@ -7,11 +7,11 @@
 namespace carcassonne::frontend {
 
 class FiguresView {
-   const IGame &m_game;
+   const std::unique_ptr<IGame>& m_game;
    const Camera &m_camera;
 
  public:
-   explicit FiguresView(const IGame &game, const Camera &camera);
+   explicit FiguresView(const std::unique_ptr<IGame> &game, const Camera &camera);
 
    void render(const graphics::Context &ctx) const noexcept;
 };
