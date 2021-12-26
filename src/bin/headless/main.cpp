@@ -65,7 +65,7 @@ class Gameplay {
  public:
    Gameplay(int player_count, uint64_t seed, int device_id) {
       if (device_id > 7) m_device_type = caffe::Caffe::CPU;
-      if (device_id == caffe::Caffe::CPU) {
+      if (m_device_type == caffe::Caffe::CPU) {
          // m_igame = std::unique_ptr<carcassonne::game::Game>(new carcassonne::game::Game{player_count, seed});
          m_igame = std::make_unique<carcassonne::game::Game>(player_count, seed);
       } else {

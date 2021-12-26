@@ -296,7 +296,7 @@ bool Game::can_place_figure(int x, int y, Direction d) const {
 
 void Game::start() noexcept {
    for (const auto &callback : m_next_move_callbacks) {
-      callback(std::make_unique<Game>(std::move(*this)), m_current_player, m_last_move);
+      callback(std::make_unique<Game>(*this), m_current_player, m_last_move);
    }
 }
 

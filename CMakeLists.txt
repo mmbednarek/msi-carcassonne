@@ -3,7 +3,7 @@ project(msi_carcassonne)
 
 set(CMAKE_CXX_STANDARD 20)
 option(HIP_PLATFORM_AMD "should be built for AMD" ON)
-set(CMAKE_CXX_FLAGS "-std=c++20 -O0 -g")
+set(CMAKE_CXX_FLAGS "-std=c++20 -O3 -g")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-fconcepts)

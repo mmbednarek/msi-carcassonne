@@ -296,7 +296,7 @@ bool Game_GPU::can_place_figure(int x, int y, Direction d) const {
 
 void Game_GPU::start() noexcept {
    for (const auto &callback : m_next_move_callbacks) {
-      callback(std::make_unique<Game_GPU>(std::move(*this)), m_current_player, m_last_move);
+      callback(std::make_unique<Game_GPU>(*this), m_current_player, m_last_move);
    }
 }
 
@@ -379,30 +379,11 @@ std::unique_ptr<IGame> Game_GPU::clone() const noexcept {
 
 static int score_monastery(const Board &board, int x, int y, int moastery_score) {
    int score = 0;
-   for (auto cy = y - 1; cy <= y + 1; ++cy) {
-      for (auto cx = x - 1; cx <= x + 1; ++cx) {
-         if (cx == x && cy == y)
-            continue;
-
-         if (board.tile_at(cx, cy).type != 0)
-            score += moastery_score;
-      }
-   }
    return score;
 }
 
 int Game_GPU::score_grass(Player player, Edge edge, const Parameters &params) const noexcept {
-   if (!m_groups.is_free(edge))
-      return -params.grass_penalty;
-
-   if (player_figure_count(player) < params.min_figure_count)
-      return 0;
-
-   const auto count = std::count_if(m_towns.begin(), m_towns.end(), [this, expected = m_groups.group_of(edge)](std::pair<Edge, Edge> town_grass_pair) {
-      if (!m_groups.is_completed(town_grass_pair.first))
-         return false;
-      return town_grass_pair.second == expected;
-   });
+   const auto count = 0;
    return params.grass_score * static_cast<int>(count);
 }
 
@@ -425,98 +406,18 @@ static bool owns_edges(bool free_a, bool owns_a, bool free_b, bool owns_b) {
 }
 
 int Game_GPU::score_tile(Player player, const Tile &tile, TileMove move, Direction target_direction, const Parameters &params) const noexcept {
-   std::array<EdgeState, 4> edge_states;
-   for (auto i = 0; i < 4; ++i) {
-      auto direction = static_cast<Direction>(i);
-      auto edge = make_edge(move.x, move.y, direction);
-
-      auto neighbour = neighbour_of(move.x, move.y, direction);
-      auto open = m_board.tile_at(neighbour.x, neighbour.y).type == 0;
-      auto free = m_groups.is_free(edge);
-      bool our;
-      if (free) {
-         our = (direction == target_direction) && player_figure_count(player) != 0;
-      } else {
-         our = m_groups.assigment(edge) & player;
-      }
-
-      edge_states[i] = EdgeState{
-              .opens = open ? 1 : 0,
-              .closes = open ? 0 : 1,
-              .free = free,
-              .our = our,
-              .ignore = false,
-              .tile_count = m_groups.tile_count(edge),
-              .type = m_groups.type_of(edge),
-      };
-   }
-
-   auto connections = tile.connections;
-   while (connections != Connection::None) {
-      Direction a, b;
-      std::tie(connections, a, b) = read_connections(connections);
-
-      auto ai = static_cast<int>(a);
-      if (ai >= 4)
-         continue;
-      auto bi = static_cast<int>(a);
-      if (bi >= 4)
-         continue;
-
-      auto &state_a = edge_states[ai];
-      auto &state_b = edge_states[bi];
-
-      if (state_a.ignore || state_b.ignore)
-         continue;
-
-      state_a.ignore = true;
-      state_b.tile_count = std::max(state_a.tile_count, state_b.tile_count);
-      state_b.closes += state_a.closes;
-      state_b.opens += state_a.opens;
-      state_b.our = owns_edges(state_a.free, state_a.our, state_b.free, state_b.our);
-      state_b.free = state_a.free && state_b.free;
-   }
-
    int score = 0;
-   for (auto i = 0; i < 4; ++i) {
-      auto &state = edge_states[i];
-      if (state.ignore)
-         continue;
-
-      auto own_score = state.our ? 1 : (state.free ? 0 : -1);
-      auto type_score = state.type == EdgeType::Town ? params.tile_type_score : 1;
-      score += type_score * own_score * (params.tile_close_score * state.closes + params.tile_open_score * state.opens) * state.tile_count;
-   }
-
    return score;
 }
 
 int Game_GPU::score_direction(Player player, TileType tile_type, TileMove move, Direction direction, const Parameters &params) const noexcept {
    const auto tile = g_tiles[tile_type].rotate(move.rotation);
-   if (tile.monastery && direction == Direction::Middle) {
-      return score_monastery(m_board, move.x, move.y, params.monastery_score);
-   }
-
-   auto edge = make_edge(move.x, move.y, direction);
-   if (m_groups.type_of(edge) == EdgeType::Grass) {
-      return score_grass(player, edge, params);
-   }
    return score_tile(player, tile, move, direction, params);
 }
 
 std::pair<Direction, int> Game_GPU::move_score(Player player, TileType tile_type, TileMove move, const Parameters &params) const noexcept {
    Direction best_dir{};
-   auto best_score = std::numeric_limits<int>::min();
    int total_score{};
-   for (auto dir : g_directions) {
-      auto score = score_direction(player, tile_type, move, dir, params);
-
-      if (best_score < score) {
-         best_score = score;
-         best_dir = dir;
-      }
-      total_score += score;
-   }
 
    return std::make_pair(best_dir, total_score);
 }
@@ -527,245 +428,23 @@ constexpr typename std::underlying_type<E>::type to_underlying(E e) noexcept {
 }
 
 template <typename T, typename U>
-inline void flags_to_states(const T flags, const int neurons_to_set, U output_it) noexcept {
-   auto num = to_underlying(flags);
-   std::vector<bool> states(neurons_to_set, false);
-   for (int i = 0; num; ++i) {
-       states[i] = num % 2;
-       num /= 2;
-   }
-   reverse_copy(states.begin(), states.end(), output_it);
-   std::advance(output_it, neurons_to_set);
-}
+inline void flags_to_states(const T flags, const int neurons_to_set, U output_it) noexcept {}
 
 template <typename T, typename U>
-inline void vector_to_states(const T vector, const size_t neurons_to_set, U& output_it) noexcept {
-   std::vector<bool> states(neurons_to_set, false);
-   for (int i = 0; i < vector.size(); ++i) {
-      auto val = to_underlying(vector.at(i));
-       states.at(val + neurons_to_set / vector.size() * i) = true;
-   }
-   copy(states.begin(), states.end(), output_it);
-   std::advance(output_it, neurons_to_set);
-}
+inline void vector_to_states(const T vector, const size_t neurons_to_set, U& output_it) noexcept {}
 
 template <typename U>
-inline void tile_to_caffe(const Tile& tile, const U it) noexcept {
-   auto output_it = it;
-   // edges: neurons_to_set = 4 * 3
-   vector_to_states(tile.edges, 4 * 3, output_it);
-   
-   // field edges: neurons_to_set = 8 * 3
-   vector_to_states(tile.field_edges, 8 * 3, output_it);
-   
-   // contacts: neurons_to_set = g_contact_types_count
-   flags_to_states(tile.contacts, g_contact_types_count, output_it);
-   
-   // connections:  neurons_to_set = g_connection_types_count
-   flags_to_states(tile.connections, g_connection_types_count, output_it);
-   
-   // pennant: neurons_to_set = 1
-   if (tile.pennant) *output_it = true; 
-   std::advance(output_it, 1);
-   
-   // moastery: neurons_to_set = 1
-   if (tile.pennant) *output_it = true;
-   std::advance(output_it, 1);
-}
+inline void tile_to_caffe(const Tile& tile, const U it) noexcept {}
 
 
 template <typename F, typename U>
-inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, mb::size player_count, const U it) noexcept {
-   auto output_it = it;
-   // figures: neurons_to_set = player_count
-   auto figure_it = std::find_if(figures.begin(), figures.end(), [x,y](const Figure &f){
-      return f.tile_x == x && f.tile_y == y;
-   });
-   if (figure_it == figures.end()) return;
-   switch (figure_it->player) {
-   case Player::Black:  *std::next(output_it, 0) = true; break;
-   case Player::Blue:   *std::next(output_it, 1) = true; break;
-   case Player::Yellow: *std::next(output_it, 2) = true; break;
-   case Player::Red:    *std::next(output_it, 3) = true; break;
-   }
-   std::advance(output_it, player_count);
-   
-   // figure position: neurons_to_set = 9
-   int role = -1;
-   if (output_edges_it > output_it) {
-      spdlog::error("state encoding: something gone bad");
-   }
-   switch (figure_it->dir) {
-     case Direction::North:
-       *std::next(output_it, 0) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 0)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 0)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 0)) role = 2;
-       break;
-     case Direction::East:
-       *std::next(output_it, 1) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 1)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 1)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 1)) role = 2;
-       break;
-     case Direction::South:
-       *std::next(output_it, 2) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 2)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 2)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 2)) role = 2;
-       break;
-     case Direction::West:
-       *std::next(output_it, 3) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 3)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 3)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 3)) role = 2;
-       break;
-     case Direction::Middle:
-       *std::next(output_it, 4) = true;
-       role = 4;
-       break;
-     case Direction::NorthEast:
-     case Direction::EastNorth:
-       *std::next(output_it, 5) = true;
-       role = 0;
-       break;
-     case Direction::SouthEast:
-     case Direction::EastSouth:
-       *std::next(output_it, 6) = true;
-       role = 0;
-       break;
-     case Direction::SouthWest:
-     case Direction::WestSouth:
-       *std::next(output_it, 7) = true;
-       role = 0;
-       break;
-     case Direction::NorthWest:
-     case Direction::WestNorth:
-       *std::next(output_it, 8) = true;
-       role = 0;
-       break;
-   }
-   advance(output_it, 9);
-
-   // figure role: neurons_to_set = 4
-   *std::next(output_it, role) = true;
-   advance(output_it, 4);
-}
+inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, mb::size player_count, const U it) noexcept {}
 
 
 
-void Game_GPU::board_to_caffe_X(std::vector<float> &output) const {
-   // tiles = g_board_width * g_board_height * sum_of:
-      // edges          = 4 * city_or_field_or_path[3]
-      // field edges    = 8 * city_or_field[3]
-      // contacts       = g_contact_types_count[24]
-      // connections    = g_connection_types_count[22]
-      // pennant        = true_or_false[1]
-      // moastery       = true_or_false[1]
-      // figure         = npcs[2]
-      // figure posit.  = pos[9]
-      // figure role    = at_city_or_field_or_path_or_moastery[4]
-   // remaining figures          = figs[7] * npcs[2]
-   // current tile               = sum_of_above[87]
-   // remaining tiles            = m_tile_set[70]
-   // best score <1<2<3...<255   = g_max_possible_score+1[256]
-   // current player score       = g_max_possible_score+1[256]
-   // best player id             = npcs[2]
-   // current player id          = npcs[2]
-   auto result = mb::ok;
-   const size_t tile_features_count = (4*3) + (8*3) + 24 + 22 + 1 + 1 + m_player_count + 9 + 4; // 87;
-   const size_t board_features_count = (g_board_width * g_board_height * tile_features_count)
-       + (g_initial_figures_count * m_player_count) + tile_features_count + m_tile_set.size()
-       + 2 * (g_max_possible_score + 1) + 2 * m_player_count; // 166'784;
-   if (output.size() == 0) {
-      output = std::vector<float>(board_features_count, 0.0f);
-   } else {
-      std::fill(output.begin(), output.end(), 0.0f);
-   }
-   auto output_it = output.begin();
-   for (int x = 0; x < g_board_width; ++x) {
-      for (int y = 0; y < g_board_height; ++y) {
-         const TilePlacement& placed_tile = board().tile_at(x,y);
-         if (0 == placed_tile.type) continue;
-         int neurons_offset = (x + y * g_board_width) * tile_features_count;
-         output_it = std::next(output.begin(), neurons_offset);
-         auto output_edges_it = std::next(output.begin(), neurons_offset);
-         tile_to_caffe(placed_tile.tile(), output_it);
-
-         output_it = std::next(output.begin(), neurons_offset + tile_features_count - (m_player_count + 9 + 4));
-         figures_to_caffe(m_figures, x, y, output_edges_it, m_player_count, output_it);
-      }
-   }
-   output_it = std::next(output.begin(), (g_board_height * g_board_width) * tile_features_count);
-   
-   // remaining figures: neurons_to_set = m_player_count * g_initial_figures_count
-   for (int i = 0; i < m_player_count; ++i) {
-      *std::next(output_it, m_figure_count[i]) = 1.0f;
-      std::advance(output_it, g_initial_figures_count);
-   }
-   
-   // current tile: neurons_to_set =  g_tiles.size()
-   const Tile& tile = g_tiles[ m_tile_set[m_move_index] ];
-   tile_to_caffe(tile, output_it);
-   std::advance(output_it, tile_features_count);
-   
-   // remaining tiles: neurons_to_set = m_tile_set.size()
-   *std::next(output_it, m_move_index) = 1.0f;
-   std::advance(output_it, m_tile_set.size());
-   
-   // best score: neurons_to_set = g_max_possible_score
-   if (m_scores.begin() == m_scores.end())
-      return; // is a frequent error
-   auto best_player_it = std::max_element(m_scores.begin(), m_scores.end(), 
-      [](PlayerScore a, PlayerScore b) {
-         return a.score < b.score;
-      });
-   if (best_player_it->score < g_max_possible_score)
-      *std::next(output_it, g_max_possible_score) = 1.0f;
-   else
-      *std::next(output_it, best_player_it->score) = 1.0f;
-   std::advance(output_it, g_max_possible_score + 1);
-   
-   // RLPlayer score: neurons_to_set = g_max_possible_score
-   const Player& p = current_player();
-   auto current_player_it = std::find_if(m_scores.begin(), m_scores.end(),
-      [p](const PlayerScore& score) { return score.player == p; });
-   int player_score = 0;
-   if (current_player_it != m_scores.end()) {
-      player_score = current_player_it->score;
-   }
-
-   if (player_score > g_max_possible_score)
-      *std::next(output_it, g_max_possible_score) = 1.0f;
-   else
-      *std::next(output_it, player_score) = 1.0f;
-   std::advance(output_it, g_max_possible_score + 1);
-
-   // best player id: neurons_to_set = m_player_count
-   *std::next(output_it, to_underlying(best_player_it->player)) = 1.0f;
-   std::advance(output_it, m_player_count);
-   
-   // current player id: neurons_to_set = m_player_count
-   auto tmp2 = to_underlying(p);
-   *std::next(output_it, tmp2) = 1.0f;
-   std::advance(output_it, m_player_count);
-   
-   // ultimate size check
-   if (output_it != output.end()) {
-      spdlog::error("state encoding: something in memory gone wrong");
-      return;
-   }
-   
-   // printing X:
-   // for (auto it = output.rbegin(); it != output.rbegin() + 20; ++it)
-   //    fmt::print("{} ", (int)*it);
-   // fmt::print("\n");
-}
+void Game_GPU::board_to_caffe_X(std::vector<float> &output) const {}
 
 static int pc_find(const std::array<int, g_directions.size()> &dirs, int value) {
-   while (dirs[value] != value) {
-      value = dirs[value];
-   }
    return value;
 }
 
@@ -778,52 +457,8 @@ static void pc_join(std::array<int, g_directions.size()> &dirs, std::array<bool,
 }
 
 bool Game_GPU::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
-//   if (!board().can_place_at(x, y, tile_type, rot)) {
-//      return false;
-//   }
-
-   auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
-   if (d == Direction::Middle) {
-      return tile.monastery;
-   }
-
-   switch (d) {
-   case Direction::North:
-   case Direction::East:
-   case Direction::South:
-   case Direction::West:
-      if (tile.edges[static_cast<int>(d)] == EdgeType::Grass)
-         return false;
-      break;
-   case Direction::EastNorth:
-   case Direction::NorthEast:
-   case Direction::SouthEast:
-   case Direction::EastSouth:
-   case Direction::WestSouth:
-   case Direction::SouthWest:
-   case Direction::NorthWest:
-   case Direction::WestNorth:
-      if (tile.field_edges[static_cast<int>(d) - 5] != EdgeType::Grass)
-         return false;
-      break;
-   }
-
    std::array<int, g_directions.size()> dirs{};
-   std::iota(dirs.begin(), dirs.end(), 0);
-
    std::array<bool, g_directions.size()> free{};
-   std::generate(free.begin(), free.end(), [this, x, y, dir = 0]() mutable {
-      return m_groups.is_free(make_edge(x, y, static_cast<Direction>(dir++)));
-   });
-
-   auto connections = tile.connections;
-
-   while (connections != Connection::None) {
-      Direction a, b;
-      std::tie(connections, a, b) = read_connections(connections);
-      pc_join(dirs, free, static_cast<int>(a), static_cast<int>(b));
-   }
-
    auto pc_d = pc_find(dirs, static_cast<int>(d));
    return free[pc_d];
 }
