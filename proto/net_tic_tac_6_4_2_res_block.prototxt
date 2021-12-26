@@ -4,7 +4,7 @@ layer {
 	top: "input_data"
 	input_param {
 		shape {
-			dim: 7 #batch_size
+			dim: 70 #batch_size
 			dim: 86
             dim: 41
             dim: 41
@@ -18,7 +18,7 @@ layer {
 	top: "label_value"
 	input_param {
 		shape {
-			dim: 7 #batch_size
+			dim: 70 #batch_size
 			dim: 1
 		}
 	}
@@ -33,7 +33,7 @@ layer {
 	top: "label_probas"
 	input_param {
 		shape {
-			dim: 7 #batch_size
+			dim: 70 #batch_size
 			dim: 67240
 		}
 	}
@@ -48,7 +48,7 @@ layer {
     bottom: "input_data"
     top: "conv1"
     convolution_param {
-        num_output: 64
+        num_output: 8
         kernel_size: 3
         stride: 1
         pad: 1
@@ -80,7 +80,7 @@ layer {
     bottom: "conv1"
     top: "res1_conv1"
     convolution_param {
-        num_output: 64
+        num_output: 8
         kernel_size: 3
         stride: 1
         pad: 1
@@ -111,7 +111,7 @@ layer {
     bottom: "res1_conv1"
     top: "res1_conv2"
     convolution_param {
-        num_output: 64
+        num_output: 8
         kernel_size: 3
         stride: 1
         pad: 1
@@ -154,7 +154,7 @@ layer {
     bottom: "res1"
     top: "res2_conv1"
     convolution_param {
-        num_output: 64
+        num_output: 8
         kernel_size: 3
         stride: 1
         pad: 1
@@ -185,7 +185,7 @@ layer {
     bottom: "res2_conv1"
     top: "res2_conv2"
     convolution_param {
-        num_output: 64
+        num_output: 8
         kernel_size: 3
         stride: 1
         pad: 1
@@ -260,7 +260,7 @@ layer {
 	bottom: "value_conv1"
 	top: "value_fc1"
 	inner_product_param {
-		num_output: 256
+		num_output: 4
 		weight_filler {
             type: "gaussian"
             std: 0.01

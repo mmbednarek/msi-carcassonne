@@ -311,7 +311,7 @@ void Game_GPU::set_next_player() noexcept {
 
    m_current_player = next_player(m_current_player, m_player_count);
    for (const auto &callback : m_next_move_callbacks) {
-      callback(std::make_unique<Game_GPU>(std::move(*this)), m_current_player, m_last_move);
+      callback(std::make_unique<Game_GPU>(*this), m_current_player, m_last_move);
    }
 }
 
