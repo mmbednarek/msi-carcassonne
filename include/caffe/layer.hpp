@@ -38,7 +38,7 @@ class Layer {
    * layer.
    */
   explicit Layer(const LayerParameter& param)
-    : layer_param_(param), is_shared_(false) {
+    : layer_param_(param) {
       // Set phase and copy blobs (if there are any).
       phase_ = param.phase();
       if (layer_param_.blobs_size() > 0) {
@@ -66,7 +66,6 @@ class Layer {
    */
   void SetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-    InitMutex();
     CheckBlobCounts(bottom, top);
     LayerSetUp(bottom, top);
     Reshape(bottom, top);
@@ -91,30 +90,6 @@ class Layer {
    */
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {}
-
-  /**
-   * @brief Whether a layer should be shared by multiple nets during data
-   *        parallelism. By default, all layers except for data layers should
-   *        not be shared. data layers should be shared to ensure each worker
-   *        solver access data sequentially during data parallelism.
-   */
-  virtual inline bool ShareInParallel() const { return false; }
-
-  /** @brief Return whether this layer is actually shared by other nets.
-   *         If ShareInParallel() is true and using more than one GPU and the
-   *         net has TRAIN phase, then this function is expected return true.
-   */
-  inline bool IsShared() const { return is_shared_; }
-
-  /** @brief Set whether this layer is actually shared by other nets
-   *         If ShareInParallel() is true and using more than one GPU and the
-   *         net has TRAIN phase, then is_shared should be set true.
-   */
-  inline void SetShared(bool is_shared) {
-    CHECK(ShareInParallel() || !is_shared)
-        << type() << "Layer does not support sharing.";
-    is_shared_ = is_shared;
-  }
 
   /**
    * @brief Adjust the shapes of top blobs and internal buffers to accommodate
@@ -428,35 +403,8 @@ class Layer {
   }
 
  private:
-  /** Whether this layer is actually shared by other nets*/
-  bool is_shared_;
-
-  /** The mutex for sequential forward if this layer is shared */
-  shared_ptr<boost::mutex> forward_mutex_;
-
-  /** Initialize forward_mutex_ */
-  void InitMutex();
-  /** Lock forward_mutex_ if this layer is shared */
-  void Lock();
-  /** Unlock forward_mutex_ if this layer is shared */
-  void Unlock();
-
   DISABLE_COPY_AND_ASSIGN(Layer);
 };  // class Layer
-
-
-
-static inline void tokenize(const std::string &s, char delim, std::vector<std::string> *tokens)
-{
-    std::stringstream ss;
-    ss.str(s);
-    std::string item;
-    while (getline(ss, item, delim)) {
-        item.erase (std::remove (item.begin(), item.end(), ' '), item.end()); // remove whitespace.
-        tokens->push_back(item);
-    }
-}
-
 
 // Forward and backward wrappers. You should implement the cpu and
 // gpu specific implementations instead, and should not change these
@@ -464,52 +412,21 @@ static inline void tokenize(const std::string &s, char delim, std::vector<std::s
 template <typename Dtype>
 inline Dtype Layer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  // Lock during forward to ensure sequential forward
-  Lock();
   Dtype loss = 0;
   Reshape(bottom, top);
-  auto mode = Caffe::mode();
-  const char *CAFFE_DB_str = getenv("CAFFE_DB");
-  long int CAFFE_DB = CAFFE_DB_str ? strtoul(CAFFE_DB_str, nullptr, 0) : 0x0;
-
-// TODO - remove, debug code:
-  std::vector<std::string> forceCpu;
-  const char *CAFFE_FORCE_CPU = getenv("CAFFE_FORCE_CPU");
-  if (CAFFE_FORCE_CPU) {
-      tokenize(CAFFE_FORCE_CPU, ',', &forceCpu);
-      for (auto o=forceCpu.begin(); o!=forceCpu.end(); o++) {
-          if ((*o == type())) {
-              if (CAFFE_DB & 0x1) {
-                  printf ("force CPU for fwd layer %s\n", o->c_str());
-              }
-              mode = Caffe::CPU;
-          }
-      }
-  }
-  if (CAFFE_DB & 0x1) {
-      printf ("run fwd layer %s mode=%s name=%s\n", type(), mode==Caffe::CPU ? "CPU" : "GPU", layer_param().name().c_str());
-  }
-  std::string layerName(type()); layerName += '.'; layerName += layer_param().name();
-  switch (mode) {
+  switch (Caffe::mode()) {
   case Caffe::CPU:
-    HIP_BEGIN_MARKER(layerName.c_str() , "CAFFE-fwd");
     Forward_cpu(bottom, top);
-    HIP_END_MARKER();
     for (int top_id = 0; top_id < top.size(); ++top_id) {
       if (!this->loss(top_id)) { continue; }
       const int count = top[top_id]->count();
       const Dtype* data = top[top_id]->cpu_data();
       const Dtype* loss_weights = top[top_id]->cpu_diff();
-      Dtype blob_loss  = caffe_cpu_dot(count, data, loss_weights);
-      loss += blob_loss;
-      //printf ("cpu: loss += %6.2f = %6.2f\n", blob_loss, loss);
+      loss += caffe_cpu_dot(count, data, loss_weights);
     }
     break;
-    HIP_END_MARKER();
   case Caffe::GPU:
-    HIP_BEGIN_MARKER(layerName.c_str(),  "CAFFE-fwd");
     Forward_gpu(bottom, top);
-    HIP_END_MARKER();
 #ifndef CPU_ONLY
     for (int top_id = 0; top_id < top.size(); ++top_id) {
       if (!this->loss(top_id)) { continue; }
@@ -519,15 +436,12 @@ inline Dtype Layer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom,
       Dtype blob_loss = 0;
       caffe_gpu_dot(count, data, loss_weights, &blob_loss);
       loss += blob_loss;
-      //printf ("gpu: loss += %6.2f = %6.2f\n", blob_loss, loss);
     }
-    HIP_END_MARKER();
 #endif
     break;
   default:
     LOG(FATAL) << "Unknown caffe mode.";
   }
-  Unlock();
   return loss;
 }
 
@@ -535,38 +449,12 @@ template <typename Dtype>
 inline void Layer<Dtype>::Backward(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-// TODO - remove, debug code:
-  const char *CAFFE_DB_str = getenv("CAFFE_DB");
-  long int CAFFE_DB = CAFFE_DB_str ? strtoul(CAFFE_DB_str, nullptr, 0) : 0x0;
-
-  auto mode = Caffe::mode();
-  std::vector<std::string> forceCpu;
-  const char *CAFFE_FORCE_CPU_BACK = getenv("CAFFE_FORCE_CPU_BACK");
-  if (CAFFE_FORCE_CPU_BACK) {
-      tokenize(CAFFE_FORCE_CPU_BACK, ',', &forceCpu);
-      for (auto o=forceCpu.begin(); o!=forceCpu.end(); o++) {
-          if ((*o == type())) {
-              if (CAFFE_DB & 0x2) {
-                  printf ("force CPU for bwd layer %s\n", o->c_str());
-              }
-              mode = Caffe::CPU;
-          }
-      }
-  }
-  if (CAFFE_DB & 0x2) {
-      printf ("run bwd layer %s mode=%s name=%s\n", type(), mode==Caffe::CPU ? "CPU" : "GPU", layer_param().name().c_str());
-  }
-  std::string layerName(type()); layerName += '.'; layerName += layer_param().name();
-  switch (mode) {
+  switch (Caffe::mode()) {
   case Caffe::CPU:
-    HIP_BEGIN_MARKER(layerName.c_str(),  "CAFFE-back");
     Backward_cpu(top, propagate_down, bottom);
-    HIP_END_MARKER();
     break;
   case Caffe::GPU:
-    HIP_BEGIN_MARKER(layerName.c_str(),  "CAFFE-back");
     Backward_gpu(top, propagate_down, bottom);
-    HIP_END_MARKER();
     break;
   default:
     LOG(FATAL) << "Unknown caffe mode.";

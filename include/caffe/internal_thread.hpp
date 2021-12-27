@@ -18,7 +18,7 @@ namespace caffe {
  */
 class InternalThread {
  public:
-  InternalThread() : device_(0), thread_() {}
+  InternalThread() : thread_() {}
   virtual ~InternalThread();
 
   /**
@@ -34,8 +34,6 @@ class InternalThread {
   bool is_started() const;
 
  protected:
-  int device_;
-
   /* Implement this method in your subclass
       with the code you want your thread to run. */
   virtual void InternalThreadEntry() {}
@@ -44,8 +42,8 @@ class InternalThread {
   bool must_stop();
 
  private:
-  void entry(int device, Caffe::Brew mode, int rand_seed, int solver_count,
-      bool root_solver);
+  void entry(int device, Caffe::Brew mode, int rand_seed,
+      int solver_count, int solver_rank, bool multiprocess);
 
   shared_ptr<boost::thread> thread_;
 };
