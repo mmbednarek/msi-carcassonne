@@ -15,7 +15,7 @@ extern "C" {
 }
 #endif  // USE_ACCELERATE
 
-#include <cmath>
+#include <math.h>
 
 // Functions that caffe uses but are not present if MKL is not linked.
 

@@ -11,7 +11,7 @@
 
 namespace caffe {
 
-#ifdef USE_ACCMI
+#ifdef USE_CUDNN
 /*
  * @brief cuDNN implementation of PoolingLayer.
  *        Fallback to PoolingLayer for CPU mode.
@@ -20,11 +20,7 @@ template <typename Dtype>
 class CuDNNPoolingLayer : public PoolingLayer<Dtype> {
  public:
   explicit CuDNNPoolingLayer(const LayerParameter& param)
-      : PoolingLayer<Dtype>(param), handles_setup_(false)
-#ifdef USE_MIOPEN
-        , workspaceSize(0), workspace(NULL)
-#endif
-      {}
+      : PoolingLayer<Dtype>(param), handles_setup_(false) {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
@@ -41,23 +37,10 @@ class CuDNNPoolingLayer : public PoolingLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   bool handles_setup_;
-
-#ifdef USE_MIOPEN
-  miopenHandle_t             handle_;
-  miopenTensorDescriptor_t bottom_desc_, top_desc_;
-  miopenPoolingDescriptor_t  pooling_desc_;
-  miopenPoolingMode_t        mode_;
-
-  size_t workspaceSize;
-  void* workspace;
-#endif
-
-#ifdef USE_CUDNN
   cudnnHandle_t             handle_;
   cudnnTensorDescriptor_t bottom_desc_, top_desc_;
   cudnnPoolingDescriptor_t  pooling_desc_;
   cudnnPoolingMode_t        mode_;
-#endif
 };
 #endif
 

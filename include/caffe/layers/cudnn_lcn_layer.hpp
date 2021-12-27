@@ -12,7 +12,7 @@
 
 namespace caffe {
 
-#ifdef USE_ACCMI
+#ifdef USE_CUDNN
 template <typename Dtype>
 class CuDNNLCNLayer : public LRNLayer<Dtype> {
  public:
@@ -32,17 +32,9 @@ class CuDNNLCNLayer : public LRNLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   bool handles_setup_;
-#ifdef USE_MIOPEN
-  miopenHandle_t             handle_;
-  miopenLRNDescriptor_t norm_desc_;
-  miopenTensorDescriptor_t bottom_desc_, top_desc_;
-#endif
-
-#ifdef USE_CUDNN
   cudnnHandle_t             handle_;
   cudnnLRNDescriptor_t norm_desc_;
   cudnnTensorDescriptor_t bottom_desc_, top_desc_;
-#endif
 
   int size_, pre_pad_;
   Dtype alpha_, beta_, k_;

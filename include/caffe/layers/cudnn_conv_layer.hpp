@@ -11,7 +11,7 @@
 
 namespace caffe {
 
-#ifdef USE_ACCMI
+#ifdef USE_CUDNN
 /*
  * @brief cuDNN implementation of ConvolutionLayer.
  *        Fallback to ConvolutionLayer for CPU mode.
@@ -29,8 +29,8 @@ namespace caffe {
 template <typename Dtype>
 class CuDNNConvolutionLayer : public ConvolutionLayer<Dtype> {
  public:
-  explicit CuDNNConvolutionLayer(const LayerParameter& param);
-
+  explicit CuDNNConvolutionLayer(const LayerParameter& param)
+      : ConvolutionLayer<Dtype>(param), handles_setup_(false) {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
@@ -44,31 +44,26 @@ class CuDNNConvolutionLayer : public ConvolutionLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   bool handles_setup_;
-
-#ifdef USE_MIOPEN
+  cudnnHandle_t* handle_;
+  cudaStream_t*  stream_;
 
   // algorithms for forward and backwards convolutions
-  vector<miopenConvFwdAlgorithm_t>        fwd_algo_;
-  vector<miopenConvBwdWeightsAlgorithm_t> bwd_weight_algo_;
-  vector<miopenConvBwdDataAlgorithm_t>    bwd_data_algo_;
+  cudnnConvolutionFwdAlgo_t *fwd_algo_;
+  cudnnConvolutionBwdFilterAlgo_t *bwd_filter_algo_;
+  cudnnConvolutionBwdDataAlgo_t *bwd_data_algo_;
 
-  vector<miopenTensorDescriptor_t>      bottom_descs_, top_descs_;
-  miopenTensorDescriptor_t              bias_desc_;
-  miopenTensorDescriptor_t              filter_desc_;
-  vector<miopenConvolutionDescriptor_t> conv_descs_;
-
-  int N_, C_, W_, H_;
-  miopenHandle_t handle_;
-#endif
-
+  vector<cudnnTensorDescriptor_t> bottom_descs_, top_descs_;
+  cudnnTensorDescriptor_t    bias_desc_;
+  cudnnFilterDescriptor_t      filter_desc_;
+  vector<cudnnConvolutionDescriptor_t> conv_descs_;
   int bottom_offset_, top_offset_, bias_offset_;
 
-  vector<size_t> workspace_fwd_sizes_;
-  vector<size_t> workspace_bwd_filter_sizes_;
-  vector<size_t> workspace_bwd_data_sizes_;
+  size_t *workspace_fwd_sizes_;
+  size_t *workspace_bwd_data_sizes_;
+  size_t *workspace_bwd_filter_sizes_;
   size_t workspaceSizeInBytes;  // size of underlying storage
   void *workspaceData;  // underlying storage
-  vector<void*>  workspace;  // aliases into workspaceData
+  void **workspace;  // aliases into workspaceData
 };
 #endif
 
