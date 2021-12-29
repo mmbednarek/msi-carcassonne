@@ -1,0 +1,5 @@
+file(GLOB CUDAFILES "*.cu" "*.cpp")
+CUDA_ADD_LIBRARY(carcassonne_gpu_game ${CUDAFILES} STATIC)
+target_link_libraries(carcassonne_gpu_game libmb fmt)
+target_compile_definitions(carcassonne_gpu_game PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
+# target_compile_options(carcassonne_headless PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:my_cuda_option>) 
