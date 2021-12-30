@@ -6,7 +6,6 @@
 #include <Util/Time.h>
 #include <cassert>
 #include <chrono>
-#define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 #include <random>
 
@@ -45,8 +44,20 @@ void simulate_random(Context &ctx, NodeId node_id) {
    backpropagate(ctx, parent_id, winner);
 }
 
-static FullMove get_move(Context &ctx, IGame &game) {
-   return ctx.network.do_move(game, game.tile_set()[game.move_index()], static_cast<float>(rand() % 1000) / 1000.0f);// rand is a hash
+static FullMove get_move(Context &ctx, const std::unique_ptr<IGame> &game) {
+   fmt::print("\n{}\n", g_max_moves - game->move_index());
+   FullMove mv = ctx.network.do_move(game, static_cast<float>(rand() % 1000) / 1000.0f);// rand is a hash
+   
+   // fmt::print("x={:d}, y={:d}, r={:d}, tile={:d}, dir={:c}, ign={:d}, fig_left={:d}, tiles_left={} ||||  ", mv.x, mv.y, mv.rotation, game->tile_set()[game->move_index()], mv.ignored_figure ? 'X' : (char)mv.direction + '0', mv.ignored_figure, game->player_figure_count(game->current_player()), g_max_moves - game->move_index());
+   
+   if (mv.ignored_figure) {
+      if (!game->board().can_place_at(mv.x, mv.y, game->tile_set()[game->move_index()], mv.rotation)) {
+         spdlog::error("deep rl, get_move(): INCORRECT TILE PLACEMENT 55 !!!");
+      }
+   } else if (!game->can_place_tile_and_figure(mv.x, mv.y, mv.rotation, game->tile_set()[game->move_index()], mv.direction)) {
+      spdlog::error("deep rl, get_move(): INCORRECT FIGURE PLACEMRNT 57 !!!");
+   }
+   return mv;
 }
 
 void simulate(Context &ctx, NodeId node_id) {
@@ -54,7 +65,7 @@ void simulate(Context &ctx, NodeId node_id) {
    auto simulated_game = ctx.tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
       auto current_player = simulated_game->current_player();
-      auto full_move = get_move(ctx, *simulated_game);
+      auto full_move = get_move(ctx, simulated_game);
       auto move = simulated_game->new_move(current_player);
       move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
       move->place_figure(full_move.direction);
@@ -89,22 +100,35 @@ void expand(Context &ctx, NodeId node_id) {
    if (node_children.empty())
       return;
 
-   auto child_node = *node_children.begin();
+   auto child_node = *node_children.begin(); // ??? chcemy wszystkie expandowac, nie tylko pierwszy
    auto simulation_move = ctx.tree.node_at(child_node).move();
 
    auto &game = ctx.tree.node_at(node_id).game();
    const auto current_player = game.current_player();
    for (auto tile_location : game.moves()) {
+      if (!game.board().can_place_at(tile_location.x, tile_location.y, game.tile_set()[game.move_index()], tile_location.rotation)) {
+         spdlog::error("deep rl, expand(): INCORRECT TILE PLACEMENT 112!!!");
+      }
       bool simulated_tile = false;
       if (tile_location.x == simulation_move.x && tile_location.y == simulation_move.y && tile_location.rotation == simulation_move.rotation) [[unlikely]] {
          simulated_tile = true;
       }
-
+      std::array<bool, g_directions.size()> feasible_dirs;
+      for (int i = 0; i < g_directions.size(); ++i) {
+         if (game.can_place_tile_and_figure(tile_location.x, tile_location.y, tile_location.rotation, game.tile_set()[game.move_index()], g_directions[i])) {
+            feasible_dirs[i] = true;
+         }
+      }
       auto game_clone = game.clone();
       auto move = game_clone->new_move(current_player);
       move->place_tile(tile_location);
 
       for (Direction figure_move : game_clone->figure_placements(tile_location.x, tile_location.y)) {
+         // bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d)
+         // if (!feasible_dirs[static_cast<std::size_t>(figure_move)]) {
+         //    spdlog::error("deep rl, expand(): INCORRECT FIGURE PLACEMENT 128!!!");
+         //    continue;
+         // }
          if (simulated_tile && figure_move == simulation_move.direction && !simulation_move.ignored_figure) [[unlikely]]
             continue;
 
@@ -123,6 +147,10 @@ void expand(Context &ctx, NodeId node_id) {
                  .ignored_figure = false,
                  .direction = figure_move,
          };
+         if (!game.can_place_tile_and_figure(full_move.x, full_move.y, full_move.rotation, game.tile_set()[game.move_index()], figure_move)) {
+            spdlog::info("deep rl: INCORRECT MOVE 153!!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
+            continue;
+         } // ok
          ctx.tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
       }
 
@@ -138,6 +166,10 @@ void expand(Context &ctx, NodeId node_id) {
                  .rotation = tile_location.rotation,
                  .ignored_figure = true,
          };
+         if (!game.board().can_place_at(full_move.x, full_move.y, game.tile_set()[game.move_index()], full_move.rotation)) {
+            spdlog::info("deep rl: INCORRECT MOVE 172 !!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
+            continue;
+         }
          ctx.tree.add_node(std::move(game_clone), current_player, full_move, node_id);
       }
    }
@@ -192,6 +224,8 @@ void run_mcts(Context &ctx, mb::i64 time_limit) {
 FullMove choose_move(Context &ctx, int move_index, Player player) {
    auto &root_node = ctx.tree.node_at(g_root_node);
    const auto &children = root_node.children();
+   // 
+   // choose max element
    auto max_sim_count_it = std::max_element(
            children.begin(),
            children.end(),

@@ -1,2 +1,2 @@
 add_executable(carcassonne_headless main.cpp)
-target_link_libraries(carcassonne_headless msi_carcassonne_game msi_carcassonne_ai fmt Boost::program_options spdlog)
+target_link_libraries(carcassonne_headless msi_carcassonne_game msi_carcassonne_ai fmt Boost::program_options spdlog cudatest)

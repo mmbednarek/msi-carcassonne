@@ -34,6 +34,7 @@ class IGame {
    [[nodiscard]] virtual constexpr const mb::size &player_count() const noexcept = 0;
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
    [[nodiscard]] virtual mb::view<Figure> figures() const noexcept = 0;
+   [[nodiscard]] virtual mb::u8 player_figure_count(Player p) const noexcept = 0;
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
    [[nodiscard]] virtual mb::u8 move_index() const noexcept = 0;
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
