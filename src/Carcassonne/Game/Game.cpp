@@ -777,9 +777,12 @@ static void pc_join(std::array<int, g_directions.size()> &dirs, std::array<bool,
 }
 
 bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
-//   if (!board().can_place_at(x, y, tile_type, rot)) {
-//      return false;
-//   }
+   if (!board().can_place_at(x, y, tile_type, rot)) {
+      return false;
+   }
+   if (player_figure_count(current_player()) == 0) {
+      return false;
+   }
 
    auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
    if (d == Direction::Middle) {
