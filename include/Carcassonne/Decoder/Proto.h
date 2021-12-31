@@ -7,11 +7,11 @@
 
 namespace carcassonne::decoder {
 
-[[nodiscard]] constexpr Direction direction_from_proto(proto::Direction dir) {
+[[nodiscard]] Direction direction_from_proto(proto::Direction dir) {
     return static_cast<Direction>(dir);
 }
 
-[[nodiscard]] constexpr FullMove move_from_proto(const proto::Move &move) {
+[[nodiscard]] FullMove move_from_proto(const proto::Move &move) {
    FullMove result{};
    result.direction = direction_from_proto(move.direction());
    result.x = move.x();
