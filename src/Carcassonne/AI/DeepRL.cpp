@@ -64,6 +64,7 @@ void simulate(Context &ctx, NodeId node_id) {
    auto parent_id = node_id;
    auto simulated_game = ctx.tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
+      auto start_move = util::unix_time();
       auto current_player = simulated_game->current_player();
       auto full_move = get_move(ctx, simulated_game);
       auto move = simulated_game->new_move(current_player);
@@ -72,6 +73,7 @@ void simulate(Context &ctx, NodeId node_id) {
       simulated_game->update(0);
 
       parent_id = ctx.tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
+      spdlog::debug("deep rl: move lasted {}ms", util::unix_time() - start_move);
    }
 
    auto &leaf_node = ctx.tree.node_at(parent_id);

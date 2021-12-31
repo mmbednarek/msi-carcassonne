@@ -660,7 +660,7 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
       // field edges    = 8 * city_or_field[3]
       // contacts       = g_contact_types_count[24]
       // connections    = g_connection_types_count[22]
-      // pennant        = true_or_false[1]
+      // pennant        = true_or_false[1] x 5 pennant locations
       // moastery       = true_or_false[1]
       // figure         = npcs[2]
       // figure posit.  = pos[9]

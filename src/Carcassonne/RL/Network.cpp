@@ -30,7 +30,8 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    spdlog::debug("net: board_to_caffe_X lasted {}ms", util::unix_time() - start_board_to_caffe_X);
 
    auto start_copy_to_mutable_cpu_data = util::unix_time();
-   std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
+   // std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
+   std::copy(m_neuron_input.begin(), m_neuron_input.begin()+85'731, m_input->mutable_cpu_data());
    spdlog::debug("net: copy_to_mutable_cpu_data lasted {}ms", util::unix_time() - start_copy_to_mutable_cpu_data);
 
    auto start_copy_cpu_to_gpu = util::unix_time();

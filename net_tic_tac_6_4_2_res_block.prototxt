@@ -4,10 +4,10 @@ layer {
 	top: "input_data"
 	input_param {
 		shape {
-			dim: 70 #batch_size
-			dim: 86
-            dim: 41
-            dim: 41
+			dim: 1 #batch_size
+			dim: 34
+      dim: 41
+      dim: 41
 		}
 	}
 }
@@ -18,7 +18,7 @@ layer {
 	top: "label_value"
 	input_param {
 		shape {
-			dim: 70 #batch_size
+			dim: 1 #batch_size
 			dim: 1
 		}
 	}
@@ -33,7 +33,7 @@ layer {
 	top: "label_probas"
 	input_param {
 		shape {
-			dim: 70 #batch_size
+			dim: 1 #batch_size
 			dim: 67240
 		}
 	}

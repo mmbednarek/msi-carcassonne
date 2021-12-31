@@ -95,7 +95,7 @@ class Gameplay {
 
 mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
-   caffe::Caffe::SetDevice(6);
+   // caffe::Caffe::SetDevice(6);
 
    caffe::SolverParameter solver_param;
    caffe::ReadSolverParamsFromTextFileOrDie("./solver.prototxt", &solver_param);
