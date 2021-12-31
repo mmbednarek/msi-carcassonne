@@ -101,7 +101,7 @@ mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
    caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
 
    caffe::NetParameter net_parameter;
-   std::ifstream t("./proto/net_tic_tac_6_4_2_res_block.prototxt");
+   std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
    std::string model((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());
    bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
