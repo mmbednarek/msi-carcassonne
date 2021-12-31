@@ -1,0 +1,129 @@
+-- CUDA_ARCH: "-arch=sm_80"
+-- CUDA_ARCH: "-arch=sm_80"
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /workspace/msi-carcassonne/out/build_terminal
+make: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[1]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[  5%] Built target libmb
+Scanning dependencies of target carcassonne_decoder
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+[  8%] Built target carcassonne_encoder
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 12%] Built target caffe_test
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 14%] Building CXX object src/Carcassonne/Decoder/CMakeFiles/carcassonne_decoder.dir/Decoder.cpp.o
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 19%] Built target cudatest
+[ 22%] Built target msi_input
+[ 29%] Built target msi_evolution
+[ 33%] Built target msi_carcassonne_game
+[ 43%] Built target msi_graphics
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 59%] Built target msi_carcassonne_frontend
+[ 61%] Linking CXX static library libcarcassonne_decoder.a
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 61%] Built target carcassonne_decoder
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 64%] Built target carcassonne_rl
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+Scanning dependencies of target msi_carcassonne_ai
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 66%] Building CXX object src/Carcassonne/AI/CMakeFiles/msi_carcassonne_ai.dir/DeepRL.cpp.o
+[ 68%] Linking CXX static library libmsi_carcassonne_ai.a
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 80%] Built target msi_carcassonne_ai
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+make[2]: Entering directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 84%] Linking CXX executable carcassonne_headless
+[ 84%] Linking CXX executable msi_carcassonne_bin
+[ 85%] Linking CXX executable msi_evolution_bin
+[ 87%] Linking CXX executable msi_test
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 89%] Built target msi_evolution_bin
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 96%] Built target msi_test
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[ 98%] Built target carcassonne_headless
+make[2]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[100%] Built target msi_carcassonne_bin
+make[1]: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+make: Leaving directory '/workspace/msi-carcassonne/out/build_terminal'
+[2021-12-31 15:05:39.016] [info] deep rl: initialising agent
+[2021-12-31 15:05:39.016] [info] game: Player black places tile 1 at location (0, 0, 0)
+[2021-12-31 15:05:39.016] [info] game: Player black did not place any figure
+[2021-12-31 15:05:39.016] [info] deep rl: preparing move
+[2021-12-31 15:05:39.016] [debug] deep rl: building MCTS tree from scratch
+[2021-12-31 15:05:41.045] [debug] deep rl: simulation lasted 2029ms
+[2021-12-31 15:05:42.942] [debug] deep rl: simulation lasted 1893ms
+[2021-12-31 15:05:42.947] [info] game: Player blue places tile 21 at location (19, 20, 3)
+[2021-12-31 15:05:42.947] [info] game: Player blue placed figure at direction West.
+[2021-12-31 15:05:42.947] [info] random: selecting move
+[2021-12-31 15:05:42.947] [info] game: Player black places tile 20 at location (18, 20, 3)
+[2021-12-31 15:05:42.948] [info] game: Player black did not place any figure
+[2021-12-31 15:05:42.948] [info] deep rl: preparing move
+[2021-12-31 15:05:42.948] [debug] deep rl: reusing existing MCTS tree node
+[2021-12-31 15:05:44.923] [debug] deep rl: simulation lasted 1969ms
+[2021-12-31 15:05:46.755] [debug] deep rl: simulation lasted 1818ms
+[2021-12-31 15:05:46.761] [info] game: Player blue places tile 6 at location (18, 21, 0)
+[2021-12-31 15:05:46.761] [info] game: Player blue placed figure at direction EastSouth.
+[2021-12-31 15:05:46.761] [info] random: selecting move
+[2021-12-31 15:05:46.762] [info] game: Player black places tile 4 at location (18, 19, 3)
+[2021-12-31 15:05:46.762] [info] game: Player black placed figure at direction East.
+[2021-12-31 15:05:46.762] [info] deep rl: preparing move
+[2021-12-31 15:05:46.762] [debug] deep rl: reusing existing MCTS tree node
+[2021-12-31 15:05:48.597] [debug] deep rl: simulation lasted 1827ms
+[2021-12-31 15:05:50.377] [debug] deep rl: simulation lasted 1774ms
+[2021-12-31 15:05:50.388] [info] game: Player blue places tile 2 at location (20, 19, 3)
+[2021-12-31 15:05:50.388] [info] game: Player blue placed figure at direction North.
+[2021-12-31 15:05:50.388] [info] random: selecting move
+[2021-12-31 15:05:50.389] [info] game: Player black places tile 5 at location (19, 21, 1)
+[2021-12-31 15:05:50.389] [info] game: Player black placed figure at direction East.
+[2021-12-31 15:05:50.389] [info] deep rl: preparing move
+[2021-12-31 15:05:50.389] [debug] deep rl: building MCTS tree from scratch
+[2021-12-31 15:05:52.135] [debug] deep rl: simulation lasted 1738ms
+[2021-12-31 15:05:53.940] [debug] deep rl: simulation lasted 1793ms
+[2021-12-31 15:05:53.957] [info] game: Player blue places tile 6 at location (17, 19, 1)
+[2021-12-31 15:05:53.957] [info] game: Player blue placed figure at direction NorthEast.
+[2021-12-31 15:05:53.957] [info] random: selecting move
+[2021-12-31 15:05:53.958] [info] game: Player black places tile 15 at location (17, 21, 2)
+[2021-12-31 15:05:53.958] [info] game: Player black placed figure at direction North.
+[2021-12-31 15:05:53.958] [info] deep rl: preparing move
+[2021-12-31 15:05:53.958] [debug] deep rl: building MCTS tree from scratch
+[2021-12-31 15:05:55.759] [debug] deep rl: simulation lasted 1791ms
+[2021-12-31 15:05:57.533] [debug] deep rl: simulation lasted 1763ms
+[2021-12-31 15:05:57.546] [info] game: Player blue places tile 22 at location (21, 20, 1)
+[2021-12-31 15:05:57.546] [info] game: Player blue did not place any figure
+[2021-12-31 15:05:57.546] [info] random: selecting move
+[2021-12-31 15:05:57.546] [info] game: Player black places tile 20 at location (17, 22, 0)
+[2021-12-31 15:05:57.546] [info] game: Player black placed figure at direction East.
+[2021-12-31 15:05:57.546] [info] deep rl: preparing move
+[2021-12-31 15:05:57.546] [debug] deep rl: reusing existing MCTS tree node

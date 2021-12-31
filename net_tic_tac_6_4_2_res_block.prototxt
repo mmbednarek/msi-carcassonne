@@ -5,7 +5,7 @@ layer {
 	input_param {
 		shape {
 			dim: 1 #batch_size
-			dim: 34
+			dim: 86
       dim: 41
       dim: 41
 		}

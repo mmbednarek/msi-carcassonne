@@ -7,7 +7,8 @@ set(CMAKE_CXX_FLAGS "-O0 -Wall")
 set(CMAKE_C_COMPILER "/usr/bin/gcc-10")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++-10")
 set(CMAKE_CXX_STANDARD 20)
-option(HIP_PLATFORM_AMD "should be built for AMD" ON)
+option(HIP_PLATFORM_AMD "should be built for AMD" OFF)
+option(MEASURE_TIME "measure time too?" OFF)
 
 
 

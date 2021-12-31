@@ -21,7 +21,7 @@ static bool should_skip_iter(Direction d) {
    return false;
 }
 
-static float fill_allowed_vec(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, thrust::host_vector<float>& blob) {
+static float fill_allowed_vec(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, const std::span<float> blob) {
    auto &tile = game->tile_set()[game->move_index()];
    auto sum_neurons = 0.0f;
    auto allowed_it = allowed_moves.begin();
@@ -76,28 +76,7 @@ static float fill_allowed_vec(const std::unique_ptr<IGame> &game, std::vector<bo
    return sum_neurons;
 }
 
-struct greater_tuple {
-   thrust::tuple<float, int> operator()(thrust::tuple<float, int> a, thrust::tuple<float, int> b) {
-      if (a > b)
-         return a;
-      else
-         return b;
-   }
-};
-
-int max_index(thrust::host_vector<float> &vec) {
-   // create implicit index sequence [0, 1, 2, ... )
-   thrust::counting_iterator<int> begin(0);
-   thrust::counting_iterator<int> end(vec.size());
-   thrust::tuple<float, int> init(vec[0], 0);
-   thrust::tuple<float, int> smallest;
-   smallest = thrust::reduce(make_zip_iterator(make_tuple(vec.begin(), begin)),
-                             make_zip_iterator(make_tuple(vec.end(), end)),
-                             init, greater_tuple());
-   return thrust::get<1>(smallest);
-}
-
-FullMove decode_move(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, thrust::host_vector<float> &blob, float prob) {
+FullMove decode_move(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, const std::span<float> blob, float prob) {
    using mb::size, mb::u8;
    auto sum_neurons = fill_allowed_vec(game, allowed_moves, blob);
    auto threshold = sum_neurons * prob;
@@ -113,7 +92,7 @@ FullMove decode_move(const std::unique_ptr<IGame> &game, std::vector<bool> &allo
                if (*allowed_it) {
                   sum += *blob_it;
                   if (sum >= threshold) {
-                     spdlog::info("neuron_id={} of {}", blob_it - blob.begin(), blob.size());
+                     // spdlog::info("neuron_id={} of {}", blob_it - blob.begin(), blob.size());
                      return FullMove{
                              .x = x,
                              .y = y,
@@ -133,7 +112,7 @@ FullMove decode_move(const std::unique_ptr<IGame> &game, std::vector<bool> &allo
             if (*allowed_it) {
                sum += *blob_it;
                if (sum >= threshold) {
-                  spdlog::info("neuron_id={} of {}", blob_it - blob.begin(), blob.size());
+                  // spdlog::info("neuron_id={} of {}", blob_it - blob.begin(), blob.size());
                   return FullMove{
                           .x = x,
                           .y = y,
