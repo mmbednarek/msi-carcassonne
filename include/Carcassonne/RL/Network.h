@@ -15,14 +15,14 @@ class Network {
    caffe::SGDSolver<float> m_solver;
    boost::shared_ptr<caffe::Blob<float>> m_input;
    boost::shared_ptr<caffe::Blob<float>> m_output;
-//   boost::shared_ptr<caffe::Blob<float>> m_label;
+   boost::shared_ptr<caffe::Blob<float>> m_label;
    std::vector<float> m_neuron_input;
    std::vector<bool> m_allowed_moves;
 
  public:
    Network(const caffe::NetParameter &net_param, const caffe::SolverParameter &solver_param);
 
-   FullMove do_move(IGame &g, TileType tile, float prob);
+   FullMove do_move(const std::unique_ptr<IGame> &g, float prob);
 
 };
 

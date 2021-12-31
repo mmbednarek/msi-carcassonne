@@ -1,6 +1,6 @@
 project(msi_test)
-add_executable(msi_test TileTest.cpp UtilTest.cpp BoardTest.cpp EvolutionTest.cpp)
-target_link_libraries(msi_test PUBLIC gtest gtest_main libmb msi_carcassonne_game msi_evolution msi_evolution msi_carcassonne_ai fmt)
+add_executable(msi_test TileTest.cpp UtilTest.cpp BoardTest.cpp EvolutionTest.cpp Rollout.cpp)
+target_link_libraries(msi_test PUBLIC gtest gtest_main libmb msi_carcassonne_game msi_evolution msi_evolution msi_carcassonne_ai fmt carcassonne_encoder)
 
 project(caffe_test)
 add_executable(caffe_test CaffeTest.cpp)

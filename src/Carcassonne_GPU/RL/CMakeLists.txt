@@ -1,0 +1,2 @@
+CUDA_ADD_LIBRARY(carcassonne_gpu_rl Network.cu STATIC)
+target_link_libraries(carcassonne_gpu_rl caffe carcassonne_gpu_decoder)

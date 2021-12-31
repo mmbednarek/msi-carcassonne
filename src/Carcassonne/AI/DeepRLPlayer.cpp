@@ -46,17 +46,24 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
            .tree = m_tree,
            .network = m_network,
    };
-   rl::run_mcts(ctx, 2000);
    auto tile = game.tile_set()[game.move_index()];
-   auto best_move = rl::choose_move(ctx, game.move_index(), m_player);
-   m_last_moves[static_cast<int>(m_player)] = best_move;
-
-   while (!game.can_place_tile_and_figure(best_move.x, best_move.y, best_move.rotation, tile, best_move.direction)) {
-      spdlog::info("deep rl: selected incorrect move, running MCTS again");
+   FullMove best_move;
+   bool move_is_illegal = true;
+   do {
       rl::run_mcts(ctx, 1000);
       best_move = rl::choose_move(ctx, game.move_index(), m_player);
       m_last_moves[static_cast<int>(m_player)] = best_move;
-   }
+      if (best_move.ignored_figure) {
+         if (game.board().can_place_at(best_move.x, best_move.y, game.tile_set()[game.move_index()], best_move.rotation)) {
+            move_is_illegal = false;
+            continue;
+         }
+      } else if (game.can_place_tile_and_figure(best_move.x, best_move.y, best_move.rotation, game.tile_set()[game.move_index()], best_move.direction)) {
+         move_is_illegal = false;
+         continue;
+      }
+      spdlog::info("deep rl: selected incorrect move, running MCTS again");
+   } while (move_is_illegal);
 
    auto move = game.new_move(m_player);
    if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {

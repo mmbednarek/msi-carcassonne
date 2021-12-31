@@ -58,7 +58,7 @@ class Game : public IGame {
    void update(double dt) noexcept override;
 
    [[nodiscard]] bool is_monastery_completed(int x, int y) noexcept;
-   [[nodiscard]] mb::u8 player_figure_count(Player p) const noexcept;
+   [[nodiscard]] mb::u8 player_figure_count(Player p) const noexcept override;
    void notify_tour_finished(FullMove full_move) noexcept;
    void apply_tile(int x, int y, TileType tt, mb::u8) noexcept;
    void on_structure_completed(Group g);

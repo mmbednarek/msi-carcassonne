@@ -1,0 +1,32 @@
+syntax = "proto3";
+package carcassonne.proto;
+
+message Move {
+  int32 x = 1;
+  int32 y = 2;
+  int32 rotation = 3;
+  bool skip_figure = 4;
+  Direction direction = 5;
+}
+
+message Rollout {
+  int32 player_count = 1;
+  uint64 seed = 2;
+  repeated Move moves = 3;
+}
+
+enum Direction {
+  North = 0;
+  East = 1;
+  South = 2;
+  West = 3;
+  Middle = 4;
+  NorthEast = 5;
+  EastNorth = 6;
+  EastSouth = 7;
+  SouthEast = 8;
+  SouthWest = 9;
+  WestSouth = 10;
+  WestNorth = 11;
+  NorthWest = 12;
+}

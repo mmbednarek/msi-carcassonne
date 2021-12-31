@@ -6,7 +6,7 @@
 
 namespace carcassonne::decoder {
 
-FullMove decode_move(const IGame &game, TileType tile, std::vector<bool> &allowed_moves, std::span<float> blob, float prob);
+FullMove decode_move(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, const std::span<float> blob, float prob);
 
 }
 

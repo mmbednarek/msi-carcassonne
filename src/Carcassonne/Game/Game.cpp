@@ -660,7 +660,7 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
       // field edges    = 8 * city_or_field[3]
       // contacts       = g_contact_types_count[24]
       // connections    = g_connection_types_count[22]
-      // pennant        = true_or_false[1]
+      // pennant        = true_or_false[1] x 5 pennant locations
       // moastery       = true_or_false[1]
       // figure         = npcs[2]
       // figure posit.  = pos[9]
@@ -778,9 +778,12 @@ static void pc_join(std::array<int, g_directions.size()> &dirs, std::array<bool,
 }
 
 bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d) const {
-//   if (!board().can_place_at(x, y, tile_type, rot)) {
-//      return false;
-//   }
+   if (!board().can_place_at(x, y, tile_type, rot)) {
+      return false;
+   }
+   if (player_figure_count(current_player()) == 0) {
+      return false;
+   }
 
    auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
    if (d == Direction::Middle) {
