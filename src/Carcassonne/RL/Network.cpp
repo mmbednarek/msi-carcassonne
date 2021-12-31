@@ -3,6 +3,7 @@
 #include <Util/Time.h>
 #include <fmt/core.h>
 #include <span>
+#define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 namespace carcassonne::rl {
@@ -57,7 +58,7 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    spdlog::debug("net: copy_gpu_to_cpu lasted {}ms", util::unix_time() - start_copy_gpu_to_cpu);
    auto start_decode_move = util::unix_time();
 #endif
-   
+
    auto move = decoder::decode_move(g, m_allowed_moves, out_span, prob);
 #ifdef MEASURE_TIME
    spdlog::debug("net: decode_move lasted {}ms", util::unix_time() - start_decode_move);

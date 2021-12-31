@@ -1,11 +1,7 @@
 #include <Carcassonne/Decoder/Decoder.h>
 #include <Carcassonne/IGame.h>
-#include <thrust/transform.h>
-#include <thrust/functional.h>
-#include <thrust/tuple.h>
-#include <thrust/iterator/counting_iterator.h>
-// #include <curand_kernel.h>
 #include <random>
+#define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 namespace carcassonne::decoder {

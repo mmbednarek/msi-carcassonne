@@ -2,24 +2,28 @@ cmake_minimum_required(VERSION 3.9)
 project(carcassonne)
 
 set(CMAKE_CXX_FLAGS "-O0 -Wall")
-# set(CMAKE_C_COMPILER "/usr/bin/clang-12")
-# set(CMAKE_CXX_COMPILER "/usr/bin/clang++-12")
-set(CMAKE_C_COMPILER "/usr/bin/gcc-10")
-set(CMAKE_CXX_COMPILER "/usr/bin/g++-10")
 set(CMAKE_CXX_STANDARD 20)
 option(HIP_PLATFORM_AMD "should be built for AMD" OFF)
 option(MEASURE_TIME "measure time too?" OFF)
 
+if (NOT ${HIP_PLATFORM_AMD})
+    set(CUDA_ARCH "-arch=sm_80" CACHE STRING "Value of the NVCC -arch option.")
+    if(${CMAKE_VERSION} VERSION_EQUAL 3.7 OR ${CMAKE_VERSION} VERSION_GREATER 3.7)
+        option(AUTO_DETECT_ARCH "Detect local GPU compute arch automatically" ON)
+    endif()
+    message(STATUS "CUDA_ARCH: \"${CUDA_ARCH}\"")
+    SET(CUDA_NVCC_FLAGS "--expt-relaxed-constexpr")
+    SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -std=c++17 )
 
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")# -allow-unsupported-compiler")
 
-set(CUDA_ARCH "-arch=sm_80" CACHE STRING "Value of the NVCC -arch option.")
-if(${CMAKE_VERSION} VERSION_EQUAL 3.7 OR ${CMAKE_VERSION} VERSION_GREATER 3.7)
-  option(AUTO_DETECT_ARCH "Detect local GPU compute arch automatically" ON)
+    SET(CUDA_PROPAGATE_HOST_FLAGS ON)
+    SET(CUDA_SEPARABLE_COMPILATION ON)
+    SET(CUDA_VERBOSE_BUILD ON)
+
+    find_package(CUDA REQUIRED)
 endif()
-message(STATUS "CUDA_ARCH: \"${CUDA_ARCH}\"")
-SET(CUDA_NVCC_FLAGS "--expt-relaxed-constexpr")
-SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -std=c++17 )
-#   -ftemplate-backtrace-limit=0; 
+#   -ftemplate-backtrace-limit=0;
 #   --cudart; 
 #   static; 
 #   -O4 ; 
@@ -31,12 +35,6 @@ SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -std=c++17 )
 #   -dlcm=ca 
 #   )
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")# -allow-unsupported-compiler")
-
-SET(CUDA_PROPAGATE_HOST_FLAGS ON)
-SET(CUDA_SEPARABLE_COMPILATION ON)
-SET(CUDA_VERBOSE_BUILD ON)
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-fconcepts)
 endif()
@@ -47,7 +45,6 @@ find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(GTest REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
-find_package(CUDA REQUIRED)
 
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
@@ -88,7 +85,10 @@ add_subdirectory(src/Carcassonne/Frontend)
 # add_subdirectory(src/Carcassonne_GPU/AI)
 add_subdirectory(src/bin/carcassonne)
 add_subdirectory(src/bin/evolution)
+
+if (NOT ${HIP_PLATFORM_AMD})
 add_subdirectory(src/cudatest)
+endif()
 # add_subdirectory(src/bin/headless_gpu)
 add_subdirectory(src/bin/headless)
 add_subdirectory(src/Evolution)
