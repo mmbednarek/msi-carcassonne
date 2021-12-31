@@ -55,8 +55,6 @@ RUN make all -j$(nproc)
 RUN cp /root/caffe-1.0/.build_release/lib/* /usr/lib
 
 RUN apt install -y g++-10 gcc-10
-RUN cp -r /usr/local/cuda-11.5/targets/x86_64-linux/include/* /usr/include/
-# bulding carcassonne
 
 RUN apt -y install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libspdlog-dev
 

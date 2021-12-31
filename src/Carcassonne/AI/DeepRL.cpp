@@ -45,17 +45,16 @@ void simulate_random(Context &ctx, NodeId node_id) {
 }
 
 static FullMove get_move(Context &ctx, const std::unique_ptr<IGame> &game) {
+#ifdef MEASURE_TIME
    fmt::print("\n{}\n", g_max_moves - game->move_index());
+#endif
    FullMove mv = ctx.network.do_move(game, static_cast<float>(rand() % 1000) / 1000.0f);// rand is a hash
-   
-   // fmt::print("x={:d}, y={:d}, r={:d}, tile={:d}, dir={:c}, ign={:d}, fig_left={:d}, tiles_left={} ||||  ", mv.x, mv.y, mv.rotation, game->tile_set()[game->move_index()], mv.ignored_figure ? 'X' : (char)mv.direction + '0', mv.ignored_figure, game->player_figure_count(game->current_player()), g_max_moves - game->move_index());
-   
    if (mv.ignored_figure) {
       if (!game->board().can_place_at(mv.x, mv.y, game->tile_set()[game->move_index()], mv.rotation)) {
-         spdlog::error("deep rl, get_move(): INCORRECT TILE PLACEMENT 55 !!!");
+         spdlog::error("deep rl, get_move(): INCORRECT TILE PLACEMENT 52 !!!");
       }
    } else if (!game->can_place_tile_and_figure(mv.x, mv.y, mv.rotation, game->tile_set()[game->move_index()], mv.direction)) {
-      spdlog::error("deep rl, get_move(): INCORRECT FIGURE PLACEMRNT 57 !!!");
+      spdlog::error("deep rl, get_move(): INCORRECT FIGURE PLACEMRNT 55 !!!");
    }
    return mv;
 }
@@ -64,7 +63,9 @@ void simulate(Context &ctx, NodeId node_id) {
    auto parent_id = node_id;
    auto simulated_game = ctx.tree.node_at(node_id).game().clone();
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
+#ifdef MEASURE_TIME
       auto start_move = util::unix_time();
+#endif
       auto current_player = simulated_game->current_player();
       auto full_move = get_move(ctx, simulated_game);
       auto move = simulated_game->new_move(current_player);
@@ -73,7 +74,10 @@ void simulate(Context &ctx, NodeId node_id) {
       simulated_game->update(0);
 
       parent_id = ctx.tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
+#ifdef MEASURE_TIME
       spdlog::debug("deep rl: move lasted {}ms", util::unix_time() - start_move);
+#endif
+
    }
 
    auto &leaf_node = ctx.tree.node_at(parent_id);
@@ -109,7 +113,7 @@ void expand(Context &ctx, NodeId node_id) {
    const auto current_player = game.current_player();
    for (auto tile_location : game.moves()) {
       if (!game.board().can_place_at(tile_location.x, tile_location.y, game.tile_set()[game.move_index()], tile_location.rotation)) {
-         spdlog::error("deep rl, expand(): INCORRECT TILE PLACEMENT 112!!!");
+         spdlog::error("deep rl, expand(): INCORRECT TILE PLACEMENT 114!!!");
       }
       bool simulated_tile = false;
       if (tile_location.x == simulation_move.x && tile_location.y == simulation_move.y && tile_location.rotation == simulation_move.rotation) [[unlikely]] {
@@ -133,6 +137,10 @@ void expand(Context &ctx, NodeId node_id) {
          // }
          if (simulated_tile && figure_move == simulation_move.direction && !simulation_move.ignored_figure) [[unlikely]]
             continue;
+         if (!game.can_place_tile_and_figure(tile_location.x, tile_location.y, tile_location.rotation, game.tile_set()[game.move_index()], figure_move)) {
+            spdlog::info("deep rl: INCORRECT MOVE 139!!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
+            continue;
+         } // ok
 
          auto game_clone_clone = game_clone->clone();
 
@@ -149,10 +157,6 @@ void expand(Context &ctx, NodeId node_id) {
                  .ignored_figure = false,
                  .direction = figure_move,
          };
-         if (!game.can_place_tile_and_figure(full_move.x, full_move.y, full_move.rotation, game.tile_set()[game.move_index()], figure_move)) {
-            spdlog::info("deep rl: INCORRECT MOVE 153!!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
-            continue;
-         } // ok
          ctx.tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
       }
 
@@ -169,7 +173,7 @@ void expand(Context &ctx, NodeId node_id) {
                  .ignored_figure = true,
          };
          if (!game.board().can_place_at(full_move.x, full_move.y, game.tile_set()[game.move_index()], full_move.rotation)) {
-            spdlog::info("deep rl: INCORRECT MOVE 172 !!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
+            spdlog::info("deep rl: INCORRECT MOVE 174 !!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
             continue;
          }
          ctx.tree.add_node(std::move(game_clone), current_player, full_move, node_id);

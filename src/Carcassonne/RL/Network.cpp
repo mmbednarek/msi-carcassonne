@@ -2,7 +2,7 @@
 #include <Carcassonne/RL/Network.h>
 #include <Util/Time.h>
 #include <fmt/core.h>
-#include <thrust/host_vector.h>
+#include <span>
 #include <spdlog/spdlog.h>
 
 namespace carcassonne::rl {
@@ -24,41 +24,44 @@ Network::Network(const caffe::NetParameter &net_param, const caffe::SolverParame
 
 FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
-
+#ifdef MEASURE_TIME
    auto start_board_to_caffe_X = util::unix_time();
+#endif
    g->board_to_caffe_X(m_neuron_input);
+#ifdef MEASURE_TIME
    spdlog::debug("net: board_to_caffe_X lasted {}ms", util::unix_time() - start_board_to_caffe_X);
-
    auto start_copy_to_mutable_cpu_data = util::unix_time();
-   // std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
-   std::copy(m_neuron_input.begin(), m_neuron_input.begin()+85'731, m_input->mutable_cpu_data());
+#endif
+   std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
+   // std::copy(m_neuron_input.begin(), m_neuron_input.begin()+85'731, m_input->mutable_cpu_data());
+#ifdef MEASURE_TIME
    spdlog::debug("net: copy_to_mutable_cpu_data lasted {}ms", util::unix_time() - start_copy_to_mutable_cpu_data);
-
    auto start_copy_cpu_to_gpu = util::unix_time();
+#endif
    m_input->gpu_data();
+#ifdef MEASURE_TIME
    spdlog::debug("net: copy_cpu_to_gpu lasted {}ms", util::unix_time() - start_copy_cpu_to_gpu);
 
    auto start_forward = util::unix_time();
+#endif
    m_net->Forward();
+#ifdef MEASURE_TIME
    spdlog::debug("net: forward lasted {}ms", util::unix_time() - start_forward);
 
-   // std::span<float> out_span(m_output->mutable_cpu_data(), output_neuron_count);
-   // thrust::host_vector<float> probabs(m_output->mutable_cpu_data(), m_output->mutable_cpu_data() + output_neuron_count);
    auto start_copy_gpu_to_cpu = util::unix_time();
+#endif
    const float &mutable_cpu_data = *m_output->mutable_cpu_data();
+   // thrust::host_vector<float> probabs(m_output->mutable_cpu_data(), m_output->mutable_cpu_data() + output_neuron_count);
+   std::span<float> out_span(m_output->mutable_cpu_data(), output_neuron_count);
+#ifdef MEASURE_TIME
    spdlog::debug("net: copy_gpu_to_cpu lasted {}ms", util::unix_time() - start_copy_gpu_to_cpu);
-   
-   thrust::host_vector<float> probabs( output_neuron_count, mutable_cpu_data );
-   // fmt::print("\n$$$$$$$$$$$ probabs:\n");
-   // for (int i = probabs.size(); i > probabs.size() - 100; --i)
-   //    fmt::print("{}:{}\t", i, probabs[i]);
-   // fmt::print("\n########### blob:\n");
-   // for (int i = probabs.size(); i > probabs.size() - 100; --i)
-   //    fmt::print("{}:{}\t", i, *(m_output->mutable_cpu_data() + i));
-   // fmt::print("\n");
    auto start_decode_move = util::unix_time();
-   auto move = decoder::decode_move(g, m_allowed_moves, probabs, prob);
+#endif
+   
+   auto move = decoder::decode_move(g, m_allowed_moves, out_span, prob);
+#ifdef MEASURE_TIME
    spdlog::debug("net: decode_move lasted {}ms", util::unix_time() - start_decode_move);
+#endif
    return move;
 }
 

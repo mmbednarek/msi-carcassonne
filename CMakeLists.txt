@@ -7,7 +7,8 @@ set(CMAKE_CXX_FLAGS "-O0 -Wall")
 set(CMAKE_C_COMPILER "/usr/bin/gcc-10")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++-10")
 set(CMAKE_CXX_STANDARD 20)
-option(HIP_PLATFORM_AMD "should be built for AMD" ON)
+option(HIP_PLATFORM_AMD "should be built for AMD" OFF)
+option(MEASURE_TIME "measure time too?" OFF)
 
 
 
@@ -66,6 +67,10 @@ if(${HIP_PLATFORM_AMD})
     add_definitions(-D__HIP_PLATFORM_AMD__ -D__HIP_PLATFORM_HCC__)
 else()
     include_directories(/usr/local/cuda-11.5/targets/x86_64-linux/include)
+endif()
+
+if(${MEASURE_TIME})
+    add_definitions(-DMEASURE_TIME)
 endif()
 
 set(BUILD_GMOCK OFF)
