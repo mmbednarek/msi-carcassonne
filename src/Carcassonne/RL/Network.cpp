@@ -39,6 +39,8 @@ std::string thread_name() {
    return std::string(buff);
 }
 
+#define MEASURE_TIME
+
 FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    caffe::Caffe::SetDevice(this->get_gpu_id());
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
