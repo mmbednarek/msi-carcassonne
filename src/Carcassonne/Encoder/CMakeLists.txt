@@ -1,1 +1,2 @@
-add_library(carcassonne_encoder GameState.cpp)
+add_library(carcassonne_encoder GameState.cpp Rollout.cpp)
+target_link_libraries(carcassonne_encoder carcassonne_proto)
