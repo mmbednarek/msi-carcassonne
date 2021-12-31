@@ -27,10 +27,10 @@ mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
 
    caffe::SolverParameter solver_param;
-   caffe::ReadSolverParamsFromTextFileOrDie("./solver.prototxt", &solver_param);
+   caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
 
    caffe::NetParameter net_parameter;
-   std::ifstream t("./net_tic_tac_6_4_2_res_block.prototxt");
+   std::ifstream t("./proto/net_tic_tac_6_4_2_res_block.prototxt");
    std::string model((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());
    bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);

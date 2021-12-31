@@ -23,6 +23,8 @@ Network::Network(const caffe::NetParameter &net_param, const caffe::SolverParame
    m_solver.net() = m_net;
 }
 
+#define MEASURE_TIME
+
 FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
 #ifdef MEASURE_TIME

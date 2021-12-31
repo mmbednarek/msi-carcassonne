@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 project(carcassonne)
 
-set(CMAKE_CXX_FLAGS "-O0 -Wall")
+set(CMAKE_CXX_FLAGS "-O0 -Wall -g")
 set(CMAKE_CXX_STANDARD 20)
 option(HIP_PLATFORM_AMD "should be built for AMD" OFF)
 option(MEASURE_TIME "measure time too?" OFF)
@@ -70,6 +70,7 @@ set(BUILD_GMOCK OFF)
 
 add_subdirectory(deps/mb)
 
+add_subdirectory(src/Proto)
 add_subdirectory(src/Graphics)
 add_subdirectory(src/Input)
 add_subdirectory(src/Carcassonne/Game)
