@@ -6,7 +6,7 @@
 // #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
-namespace carcassonne::rl {
+namespace carcassonne::ai::rl {
 
 template<typename T, typename... ARGS>
 constexpr boost::shared_ptr<T> make_shared(ARGS... args) {

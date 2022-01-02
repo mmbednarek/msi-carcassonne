@@ -8,7 +8,7 @@
 #include <caffe/sgd_solvers.hpp>
 #include <Carcassonne/IGame.h>
 
-namespace carcassonne::rl {
+namespace carcassonne::ai::rl {
 
 class Network {
    boost::shared_ptr<caffe::Net<float>> m_net;

@@ -2,6 +2,8 @@
 #define CARCASSONNE_RL_CONCURRENCY_H
 #include <Carcassonne/RL/Network.h>
 #include <Eden_resources/Ngpus_Ncpus.h>
+#include <Carcassonne/AI/DeepRL.h>
+#include <Carcassonne/AI/Tree.h>
 #include <chrono>
 #include <condition_variable>
 #include <future>
@@ -16,13 +18,10 @@
 #include <random>
 #include <iostream>
 
-namespace carcassonne::rl {
-
-struct Data {
-   int x;
-};
+namespace carcassonne::ai::rl {
 
 inline static std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
+inline static std::map<std::thread::id, std::unique_ptr<Tree>> g_trees;
 
 template<typename T>
 class threadsafe_queue {
@@ -119,7 +118,7 @@ class function_wrapper {
    function_wrapper &operator=(const function_wrapper &) = delete;
 };
 
-mb::result<std::unique_ptr<carcassonne::rl::Network>> DeepRLPlayer::load_network(int gpu_id) const {
+mb::result<std::unique_ptr<carcassonne::ai::rl::Network>> DeepRLPlayer::load_network(int gpu_id) const {
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
    caffe::Caffe::SetDevice(gpu_id);
    
@@ -137,7 +136,7 @@ mb::result<std::unique_ptr<carcassonne::rl::Network>> DeepRLPlayer::load_network
    
    net_parameter.mutable_state()->set_phase(caffe::TRAIN);
    
-   return std::make_unique<carcassonne::rl::Network>(net_parameter, solver_param);
+   return std::make_unique<carcassonne::ai::rl::Network>(net_parameter, solver_param);
 }
 
 class thread_pool {
@@ -199,12 +198,16 @@ class client_threads {
    std::atomic_bool done;
    std::vector<std::thread> threads;
    join_threads joiner;
-   thread_pool* m_workers_pool;
    std::mutex mx_cout;
+   std::unique_ptr<rl::Context> ctx_ptr;
    void client_work(unsigned cpu_id);
 
  public:
-   client_threads(thread_pool* workers_pool) : done(false), joiner(threads), m_workers_pool(workers_pool) {
+   client_threads(std::unique_ptr<rl::Context>&& _ctx_ptr)
+    : done(false)
+    , joiner(threads)
+    , ctx_ptr(std::move(_ctx_ptr))
+   {
       unsigned const cpus_count = Eden_resources::get_cpus_count();
       try {
          for (unsigned i = 0; i < cpus_count; ++i) {

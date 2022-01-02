@@ -7,6 +7,7 @@
 #include <functional>
 #include <mb/int.h>
 #include <memory>
+#include <mutex>
 
 // Node represents the state resulted by choosing an action
 
@@ -24,6 +25,7 @@ class Node {
    NodeId m_id = 0;
    FullMove m_move;
    bool m_expanded = false;
+   std::mutex m_node_mutex
 
  public:
    mb::size m_simulation_count = 0; // (N in the paper)

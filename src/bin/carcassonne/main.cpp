@@ -11,7 +11,6 @@
 #include <fmt/core.h>
 #include <google/protobuf/text_format.h>
 #include <mb/core.h>
-#include <Eden_resources/Ngpus_Ncpus.h>
 
 uint64_t now_milis() {
    return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -41,7 +40,7 @@ mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
 
    net_parameter.mutable_state()->set_phase(caffe::TRAIN);
 
-   return std::make_unique<carcassonne::rl::Network>(net_parameter, solver_param);
+   return std::make_unique<carcassonne::ai::rl::Network>(net_parameter, solver_param);
 }
 
 int main() {
@@ -149,11 +148,9 @@ int main() {
 
    player_id += mcts_ai_player_count;
 
-   mb::size gpus_count = Eden_resources::get_gpus_count();
-   mb::size cpus_count = Eden_resources::get_cpus_count();
    std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &net, &gpus_count, &cpus_count](carcassonne::Player p) {
-      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, *net, gpus_count, cpus_count);
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &net](carcassonne::Player p) {
+      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, *net);
    });
 
    constexpr double dt = 1000.0 / 60.0;
