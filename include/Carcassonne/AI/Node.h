@@ -7,6 +7,7 @@
 #include <functional>
 #include <mb/int.h>
 #include <memory>
+#include <mutex>
 
 // Node represents the state resulted by choosing an action
 
@@ -24,6 +25,8 @@ class Node {
    NodeId m_id = 0;
    FullMove m_move;
    bool m_expanded = false;
+   bool m_simulated = false;
+   std::mutex m_node_mutex
 
  public:
    mb::size m_simulation_count = 0; // (N in the paper)
@@ -86,6 +89,9 @@ class Node {
    }
    [[nodiscard]] constexpr bool expanded() const noexcept {
       return m_expanded;
+   }
+   [[nodiscard]] constexpr bool simulated() const noexcept {
+      return m_simulated;
    }
 
    [[nodiscard]] constexpr double win_ratio() const noexcept {

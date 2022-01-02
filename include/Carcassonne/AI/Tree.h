@@ -13,6 +13,8 @@ constexpr NodeId g_root_node = 0;
 class Tree {
    std::vector<Node> m_nodes;
  public:
+   std::mutex m_tree_mutex;
+   
    Tree(const IGame &game, const Player &player);
    void change_root(NodeId new_root_id);
    NodeId find_node_by_move(NodeId base_id, const FullMove &move);
@@ -21,6 +23,7 @@ class Tree {
    void reset(const IGame &game, Player player);
 
    [[nodiscard]] inline mb::size node_count() const noexcept {
+      std::unique_lock<std::mutex> lck(m_tree_mutex);
       return m_nodes.size();
    }
 };

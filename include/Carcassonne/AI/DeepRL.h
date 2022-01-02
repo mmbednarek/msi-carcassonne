@@ -4,6 +4,7 @@
 #include <Carcassonne/Player.h>
 #include <Carcassonne/RL/Network.h>
 #include <mb/result.h>
+#include <Carcassonne/RL/Concurrency.h>
 
 namespace carcassonne {
 struct FullMove;
@@ -16,8 +17,9 @@ class Tree;
 namespace rl {
 
 struct Context {
-   Tree &tree;
-   ::carcassonne::rl::Network &network;
+   thread_pool& workers_pool;
+   std::mutex mutex;
+   std::unique_lock<std::mutex> lck{mutex, std::defer_lock};
 };
 
 
