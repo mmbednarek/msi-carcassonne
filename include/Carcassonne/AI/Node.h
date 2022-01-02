@@ -25,6 +25,8 @@ class Node {
    std::vector<std::unique_ptr<Node>> m_children;
    FullMove m_move;
    bool m_expanded = false;
+   bool m_simulated = false;
+   std::mutex m_node_mutex
 
  public:
    mb::size m_simulation_count = 0;        // (N in the paper)
@@ -83,6 +85,9 @@ class Node {
 
    [[nodiscard]] constexpr bool expanded() const noexcept {
       return m_expanded;
+   }
+   [[nodiscard]] constexpr bool simulated() const noexcept {
+      return m_simulated;
    }
 
    [[nodiscard]] constexpr bool is_root() const noexcept {
