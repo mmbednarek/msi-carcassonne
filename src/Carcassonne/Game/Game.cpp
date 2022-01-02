@@ -1,7 +1,7 @@
 #include <Carcassonne/Game/Game.h>
 #include <Carcassonne/Game/Move.h>
 #include <algorithm>
-#define SPDLOG_FMT_EXTERNAL
+// #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 #include <set>
 

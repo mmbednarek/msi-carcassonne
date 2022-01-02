@@ -1,7 +1,7 @@
 #include <Carcassonne/Decoder/Decoder.h>
 #include <Carcassonne/IGame.h>
 #include <random>
-#define SPDLOG_FMT_EXTERNAL
+// #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 namespace carcassonne::decoder {

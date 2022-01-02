@@ -23,17 +23,6 @@ if (NOT ${HIP_PLATFORM_AMD})
 
     find_package(CUDA REQUIRED)
 endif()
-#   -ftemplate-backtrace-limit=0;
-#   --cudart; 
-#   static; 
-#   -O4 ; 
-#   --expt-relaxed-constexpr; 
-#   -fmad=true; 
-#   --expt-extended-lambda;
-#   --relocatable-device-code=false;
-#   -Xptxas ;
-#   -dlcm=ca 
-#   )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-fconcepts)
@@ -92,6 +81,7 @@ add_subdirectory(src/bin/carcassonne)
 add_subdirectory(src/bin/evolution)
 
 if (NOT ${HIP_PLATFORM_AMD})
+add_subdirectory(src/Eden_resources)
 add_subdirectory(src/cudatest)
 endif()
 # add_subdirectory(src/bin/headless_gpu)
@@ -105,15 +95,3 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(GLog REQUIRED)
 
 find_package(Protobuf REQUIRED)
-
-message("protobuf found: ${PROTOBUF_FOUND}")
-message("protoc: ${PROTOBUF_PROTOC_LIBRARIES}")
-message("lite library: ${PROTOBUF_LITE_LIBRARIES}")
-message("protobuf libraries: ${PROTOBUF_LIBRARIES}")
-message("inclclude dirs: ${PROTOBUF_INCLUDE_DIRS}")
-
-message("protoc: ${PROTOBUF_PROTOC_LIBRARY}")
-message("lite library: ${PROTOBUF_INCLUDE_DIR}")
-message("protobuf libraries: ${PROTOBUF_LIBRARY}")
-message("inclclude dirs: ${PROTOBUF_INCLUDE_DIR}")
-message("protc executable: ${PROTOBUF_PROTOC_EXECUTABLE}")

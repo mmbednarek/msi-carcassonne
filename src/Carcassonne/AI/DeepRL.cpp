@@ -8,6 +8,7 @@
 #include <chrono>
 #include <spdlog/spdlog.h>
 #include <random>
+#include <limits>
 
 namespace carcassonne::ai::rl {
 
@@ -128,38 +129,31 @@ void expand(Context &ctx, NodeId node_id) {
       auto game_clone = game.clone();
       auto move = game_clone->new_move(current_player);
       move->place_tile(tile_location);
+      if (game.player_figure_count(game.current_player()) > 0) {
+         for (Direction figure_move : game_clone->figure_placements(tile_location.x, tile_location.y)) {
+            if (simulated_tile && figure_move == simulation_move.direction && !simulation_move.ignored_figure) [[unlikely]]
+               continue;
+            if (!game.can_place_tile_and_figure(tile_location.x, tile_location.y, tile_location.rotation, game.tile_set()[game.move_index()], figure_move)) {
+               spdlog::info("deep rl: INCORRECT MOVE 139!!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
+               continue;
+            }
+            auto game_clone_clone = game_clone->clone();
+            {
+               auto move_clone = move->clone(*game_clone_clone);
+               move_clone->place_figure(figure_move);
+            }
+            game_clone_clone->update(0);
 
-      for (Direction figure_move : game_clone->figure_placements(tile_location.x, tile_location.y)) {
-         // bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_type, Direction d)
-         // if (!feasible_dirs[static_cast<std::size_t>(figure_move)]) {
-         //    spdlog::error("deep rl, expand(): INCORRECT FIGURE PLACEMENT 128!!!");
-         //    continue;
-         // }
-         if (simulated_tile && figure_move == simulation_move.direction && !simulation_move.ignored_figure) [[unlikely]]
-            continue;
-         if (!game.can_place_tile_and_figure(tile_location.x, tile_location.y, tile_location.rotation, game.tile_set()[game.move_index()], figure_move)) {
-            spdlog::info("deep rl: INCORRECT MOVE 139!!!");// ??? Mikolaj, jak ten if moze sie w ogole spelniac...?
-            continue;
-         } // ok
-
-         auto game_clone_clone = game_clone->clone();
-
-         {
-            auto move_clone = move->clone(*game_clone_clone);
-            move_clone->place_figure(figure_move);
+            const auto full_move = FullMove{
+                  .x = tile_location.x,
+                  .y = tile_location.y,
+                  .rotation = tile_location.rotation,
+                  .ignored_figure = false,
+                  .direction = figure_move,
+            };
+            ctx.tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
          }
-         game_clone_clone->update(0);
-
-         const auto full_move = FullMove{
-                 .x = tile_location.x,
-                 .y = tile_location.y,
-                 .rotation = tile_location.rotation,
-                 .ignored_figure = false,
-                 .direction = figure_move,
-         };
-         ctx.tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
       }
-
       if (simulated_tile && simulation_move.ignored_figure)
          continue;
 
@@ -216,13 +210,15 @@ void run_selection(Context &ctx) {
    }
 }
 
-void run_mcts(Context &ctx, mb::i64 time_limit) {
+void run_mcts(Context &ctx, mb::i64 time_limit, mb::i64 runs_limit) {
    if (!ctx.tree.node_at(g_root_node).expanded()) {
       expand(ctx, g_root_node);
    }
+   if (time_limit == 0) time_limit = std::numeric_limits<mb::i64>::max();
+   if (runs_limit == 0) runs_limit = std::numeric_limits<mb::i64>::max();
 
    auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{time_limit};
-   while (std::chrono::steady_clock::now() < until) {
+   for (mb::i64 i = 0; std::chrono::steady_clock::now() < until && i < runs_limit; ++i) {
       run_selection(ctx);
    }
 }

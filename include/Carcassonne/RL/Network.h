@@ -20,7 +20,11 @@ class Network {
    std::vector<bool> m_allowed_moves;
 
  public:
-   Network(const caffe::NetParameter &net_param, const caffe::SolverParameter &solver_param);
+   Network(const caffe::NetParameter &net_parameter, const caffe::SolverParameter &solver_param);
+   Network(Network &&) noexcept = default;
+   Network &operator=(Network &&) noexcept = default;
+   Network(const Network &other) = delete;
+   Network &operator=(const Network &other) = delete;
 
    FullMove do_move(const std::unique_ptr<IGame> &g, float prob);
 

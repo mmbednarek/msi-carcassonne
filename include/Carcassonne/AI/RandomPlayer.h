@@ -3,7 +3,7 @@
 #include <Carcassonne/IGame.h>
 #include <Util/Random.h>
 #include <random>
-#define SPDLOG_FMT_EXTERNAL
+// #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 // AI implementation

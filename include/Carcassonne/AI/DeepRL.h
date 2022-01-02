@@ -26,7 +26,7 @@ void simulate(Context &ctx, NodeId node_id);
 void expand(Context &ctx, NodeId node_id);
 void backpropagate(Context &ctx, NodeId node_id, Player winner);
 void run_selection(Context &ctx);
-void run_mcts(Context &ctx, mb::i64 time_limit);
+void run_mcts(Context &ctx, mb::i64 time_limit, mb::i64 runs_limit);
 FullMove choose_move(Context &ctx, int move_index, Player player);
 
 }

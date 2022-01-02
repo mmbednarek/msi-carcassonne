@@ -1,14 +1,22 @@
 #include <Carcassonne/AI/DeepRLPlayer.h>
 #include <Carcassonne/AI/Tree.h>
-#define SPDLOG_FMT_EXTERNAL
+// #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 namespace carcassonne::ai {
 
-DeepRLPlayer::DeepRLPlayer(IGame &game, Player player, carcassonne::rl::Network &net) : m_player(player),
-                                                                                        m_tree(game, player),
-                                                                                        m_player_count(game.player_count()),
-                                                                                        m_network(net) {
+DeepRLPlayer::DeepRLPlayer(
+   IGame &game,
+   Player player,
+   carcassonne::rl::Network &net,
+   mb::size gpus,
+   mb::size cpus )
+    : m_player(player)
+    , m_tree(game, player)
+    , m_player_count(game.player_count())
+    , m_network(net)
+    , m_gpus(gpus)
+    , m_cpus(cpus) {
    spdlog::info("deep rl: initialising agent");
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
@@ -50,7 +58,7 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    FullMove best_move;
    bool move_is_illegal = true;
    do {
-      rl::run_mcts(ctx, 1000);
+      rl::run_mcts(ctx, 1000, 0);
       best_move = rl::choose_move(ctx, game.move_index(), m_player);
       m_last_moves[static_cast<int>(m_player)] = best_move;
       if (best_move.ignored_figure) {

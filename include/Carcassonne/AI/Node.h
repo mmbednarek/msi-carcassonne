@@ -26,8 +26,11 @@ class Node {
    bool m_expanded = false;
 
  public:
-   mb::size m_simulation_count = 0;
-   std::array<mb::size, 4> m_player_wins{};
+   mb::size m_simulation_count = 0; // (N in the paper)
+   std::array<mb::size, 4> m_player_wins{}; // (not used in DeepRL)
+   std::array<int, 4> m_W{}; // total action values (for DeepRL)
+   std::array<float, 4> m_Q{}; // mean action values (for DeepRL)
+   float m_P = 0.0; // prior probability of selecting the Node (for DeepRL)
 
    Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move);
    Node(NodeId id, std::unique_ptr<IGame> &&game, const Player &player, FullMove move, NodeId parent_id);
@@ -96,8 +99,16 @@ class Node {
       return m_simulation_count;
    }
 
-   constexpr void propagate(Player player) noexcept {
-      m_player_wins[static_cast<mb::size>(player)] += 1;
+   constexpr void propagate(Player winner) noexcept {
+      for (mb::size i = 0; i < m_player_wins.size(); ++i) {
+         if (static_cast<mb::size>(winner) == i) {
+            m_player_wins[i] += 1;
+            m_W[i] += 1;
+            break;
+         }
+         m_W[i] -= 1;
+         m_Q[i] = m_W[i] / static_cast<float>(m_simulation_count);
+      }
       m_simulation_count += 1;
    }
 

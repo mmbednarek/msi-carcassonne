@@ -2,10 +2,10 @@
 #include "Carcassonne/AI/RandomPlayer.h"
 #include "Carcassonne/Game/Game.h"
 #include <boost/program_options.hpp>
+#include <google/protobuf/text_format.h>
+#include <Eden_resources/Ngpus_Ncpus.h>
 #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
-#include <google/protobuf/text_format.h>
-// #include <cudatest/cudatest.h>
 
 namespace po = boost::program_options;
 
@@ -60,9 +60,10 @@ class Gameplay {
    std::vector<carcassonne::ai::DeepRLPlayer> m_rl_players;
    std::vector<carcassonne::ai::RandomPlayer<>> m_random_players;
    carcassonne::Player m_next_player = carcassonne::Player::Black;
+   mb::size m_gpus, m_cpus;
 
  public:
-   Gameplay(int player_count, uint64_t seed) : m_game(player_count, seed) {
+   Gameplay(int player_count, uint64_t seed, mb::size m_gpus, mb::size m_cpus) : m_game(player_count, seed) {
       m_game.on_next_move([] (carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
          auto tile = game.tile_set()[game.move_index()];
          spdlog::info("game: Player {} places tile {} at location ({}, {}, {})", player_to_string(player), tile, move.x, move.y, move.rotation);
@@ -75,7 +76,7 @@ class Gameplay {
    }
 
    void add_rl_player(carcassonne::rl::Network &net) {
-      m_rl_players.emplace_back(m_game, m_next_player, net);
+      m_rl_players.emplace_back(m_game, m_next_player, net, m_gpus, m_cpus);
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
@@ -93,9 +94,13 @@ class Gameplay {
    }
 };
 
+class NetworksManager {
+   std::vector<carcassonne::rl::Network> networks;
+};
+
 mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
-   // caffe::Caffe::SetDevice(6);
+   caffe::Caffe::SetDevice(6);
 
    caffe::SolverParameter solver_param;
    caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
@@ -115,10 +120,6 @@ mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
 }
 
 int main(int argc, char **argv) {
-   // spdlog::debug("cudatest start\n");
-   // cudatest::test_cuda();
-   // spdlog::debug("cudatest complete\n");
-   // return 0;
    po::options_description desc("carcassonne headless");
    desc.add_options()
            ("help", "")
@@ -143,8 +144,10 @@ int main(int argc, char **argv) {
       spdlog::error("player count may not exceed 4");
       return EXIT_FAILURE;
    }
-
-   Gameplay gameplay(total_player_count, seed);
+   
+   mb::size gpus_count = Eden_resources::get_gpus_count();
+   mb::size cpus_count = Eden_resources::get_cpus_count();
+   Gameplay gameplay(total_player_count, seed, gpus_count, cpus_count);
 
    auto network_res = load_network();
    if (!network_res.ok()) {
@@ -152,7 +155,7 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
    }
    auto network = network_res.unwrap();
-
+   
    for (int i = 0; i < rl_count; ++i) {
       gameplay.add_rl_player(*network);
    }

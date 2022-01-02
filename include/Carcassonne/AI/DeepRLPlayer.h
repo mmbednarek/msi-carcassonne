@@ -14,12 +14,18 @@ class DeepRLPlayer {
    carcassonne::rl::Network &m_network;
    Tree m_tree;
    mb::size m_player_count;
+   mb::size m_gpus, m_cpus;
 
    void prepare_tree(const IGame &game);
 
  public:
-   explicit DeepRLPlayer(IGame &game, Player player, carcassonne::rl::Network &net);
-   void train_network(const IGame &game);
+   explicit DeepRLPlayer(
+      IGame &game,
+      Player player,
+      carcassonne::rl::Network &net,
+      mb::size gpus,
+      mb::size cpus );
+   void train_network(const IGame &game); // to be implemented
    void make_move(IGame &game) noexcept;
 };
 

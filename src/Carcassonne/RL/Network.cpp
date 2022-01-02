@@ -3,7 +3,7 @@
 #include <Util/Time.h>
 #include <fmt/core.h>
 #include <span>
-#define SPDLOG_FMT_EXTERNAL
+// #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 namespace carcassonne::rl {
@@ -13,19 +13,22 @@ constexpr boost::shared_ptr<T> make_shared(ARGS... args) {
    return boost::shared_ptr<T>(new T(args...));
 }
 
-Network::Network(const caffe::NetParameter &net_param, const caffe::SolverParameter &solver_param) : m_net(make_shared<caffe::Net<float>>(net_param)),
-                                                                                                     m_solver(solver_param),
-                                                                                                     m_input(m_net->blob_by_name("input_data")),
-                                                                                                     m_output(m_net->blob_by_name("output_probas")),
-                                                                                                     m_label(m_net->blob_by_name("output_value")),
-                                                                                                     m_allowed_moves(g_board_width * g_board_height * 4 * 14, false)
+Network::Network(
+   const caffe::NetParameter &net_parameter,
+   const caffe::SolverParameter &solver_param )
+    : m_solver(solver_param)
+    , m_input(m_solver.net()->blob_by_name("input_data"))
+    , m_output(m_solver.net()->blob_by_name("output_probas"))
+    , m_label(m_solver.net()->blob_by_name("output_value"))
+    , m_allowed_moves(g_board_width * g_board_height * 4 * 14, false)
 {
-   m_solver.net() = m_net;
 }
 
-#define MEASURE_TIME
+// #define MEASURE_TIME
 
 FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
+   int gpu_id = 8 * prob;
+   spdlog::warn("gpu_id={}", gpu_id);
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
 #ifdef MEASURE_TIME
    auto start_board_to_caffe_X = util::unix_time();
@@ -44,10 +47,10 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    m_input->gpu_data();
 #ifdef MEASURE_TIME
    spdlog::debug("net: copy_cpu_to_gpu lasted {}ms", util::unix_time() - start_copy_cpu_to_gpu);
-
+   caffe::Caffe::SetDevice(gpu_id);
    auto start_forward = util::unix_time();
 #endif
-   m_net->Forward();
+   m_solver.net()->Forward();
 #ifdef MEASURE_TIME
    spdlog::debug("net: forward lasted {}ms", util::unix_time() - start_forward);
 
