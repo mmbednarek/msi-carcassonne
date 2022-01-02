@@ -1,1 +1,0 @@
-CUDA_ADD_LIBRARY(carcassonne_gpu_encoder GameState.cu STATIC)

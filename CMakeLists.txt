@@ -99,15 +99,3 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(GLog REQUIRED)
 
 find_package(Protobuf REQUIRED)
-
-message("protobuf found: ${PROTOBUF_FOUND}")
-message("protoc: ${PROTOBUF_PROTOC_LIBRARIES}")
-message("lite library: ${PROTOBUF_LITE_LIBRARIES}")
-message("protobuf libraries: ${PROTOBUF_LIBRARIES}")
-message("inclclude dirs: ${PROTOBUF_INCLUDE_DIRS}")
-
-message("protoc: ${PROTOBUF_PROTOC_LIBRARY}")
-message("lite library: ${PROTOBUF_INCLUDE_DIR}")
-message("protobuf libraries: ${PROTOBUF_LIBRARY}")
-message("inclclude dirs: ${PROTOBUF_INCLUDE_DIR}")
-message("protc executable: ${PROTOBUF_PROTOC_EXECUTABLE}")
