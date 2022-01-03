@@ -79,14 +79,22 @@ class threadsafe_queue {
 
 class join_threads {
    std::vector<std::thread> &threads;
-
+   bool joined_earlier = false;
+   void join_all() {
+      for (unsigned long i = 0; i < threads.size(); ++i) {
+         // if (threads[i].joinable())
+         threads[i].join();
+      }
+   }
  public:
    explicit join_threads(std::vector<std::thread> &threads_) : threads(threads_) {}
    ~join_threads() {
-      for (unsigned long i = 0; i < threads.size(); ++i) {
-         if (threads[i].joinable())
-            threads[i].join();
-      }
+      if (joined_earlier) return;
+      join_all();
+   }
+   void join_earlier() {
+      joined_earlier = true;
+      join_all();
    }
 };
 
@@ -144,6 +152,9 @@ class thread_pool {
    std::vector<std::thread> threads;
    join_threads joiner;
    threadsafe_queue<function_wrapper> work_queue;
+   std::mutex mut;
+   std::unique_lock<std::mutex> lck;
+   unsigned networks_per_gpu = 2;
    void worker_thread(int gpu_id) {
       auto network_res = load_network(gpu_id);
       if (!network_res.ok()) {
@@ -151,7 +162,9 @@ class thread_pool {
          return EXIT_FAILURE;
       }
       auto network = network_res.unwrap();
+      lck.lock()
       g_networks.emplace(std::this_thread::get_id(), std::move(load_network(gpu_id)));
+      lck.unlock();
       std::cout << "worker Thread " << std::this_thread::get_id() << " run on gpu " << gpu_id << std::endl;
       std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
       while (!done) {
@@ -166,12 +179,14 @@ class thread_pool {
    }
 
  public:
-   thread_pool() : done(false), joiner(threads) {
+   thread_pool() : done(false), joiner(threads), lck(mut, std::defer_lock) {
       // unsigned const thread_count = std::thread::hardware_concurrency();
       unsigned gpus_count = Eden_resources::get_gpus_count();
+      unsigned networks_count = gpus_count * networks_per_gpu;
       try {
-         for (unsigned i = 0; i < gpus_count; ++i) {
-            threads.push_back(std::thread(&thread_pool::worker_thread, this, i));
+         for (unsigned i = 0; i < networks_count; ++i) {
+            unsigned gpu_id = i % gpus_count;
+            threads.push_back(std::thread(&thread_pool::worker_thread, this, gpu_id));
          }
       } catch (...) {
          done = true;
@@ -198,17 +213,18 @@ class client_threads {
    std::atomic_bool done;
    std::vector<std::thread> threads;
    join_threads joiner;
-   std::mutex mx_cout;
-   std::unique_ptr<rl::Context> ctx_ptr;
+   std::unique_ptr<rl::Context>& ctx_ptr;
+   std::shared_ptr<std::condition_variable> cond_var;
    void client_work(unsigned cpu_id);
 
  public:
-   client_threads(std::unique_ptr<rl::Context>&& _ctx_ptr)
-    : done(false)
-    , joiner(threads)
-    , ctx_ptr(std::move(_ctx_ptr))
-   {
-      unsigned const cpus_count = Eden_resources::get_cpus_count();
+   client_threads(
+      unsigned cpus_count, 
+      std::unique_ptr<rl::Context> &_ctx_ptr, 
+      const std::shared_ptr<std::condition_variable>& _cond_var)
+       : done(false), joiner(threads), ctx_ptr(_ctx_ptr), cond_var(_cond_var) {
+      if (cpus_count == 0)
+         cpus_count = Eden_resources::get_cpus_count();
       try {
          for (unsigned i = 0; i < cpus_count; ++i) {
             threads.push_back(std::thread(&client_threads::client_work, this, i));
@@ -220,6 +236,9 @@ class client_threads {
    }
    ~client_threads() {
       done = true;
+   }
+   void join_clients() {
+      joiner.join_earlier();
    }
 };
 

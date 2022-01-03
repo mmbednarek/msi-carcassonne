@@ -26,7 +26,7 @@ class Node {
    FullMove m_move;
    bool m_expanded = false;
    bool m_simulated = false;
-   std::mutex m_node_mutex
+   std::mutex m_node_mutex;
 
  public:
    mb::size m_simulation_count = 0; // (N in the paper)
@@ -121,6 +121,10 @@ class Node {
    inline void mark_as_expanded() noexcept {
       m_expanded = true;
       m_game = nullptr;
+   }
+
+   inline void mark_as_simulated() noexcept {
+      m_simulated = true;
    }
 
    void add_child(NodeId id) noexcept;

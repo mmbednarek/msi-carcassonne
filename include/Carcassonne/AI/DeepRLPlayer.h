@@ -13,10 +13,9 @@ namespace carcassonne::ai {
 class DeepRLPlayer {
    Player m_player;
    std::array<FullMove, 4> m_last_moves{};
-   Tree m_tree;
    mb::size m_player_count;
-   std::unique_ptr<rl::client_threads> m_clients_pool;
-   void prepare_tree(const IGame &game);
+   std::unique_ptr<rl::client_threads> m_clients_pool = nullptr;
+   std::unique_ptr<Tree> prepare_tree(const IGame &game);
 
  public:
    explicit DeepRLPlayer(
