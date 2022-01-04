@@ -1,5 +1,6 @@
 #include <Carcassonne/AI/DeepRLPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
+#include <Carcassonne/Encoder/Rollout.h>
 #include <Carcassonne/Game/Game.h>
 #include <boost/program_options.hpp>
 #include <google/protobuf/text_format.h>
@@ -23,7 +24,7 @@ std::string_view player_to_string(carcassonne::Player player) {
 }
 
 std::string_view direction_to_string(carcassonne::Direction dir) {
-   switch(dir) {
+   switch (dir) {
    case carcassonne::Direction::North:
       return "North";
    case carcassonne::Direction::East:
@@ -59,10 +60,13 @@ class Gameplay {
    std::vector<carcassonne::ai::DeepRLPlayer> m_rl_players;
    std::vector<carcassonne::ai::RandomPlayer<>> m_random_players;
    carcassonne::Player m_next_player = carcassonne::Player::Black;
+   carcassonne::encoder::Rollout m_rollout;
 
  public:
-   Gameplay(int player_count, uint64_t seed) : m_game(player_count, seed) {
-      m_game.on_next_move([] (carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
+   Gameplay(int player_count, uint64_t seed) : m_game(player_count, seed),
+                                               m_rollout(player_count, seed) {
+      m_game.on_next_move([this](carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
+         m_rollout.register_move(move);
          auto tile = game.tile_set()[game.move_index()];
          spdlog::info("game: Player {} places tile {} at location ({}, {}, {})", player_to_string(player), tile, move.x, move.y, move.rotation);
          if (move.ignored_figure) {
@@ -84,9 +88,13 @@ class Gameplay {
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
+   void save(std::string_view filename) {
+      m_rollout.save_rollout(filename);
+   }
+
    void run() {
       m_game.start();
-      while(m_game.move_index() < carcassonne::g_max_moves) {
+      while (m_game.move_index() < carcassonne::g_max_moves) {
          m_game.update(0);
       }
    }
@@ -94,12 +102,7 @@ class Gameplay {
 
 int main(int argc, char **argv) {
    po::options_description desc("carcassonne headless");
-   desc.add_options()
-           ("help", "")
-           ("seed,s", po::value<int>()->default_value(10), "seed of a game")
-           ("rl-ai-count,l", po::value<int>()->default_value(1), "number of rl agents")
-           ("random-ai-count,r", po::value<int>()->default_value(1), "number of random agents")
-           ("verbose,v", "verbose output");
+   desc.add_options()("help", "")("seed,s", po::value<int>()->default_value(10), "seed of a game")("rl-ai-count,l", po::value<int>()->default_value(1), "number of rl agents")("random-ai-count,r", po::value<int>()->default_value(1), "number of random agents")("verbose,v", "verbose output");
 
    po::variables_map values;
    po::store(po::command_line_parser(argc, argv).options(desc).run(), values);
@@ -117,9 +120,9 @@ int main(int argc, char **argv) {
       spdlog::error("player count may not exceed 4");
       return EXIT_FAILURE;
    }
-   
+
    Gameplay gameplay(total_player_count, seed);
-   
+
    for (int i = 0; i < rl_count; ++i) {
       gameplay.add_rl_player();
    }
@@ -128,4 +131,5 @@ int main(int argc, char **argv) {
    gameplay.add_random_player(generator);
 
    gameplay.run();
+   gameplay.save("gameplay.proto");
 }

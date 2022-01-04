@@ -197,7 +197,7 @@ class thread_pool {
    threadsafe_queue<NodeWithPromise> work_queue;
    std::mutex mut;
    std::unique_lock<std::mutex> lck;
-   unsigned networks_per_gpu = 2;
+   unsigned networks_per_gpu = 1;
    void worker_thread(int gpu_id) {
       spdlog::debug("thread {} wakes up", thread_name());
       spdlog::debug("thread {} ok0.0", thread_name());
