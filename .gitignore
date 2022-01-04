@@ -7,6 +7,9 @@ cmake-install
 testRot.sh
 run.sh
 cmake.sh
+include/Carcassonne/Proto
+src/Proto
+include/caffe
 logs
 build
 build-debug
