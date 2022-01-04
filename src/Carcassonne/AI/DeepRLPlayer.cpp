@@ -42,7 +42,7 @@ std::unique_ptr<Tree> prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr) {
 }
 
 void rl::client_threads::client_work(unsigned cpu_id) {
-   std::cout << "client Thread(" << cpu_id << ") " << std::this_thread::get_id() << " run on cpu " << cpu_id << std::endl;
+   std::cout << "client Thread(" << cpu_id << ") " << thread_name() << " run on cpu " << cpu_id << std::endl;
    ctx_ptr->lck.lock();
    if (!ctx_ptr->leading_tread_assigned) {
       ctx_ptr->leading_tread_id = std::this_thread::get_id();
@@ -56,10 +56,9 @@ void rl::client_threads::client_work(unsigned cpu_id) {
       return;
    }
    ctx_ptr->lck.lock();
-   std::hash<std::thread::id> hasher;
-   spdlog::debug("thread {} pushes tree", hasher(std::this_thread::get_id()));
+   spdlog::debug("thread {} pushes tree", thread_name());
    ctx_ptr->trees.emplace(std::this_thread::get_id(), std::move(tree));
-   spdlog::debug("thread {} pushed tree", hasher(std::this_thread::get_id()));
+   spdlog::debug("thread {} pushed tree", thread_name());
    if (ctx_ptr->trees[std::this_thread::get_id()] == nullptr) {
       spdlog::debug("ctx_ptr->trees[std::this_thread::get_id()] == nullptr");
       return;
@@ -101,8 +100,8 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    
    spdlog::info("deep rl: preparing move");
    std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player, m_last_moves);
-   spdlog::info("DeepRLPlayer::make_move: Sleeping atarted");
-   std::this_thread::sleep_for(std::chrono::seconds(20)); // 8 sekund mija pomiędzy rozpoczęciem wstawania pierwszej a wstaniem ostatniej sieci
+   spdlog::info("DeepRLPlayer::make_move: Sleeping started");
+   // std::this_thread::sleep_for(std::chrono::seconds(10)); // 8 sekund mija pomiędzy rozpoczęciem wstawania pierwszej a wstaniem ostatniej sieci
    spdlog::info("DeepRLPlayer::make_move: Sleeping ended");
    
    std::shared_ptr<std::condition_variable> condVar =

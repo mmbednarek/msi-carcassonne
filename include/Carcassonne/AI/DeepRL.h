@@ -19,9 +19,9 @@ namespace rl {
 
 struct Context {
    // Tree &tree;
-   IGame& game;
+   IGame &game;
    Player player;
-   std::array<FullMove, 4>& last_moves;
+   std::array<FullMove, 4> &last_moves;
    std::map<std::thread::id, std::unique_ptr<Tree>> trees;
    thread_pool workers_pool;
    std::thread::id leading_tread_id;
@@ -30,10 +30,13 @@ struct Context {
    std::unique_lock<std::mutex> lck{mutex, std::defer_lock};
    FullMove best_move;
    bool move_ready = false;
+
+ public:
+   Context(IGame &_game, Player &_player, std::array<FullMove, 4>& _last_moves)
+       : game(_game), player(_player), last_moves(_last_moves) {}
 };
 
 void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
-void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique_ptr<Tree>& tree);
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
 void backpropagate(
         NodeId node_id,

@@ -5,6 +5,7 @@
 #include <Eden_resources/Ngpus_Ncpus.h>
 #include <Carcassonne/AI/Tree.h>
 #include <google/protobuf/text_format.h>
+#include <Util/Time.h>
 #include <spdlog/spdlog.h>
 #include <chrono>
 #include <condition_variable>
@@ -127,18 +128,79 @@ class function_wrapper {
    function_wrapper &operator=(const function_wrapper &) = delete;
 };
 
+struct NodeWithPromise {
+   std::promise<Player> *promise{nullptr};
+   Node *node{nullptr};
+
+ public:
+   NodeWithPromise() = default;
+   NodeWithPromise(std::promise<Player> *_promise, Node *_node) : promise(_promise), node(_node) {}
+};
+
+static FullMove get_move(const std::unique_ptr<IGame> &game) {
+#ifdef MEASURE_TIME
+   fmt::print("\n{}\n", g_max_moves - game->move_index());
+#endif
+   std::hash<std::thread::id> hasher;
+   unsigned tid = hasher(std::this_thread::get_id());
+   spdlog::debug("thread {} acquires network", thread_name());
+   std::unique_ptr<Network> &net_ptr = g_networks[std::this_thread::get_id()];
+   spdlog::debug("thread {} acquired network", thread_name());
+   FullMove mv = net_ptr->do_move(game, static_cast<float>(rand_r(&tid) % 1000) / 1000.0f, thread_name());// rand is a hash
+   if (mv.ignored_figure) {
+      if (!game->board().can_place_at(mv.x, mv.y, game->tile_set()[game->move_index()], mv.rotation)) {
+      }
+   } else if (!game->can_place_tile_and_figure(mv.x, mv.y, mv.rotation, game->tile_set()[game->move_index()], mv.direction)) {
+   }
+   return mv;
+}
+
+inline Player simulate(Node* node) {
+   // std::hash<std::thread::id> hasher;
+   // unsigned tid = hasher(std::this_thread::get_id());
+   spdlog::debug("thread {}: simulate ok0", thread_name());
+
+   auto start = util::unix_time();
+   if(nullptr == node) spdlog::debug("thread {}: simulate nullptr == node", thread_name());
+   spdlog::debug("thread {}: simulate ok2", thread_name());
+
+   auto simulated_game = node->game().clone();
+   if(nullptr == simulated_game) spdlog::debug("thread {}: simulate nullptr == simulated_game", thread_name());
+   spdlog::debug("thread {}: simulate ok1", thread_name());
+   for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
+   spdlog::debug("thread {}: simulate ok3", thread_name());
+#ifdef MEASURE_TIME
+      auto start_move = util::unix_time();
+#endif
+      auto current_player = simulated_game->current_player();
+      auto full_move = get_move(simulated_game);
+      auto move = simulated_game->new_move(current_player);
+      move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
+      move->place_figure(full_move.direction);
+      simulated_game->update(0);
+#ifdef MEASURE_TIME
+      spdlog::debug("deep rl: move lasted {}ms", util::unix_time() - start_move);
+#endif
+   }
+   auto max_score_it = std::max_element(simulated_game->scores().begin(), simulated_game->scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
+      return lhs.score < rhs.score;
+   });
+   node->mark_as_simulated();
+   spdlog::debug("deep rl: simulation lasted {}ms", util::unix_time() - start);
+   return max_score_it->player;
+}
+
 class thread_pool {
    std::atomic_bool done;
    std::vector<std::thread> threads;
    join_threads joiner;
-   threadsafe_queue<function_wrapper> work_queue;
+   threadsafe_queue<NodeWithPromise> work_queue;
    std::mutex mut;
    std::unique_lock<std::mutex> lck;
-   unsigned networks_per_gpu = 2;
+   unsigned networks_per_gpu = 1;
    void worker_thread(int gpu_id) {
-      std::hash<std::thread::id> hasher;
-      spdlog::debug("thread {} wakes up", hasher(std::this_thread::get_id()));
-      spdlog::debug("thread {} ok0.0", hasher(std::this_thread::get_id()));
+      spdlog::debug("thread {} wakes up", thread_name());
+      spdlog::debug("thread {} ok0.0", thread_name());
       auto network_res = load_network(gpu_id);
       // lck.lock();
       if (!network_res.ok()) {
@@ -146,17 +208,17 @@ class thread_pool {
          return;
       }
       auto network = network_res.unwrap();
-      spdlog::debug("thread {} emplaces network, nullptr{}=net", hasher(std::this_thread::get_id()), nullptr==network ? "=" : "!");
+      spdlog::debug("thread {} emplaces network, nullptr{}=net", thread_name(), nullptr==network ? "=" : "!");
       g_networks.emplace(std::this_thread::get_id(), std::move(network));
-      spdlog::debug("thread {} emplaced network", hasher(std::this_thread::get_id()));
+      spdlog::debug("thread {} emplaced network", thread_name());
       // lck.unlock();
       // std::cout << "worker Thread " << std::this_thread::get_id() << " run on gpu " << gpu_id << std::endl;
       std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
-      spdlog::debug("thread {} waked up", hasher(std::this_thread::get_id()));
+      spdlog::debug("thread {} waked up", thread_name());
       while (!done) {
-         function_wrapper task;
-         if (work_queue.try_pop(task)) {
-            task();
+         NodeWithPromise np;
+         if (work_queue.try_pop(np)) {
+            np.promise->set_value(simulate(np.node));
          } else {
             std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::microseconds(1));
@@ -165,37 +227,36 @@ class thread_pool {
    }
    
    mb::result<std::unique_ptr<Network>> load_network(int gpu_id) const {
-      spdlog::debug("thread ok0");
-      std::hash<std::thread::id> hasher;
-      spdlog::debug("thread {} ok1", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread ok0");
+      spdlog::debug("thread {} ok1", thread_name());
       // caffe::Caffe::set_mode(caffe::Caffe::GPU);
-      spdlog::debug("thread {} ok2", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok2", thread_name();
       // caffe::Caffe::SetDevice(gpu_id);
-      spdlog::debug("thread {} ok3", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok3", thread_name();
       spdlog::warn("load_network: device={}", gpu_id);
       
       caffe::SolverParameter solver_param;
       std::string param_file = std::string("./proto/solver") + std::to_string(gpu_id) + std::string(".prototxt");
-      spdlog::debug("thread {} ok4 param_file={} ", hasher(std::this_thread::get_id()), param_file);
+      // spdlog::debug("thread {} ok4 param_file={} ", thread_name(), param_file);
       caffe::ReadSolverParamsFromTextFileOrDie(param_file, &solver_param);
-      spdlog::debug("thread {} ok5", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok5", thread_name();
       caffe::NetParameter net_parameter;
       std::string model_file = std::string("./proto/net_full_alphazero_40_res_blocks") + std::to_string(gpu_id) + std::string(".prototxt");
       std::ifstream t(model_file.c_str());
-      spdlog::debug("thread {} ok6", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok6", thread_name();
       std::string model((std::istreambuf_iterator<char>(t)),
                         std::istreambuf_iterator<char>());
-      spdlog::debug("thread {} ok7", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok7", thread_name();
       bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
-      spdlog::debug("thread {} ok8", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok8", thread_name();
       if (!success) {
          return mb::error("could not parse protobuf file");
       }
-      spdlog::debug("thread {} ok9", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok9", thread_name();
       
       net_parameter.mutable_state()->set_phase(caffe::TRAIN);
       
-      spdlog::debug("thread {} ok10", hasher(std::this_thread::get_id()));
+      // spdlog::debug("thread {} ok10", thread_name();
       return std::make_unique<Network>(net_parameter, solver_param, gpu_id);
    }
 
@@ -203,11 +264,14 @@ class thread_pool {
    thread_pool() : done(false), joiner(threads), lck(mut, std::defer_lock) {
       // unsigned const thread_count = std::thread::hardware_concurrency();
       unsigned gpus_count = Eden_resources::get_gpus_count();
+      gpus_count = 1;
       unsigned networks_count = gpus_count * networks_per_gpu;
       try {
          for (unsigned i = 0; i < networks_count; ++i) {
             unsigned gpu_id = i % gpus_count;
+      std::this_thread::sleep_for(std::chrono::seconds(5));
             threads.push_back(std::thread(&thread_pool::worker_thread, this, gpu_id));
+      std::this_thread::sleep_for(std::chrono::seconds(5));
          }
       } catch (...) {
          done = true;
@@ -218,15 +282,8 @@ class thread_pool {
       done = true;
    }
 
-   template<typename FunctionType>
-   std::future<typename std::result_of<FunctionType()>::type>
-   submit(FunctionType f) {
-      typedef typename std::result_of<FunctionType()>::type
-              result_type;
-      std::packaged_task<result_type()> task(std::move(f));
-      std::future<result_type> res(task.get_future());
-      work_queue.push(std::move(task));
-      return res;
+   void submit(NodeWithPromise np) {
+      work_queue.push(np);
    }
 };
 

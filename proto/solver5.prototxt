@@ -9,4 +9,5 @@ snapshot: 50
 snapshot_prefix: "msi"
 random_seed: 0
 test_initialization: false
+solver_mode: GPU
 device_id: 5
