@@ -158,17 +158,17 @@ static FullMove get_move(const std::unique_ptr<IGame> &game) {
 inline Player simulate(Node* node) {
    // std::hash<std::thread::id> hasher;
    // unsigned tid = hasher(std::this_thread::get_id());
-   spdlog::debug("thread {}: simulate ok0", thread_name());
+   // spdlog::debug("thread {}: simulate ok0", thread_name());
 
    auto start = util::unix_time();
-   if(nullptr == node) spdlog::debug("thread {}: simulate nullptr == node", thread_name());
-   spdlog::debug("thread {}: simulate ok2", thread_name());
+   // if(nullptr == node) spdlog::debug("thread {}: simulate nullptr == node", thread_name());
+   // spdlog::debug("thread {}: simulate ok2", thread_name());
 
    auto simulated_game = node->game().clone();
-   if(nullptr == simulated_game) spdlog::debug("thread {}: simulate nullptr == simulated_game", thread_name());
-   spdlog::debug("thread {}: simulate ok1", thread_name());
+   // if(nullptr == simulated_game) spdlog::debug("thread {}: simulate nullptr == simulated_game", thread_name());
+   // spdlog::debug("thread {}: simulate ok1", thread_name());
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
-   spdlog::debug("thread {}: simulate ok3", thread_name());
+   // spdlog::debug("thread {}: simulate ok3", thread_name());
 #ifdef MEASURE_TIME
       auto start_move = util::unix_time();
 #endif
@@ -197,7 +197,7 @@ class thread_pool {
    threadsafe_queue<NodeWithPromise> work_queue;
    std::mutex mut;
    std::unique_lock<std::mutex> lck;
-   unsigned networks_per_gpu = 1;
+   unsigned networks_per_gpu = 2;
    void worker_thread(int gpu_id) {
       spdlog::debug("thread {} wakes up", thread_name());
       spdlog::debug("thread {} ok0.0", thread_name());
@@ -229,7 +229,7 @@ class thread_pool {
    mb::result<std::unique_ptr<Network>> load_network(int gpu_id) const {
       // spdlog::debug("thread ok0");
       spdlog::debug("thread {} ok1", thread_name());
-      // caffe::Caffe::set_mode(caffe::Caffe::GPU);
+      caffe::Caffe::set_mode(caffe::Caffe::GPU);
       // spdlog::debug("thread {} ok2", thread_name();
       // caffe::Caffe::SetDevice(gpu_id);
       // spdlog::debug("thread {} ok3", thread_name();
@@ -264,7 +264,7 @@ class thread_pool {
    thread_pool() : done(false), joiner(threads), lck(mut, std::defer_lock) {
       // unsigned const thread_count = std::thread::hardware_concurrency();
       unsigned gpus_count = Eden_resources::get_gpus_count();
-      gpus_count = 1;
+      // gpus_count = 1;
       unsigned networks_count = gpus_count * networks_per_gpu;
       try {
          for (unsigned i = 0; i < networks_count; ++i) {
