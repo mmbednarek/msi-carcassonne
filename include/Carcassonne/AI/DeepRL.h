@@ -1,5 +1,6 @@
 #ifndef MSI_CARCASSONNE_DEEPRL_H
 #define MSI_CARCASSONNE_DEEPRL_H
+#pragma once
 #include "AI.h"
 #include <Carcassonne/Player.h>
 #include <Carcassonne/RL/Network.h>
@@ -20,6 +21,8 @@ struct Context {
    // Tree &tree;
    IGame& game;
    Player player;
+   std::array<FullMove, 4>& last_moves;
+   std::map<std::thread::id, std::unique_ptr<Tree>> trees;
    thread_pool workers_pool;
    std::thread::id leading_tread_id;
    bool leading_tread_assigned = false;
@@ -32,7 +35,6 @@ struct Context {
 void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique_ptr<Tree>& tree);
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id);
 void backpropagate(
-        std::unique_ptr<rl::Context> &ctx_ptr,
         NodeId node_id,
         Player winner,
         std::unique_ptr<Tree> &tree);

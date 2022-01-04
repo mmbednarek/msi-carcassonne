@@ -37,7 +37,7 @@ static FullMove get_move(const std::unique_ptr<IGame> &game) {
    fmt::print("\n{}\n", g_max_moves - game->move_index());
 #endif
    std::hash<std::thread::id> hasher;
-   auto tid = hasher(std::this_thread::get_id());
+   unsigned tid = hasher(std::this_thread::get_id());
    FullMove mv = g_networks[std::this_thread::get_id()]->do_move(game, static_cast<float>(rand_r(&tid) % 1000) / 1000.0f);// rand is a hash
    if (mv.ignored_figure) {
       if (!game->board().can_place_at(mv.x, mv.y, game->tile_set()[game->move_index()], mv.rotation)) {
@@ -53,7 +53,7 @@ void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique
 
       auto start = util::unix_time();
       
-      auto simulate_lambda = [&ctx_ptr, &node_id](){
+      auto simulate_lambda = [&ctx_ptr, &node_id, &tree]() {
          auto simulated_game = tree->node_at(node_id).game().clone();
          for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
 #ifdef MEASURE_TIME
@@ -69,36 +69,35 @@ void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique
             spdlog::debug("deep rl: move lasted {}ms", util::unix_time() - start_move);
 #endif
          }
-         auto max_score_it = std::max_element(m_game->scores().begin(), m_game->scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
+         auto max_score_it = std::max_element(simulated_game->scores().begin(), simulated_game->scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
             return lhs.score < rhs.score;
          });
          return max_score_it->player;
       };
-      auto winner_future = ctx_ptr->workers_pool->submit(simulate_lambda);
+      auto winner_future = ctx_ptr->workers_pool.submit(simulate_lambda);
       Player winner = winner_future.get();
       tree->node_at(node_id).mark_as_simulated();
       spdlog::debug("deep rl: simulation lasted {}ms", util::unix_time() - start);
       
       tree->lck.lock();
-      backpropagate(ctx_ptr, node_id, winner);
+      backpropagate(node_id, winner, tree);
       tree->lck.unlock();
 }
 
 void backpropagate(
-        std::unique_ptr<rl::Context> &ctx_ptr,
         NodeId node_id,
         Player winner,
         std::unique_ptr<Tree> &tree) {
-   while (node_id != g_root_node) {
+   while (node_id != g_root_node_id) {
       auto &node = tree->node_at(node_id);
       node.propagate(winner);
       node_id = node.parent_id();
    }
-   tree->node_at(g_root_node).propagate(winner);
+   tree->node_at(g_root_node_id).propagate(winner);
 }
 
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id) {
-   auto &game = g_trees[std::this_thread::get_id()]->node_at(node_id).game();
+   auto &game = ctx_ptr->trees[std::this_thread::get_id()]->node_at(node_id).game();
    const auto current_player = game.current_player();
    for (auto tile_location : game.moves()) {
       if (!game.board().can_place_at(tile_location.x, tile_location.y, game.tile_set()[game.move_index()], tile_location.rotation)) {
@@ -133,7 +132,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id) {
                   .ignored_figure = false,
                   .direction = figure_move,
             };
-            g_trees[std::this_thread::get_id()]->add_node(std::move(game_clone_clone), current_player, full_move, node_id);
+            ctx_ptr->trees[std::this_thread::get_id()]->add_node(std::move(game_clone_clone), current_player, full_move, node_id);
          }
       }
       move->ignore_figure();
@@ -149,41 +148,15 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id) {
          //    spdlog::info("deep rl: INCORRECT MOVE 174 !!!");
          //    continue;
          // }
-         g_trees[std::this_thread::get_id()]->add_node(std::move(game_clone), current_player, full_move, node_id);
+         ctx_ptr->trees[std::this_thread::get_id()]->add_node(std::move(game_clone), current_player, full_move, node_id);
       }
    }
-   g_trees[std::this_thread::get_id()]->node_at(node_id).mark_as_expanded();
+   ctx_ptr->trees[std::this_thread::get_id()]->node_at(node_id).mark_as_expanded();
 }
 
-void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
-   const auto rollout_count = g_trees[std::this_thread::get_id()]->node_at(g_root_node).simulation_count();
-   auto current_node_id = g_root_node;
-   for (;;) {
-      Node &current_node = g_trees[std::this_thread::get_id()]->node_at(current_node_id);
-      const auto &children = current_node.children();
-
-      if (!children.empty()) {
-         auto selected_child_it = children.end();
-         selected_child_it = std::max_element(
-                 children.begin(),
-                 children.end(),
-                 [&ctx_ptr, rollout_count](NodeId lhs, NodeId rhs) -> bool {
-                    return g_trees[std::this_thread::get_id()]->node_at(lhs).UCT1(rollout_count) < g_trees[std::this_thread::get_id()]->node_at(rhs).UCT1(rollout_count);
-                 });
-         assert(selected_child_it != children.end());
-         current_node_id = *selected_child_it;
-         continue;
-      }
-      assert(current_node.simulated());// selected must has been silmulated
-      assert(current_node.children().empty());
-      expand(ctx_ptr, current_node_id);
-      launch_simulations(current_node);
-      return;
-   }
-}
-
-void launch_simulations(Node &parent_node) {
-   auto &children = parent_node.children() auto size = children.size();
+void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, Node &parent_node) {
+   auto &children = parent_node.children();
+   auto size = children.size();
    if (0 == size) {
       spdlog::info("deep rl, run_selection: bottom of the tree reached");
       return;
@@ -194,18 +167,59 @@ void launch_simulations(Node &parent_node) {
               simulate,
               std::ref(ctx_ptr),
               children[i],
-              std::ref(g_trees[std::this_thread::get_id()]));
+              std::ref(ctx_ptr->trees[std::this_thread::get_id()]));
    }
    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 }
 
-void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit) {
-   g_trees[std::this_thread::get_id()]->lck.lock();
-   if (!g_trees[std::this_thread::get_id()]->node_at(g_root_node).expanded()) {
-      expand(ctx_ptr, g_root_node);
-      launch_simulations();
+void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
+   const auto rollout_count = ctx_ptr->trees[std::this_thread::get_id()]->node_at(g_root_node_id).simulation_count();
+   auto current_node_id = g_root_node_id;
+   for (;;) {
+      Node &current_node = ctx_ptr->trees[std::this_thread::get_id()]->node_at(current_node_id);
+      const auto &children = current_node.children();
+
+      if (!children.empty()) {
+         auto selected_child_it = children.end();
+         selected_child_it = std::max_element(
+                 children.begin(),
+                 children.end(),
+                 [&ctx_ptr, rollout_count](NodeId lhs, NodeId rhs) -> bool {
+                    return ctx_ptr->trees[std::this_thread::get_id()]->node_at(lhs).UCT1(rollout_count) < ctx_ptr->trees[std::this_thread::get_id()]->node_at(rhs).UCT1(rollout_count);
+                 });
+         assert(selected_child_it != children.end());
+         current_node_id = *selected_child_it;
+         continue;
+      }
+      assert(current_node.simulated());// selected must has been silmulated
+      assert(current_node.children().empty());
+      expand(ctx_ptr, current_node_id);
+      launch_simulations(ctx_ptr, current_node);
+      return;
    }
-   g_trees[std::this_thread::get_id()]->lck.unlock();
+}
+
+void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit) {
+   spdlog::debug("ok1");
+   std::hash<std::thread::id> hasher;
+   spdlog::debug("thread {} acquires tree", hasher(std::this_thread::get_id()));
+   auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
+   spdlog::debug("thread {} acquired tree", hasher(std::this_thread::get_id()));
+   if (ctx_ptr->trees[std::this_thread::get_id()] == nullptr) {
+      spdlog::debug("ctx_ptr->trees[std::this_thread::get_id()] == nullptr 2");
+      return;
+   }
+   tree->lck.lock();
+   spdlog::debug("ok2");
+   Node &root_node = ctx_ptr->trees[std::this_thread::get_id()]->node_at(g_root_node_id);
+   spdlog::debug("ok3");
+   spdlog::debug("ok4");
+   spdlog::debug("ok5");
+   if (!root_node.expanded()) {
+      expand(ctx_ptr, g_root_node_id);
+      launch_simulations(ctx_ptr, root_node);
+   }
+   ctx_ptr->trees[std::this_thread::get_id()]->lck.unlock();
    if (time_limit == 0) time_limit = std::numeric_limits<mb::i64>::max();
    if (runs_limit == 0) runs_limit = std::numeric_limits<mb::i64>::max();
 
@@ -217,7 +231,7 @@ void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64
 
 FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
    Player player = ctx_ptr->player;
-   auto &root_node = g_trees[std::this_thread::get_id()]->node_at(g_root_node);
+   auto &root_node = ctx_ptr->trees[std::this_thread::get_id()]->node_at(g_root_node_id);
    const auto &children = root_node.children();
    // 
    // choose max element
@@ -225,24 +239,24 @@ FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
            children.begin(),
            children.end(),
            [&ctx_ptr](NodeId lhs, NodeId rhs) -> bool {
-              return g_trees[std::this_thread::get_id()]->node_at(lhs).simulation_count() < g_trees[std::this_thread::get_id()]->node_at(rhs).simulation_count();
+              return ctx_ptr->trees[std::this_thread::get_id()]->node_at(lhs).simulation_count() < ctx_ptr->trees[std::this_thread::get_id()]->node_at(rhs).simulation_count();
            });
-   auto max_sim_count = g_trees[std::this_thread::get_id()]->node_at(*max_sim_count_it).simulation_count();
+   auto max_sim_count = ctx_ptr->trees[std::this_thread::get_id()]->node_at(*max_sim_count_it).simulation_count();
 
    auto selected = std::max_element(
            children.begin(), children.end(), [&ctx_ptr, player, max_sim_count](NodeId lhs, NodeId rhs) {
-              auto lhs_sc = g_trees[std::this_thread::get_id()]->node_at(lhs).simulation_count();
-              auto rhs_sc = g_trees[std::this_thread::get_id()]->node_at(rhs).simulation_count();
+              auto lhs_sc = ctx_ptr->trees[std::this_thread::get_id()]->node_at(lhs).simulation_count();
+              auto rhs_sc = ctx_ptr->trees[std::this_thread::get_id()]->node_at(rhs).simulation_count();
               if (lhs_sc != max_sim_count && rhs_sc == max_sim_count)
                  return true;
               if (rhs_sc != max_sim_count)
                  return false;
-              return g_trees[std::this_thread::get_id()]->node_at(lhs).player_wins(player) > g_trees[std::this_thread::get_id()]->node_at(rhs).player_wins(player);
+              return ctx_ptr->trees[std::this_thread::get_id()]->node_at(lhs).player_wins(player) > ctx_ptr->trees[std::this_thread::get_id()]->node_at(rhs).player_wins(player);
            });
 
 
    assert(selected != children.end());
-   auto &node = g_trees[std::this_thread::get_id()]->node_at(*selected);
+   auto &node = ctx_ptr->trees[std::this_thread::get_id()]->node_at(*selected);
    return node.move();
 }
 

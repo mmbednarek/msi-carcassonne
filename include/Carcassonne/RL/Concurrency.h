@@ -1,9 +1,11 @@
 #ifndef CARCASSONNE_RL_CONCURRENCY_H
 #define CARCASSONNE_RL_CONCURRENCY_H
+#pragma once
 #include <Carcassonne/RL/Network.h>
 #include <Eden_resources/Ngpus_Ncpus.h>
-#include <Carcassonne/AI/DeepRL.h>
 #include <Carcassonne/AI/Tree.h>
+#include <google/protobuf/text_format.h>
+#include <spdlog/spdlog.h>
 #include <chrono>
 #include <condition_variable>
 #include <future>
@@ -21,7 +23,6 @@
 namespace carcassonne::ai::rl {
 
 inline static std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
-inline static std::map<std::thread::id, std::unique_ptr<Tree>> g_trees;
 
 template<typename T>
 class threadsafe_queue {
@@ -126,27 +127,6 @@ class function_wrapper {
    function_wrapper &operator=(const function_wrapper &) = delete;
 };
 
-mb::result<std::unique_ptr<carcassonne::ai::rl::Network>> DeepRLPlayer::load_network(int gpu_id) const {
-   caffe::Caffe::set_mode(caffe::Caffe::GPU);
-   caffe::Caffe::SetDevice(gpu_id);
-   
-   caffe::SolverParameter solver_param;
-   caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
-   
-   caffe::NetParameter net_parameter;
-   std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
-   std::string model((std::istreambuf_iterator<char>(t)),
-                     std::istreambuf_iterator<char>());
-   bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
-   if (!success) {
-      return mb::error("could not parse protobuf file");
-   }
-   
-   net_parameter.mutable_state()->set_phase(caffe::TRAIN);
-   
-   return std::make_unique<carcassonne::ai::rl::Network>(net_parameter, solver_param);
-}
-
 class thread_pool {
    std::atomic_bool done;
    std::vector<std::thread> threads;
@@ -159,11 +139,11 @@ class thread_pool {
       auto network_res = load_network(gpu_id);
       if (!network_res.ok()) {
          spdlog::error("could not load network: {}", network_res.msg());
-         return EXIT_FAILURE;
+         return;
       }
       auto network = network_res.unwrap();
-      lck.lock()
-      g_networks.emplace(std::this_thread::get_id(), std::move(load_network(gpu_id)));
+      lck.lock();
+      g_networks.emplace(std::this_thread::get_id(), std::move(network));
       lck.unlock();
       std::cout << "worker Thread " << std::this_thread::get_id() << " run on gpu " << gpu_id << std::endl;
       std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
@@ -176,6 +156,27 @@ class thread_pool {
             std::this_thread::sleep_for(std::chrono::microseconds(1));
          }
       }
+   }
+   
+   mb::result<std::unique_ptr<Network>> load_network(int gpu_id) const {
+      caffe::Caffe::set_mode(caffe::Caffe::GPU);
+      caffe::Caffe::SetDevice(gpu_id);
+      
+      caffe::SolverParameter solver_param;
+      caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
+      
+      caffe::NetParameter net_parameter;
+      std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
+      std::string model((std::istreambuf_iterator<char>(t)),
+                        std::istreambuf_iterator<char>());
+      bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
+      if (!success) {
+         return mb::error("could not parse protobuf file");
+      }
+      
+      net_parameter.mutable_state()->set_phase(caffe::TRAIN);
+      
+      return std::make_unique<Network>(net_parameter, solver_param);
    }
 
  public:
@@ -209,18 +210,20 @@ class thread_pool {
    }
 };
 
+struct Context;
+
 class client_threads {
    std::atomic_bool done;
    std::vector<std::thread> threads;
    join_threads joiner;
-   std::unique_ptr<rl::Context>& ctx_ptr;
+   std::unique_ptr<Context>& ctx_ptr;
    std::shared_ptr<std::condition_variable> cond_var;
    void client_work(unsigned cpu_id);
 
  public:
    client_threads(
       unsigned cpus_count, 
-      std::unique_ptr<rl::Context> &_ctx_ptr, 
+      std::unique_ptr<Context> &_ctx_ptr, 
       const std::shared_ptr<std::condition_variable>& _cond_var)
        : done(false), joiner(threads), ctx_ptr(_ctx_ptr), cond_var(_cond_var) {
       if (cpus_count == 0)

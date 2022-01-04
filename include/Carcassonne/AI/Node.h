@@ -26,7 +26,6 @@ class Node {
    FullMove m_move;
    bool m_expanded = false;
    bool m_simulated = false;
-   std::mutex m_node_mutex;
 
  public:
    mb::size m_simulation_count = 0; // (N in the paper)

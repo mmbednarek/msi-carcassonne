@@ -22,27 +22,6 @@ constexpr bool player_range_ok(int count) {
    return count >= 0 && count <= 4;
 }
 
-
-mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
-   caffe::Caffe::set_mode(caffe::Caffe::GPU);
-
-   caffe::SolverParameter solver_param;
-   caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
-
-   caffe::NetParameter net_parameter;
-   std::ifstream t("./proto/net_tic_tac_6_4_2_res_block.prototxt");
-   std::string model((std::istreambuf_iterator<char>(t)),
-                     std::istreambuf_iterator<char>());
-   bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
-   if (!success) {
-      return mb::error("could not parse protobuf file");
-   }
-
-   net_parameter.mutable_state()->set_phase(caffe::TRAIN);
-
-   return std::make_unique<carcassonne::ai::rl::Network>(net_parameter, solver_param);
-}
-
 int main() {
    using carcassonne::frontend::Status;
 
@@ -140,17 +119,11 @@ int main() {
       return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p, carcassonne::ai::SimulationType::Heuristic);
    });
 
-   auto net_res = load_network();
-   if (!net_res.ok()) {
-      return EXIT_FAILURE;
-   }
-   auto net = net_res.unwrap();
-
    player_id += mcts_ai_player_count;
 
    std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &net](carcassonne::Player p) {
-      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, *net);
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game](carcassonne::Player p) {
+      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p);
    });
 
    constexpr double dt = 1000.0 / 60.0;

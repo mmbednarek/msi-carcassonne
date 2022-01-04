@@ -7,14 +7,9 @@ namespace carcassonne::ai {
 
 DeepRLPlayer::DeepRLPlayer(
    IGame &game,
-   Player player,
-   mb::size gpus,
-   mb::size cpus )
+   Player player )
     : m_player(player)
-    , m_tree(game, player)
-    , m_player_count(game.player_count())
-    , m_gpus(gpus)
-    , m_cpus(cpus) {
+    , m_player_count(game.player_count()) {
    spdlog::info("deep rl: initialising agent");
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
@@ -22,6 +17,28 @@ DeepRLPlayer::DeepRLPlayer(
          return;
       make_move(game);
    });
+}
+
+std::unique_ptr<Tree> prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr) {
+   Tree tree(ctx_ptr->game, ctx_ptr->player);
+   Player current_player = ctx_ptr->player;
+   NodeId node_id = 0;
+   do {
+      node_id = tree.find_node_by_move(node_id, ctx_ptr->last_moves[static_cast<mb::size>(ctx_ptr->player)]);
+      if (node_id == 0)
+         break;
+      ctx_ptr->player = next_player(ctx_ptr->player, ctx_ptr->game.player_count());
+   } while (ctx_ptr->player != current_player);
+
+   if (node_id == 0) {
+      spdlog::debug("deep rl: building MCTS tree from scratch");
+      tree.reset(ctx_ptr->game, current_player);
+      return std::make_unique<Tree>(std::move(tree));
+   }
+
+   spdlog::debug("deep rl: reusing existing MCTS tree node");
+   tree.change_root(node_id);
+   return std::make_unique<Tree>(std::move(tree));
 }
 
 void rl::client_threads::client_work(unsigned cpu_id) {
@@ -32,22 +49,34 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    }
    ctx_ptr->lck.unlock();
    
-   auto tile = ctx_ptr->game.tile_set()[ctx_ptr->game.move_index()];
+   // auto tile = ctx_ptr->game.tile_set()[ctx_ptr->game.move_index()];
+   auto tree = prepare_tree(ctx_ptr);
+   if (tree == nullptr) {
+      spdlog::debug("tree == nullptr");
+      return;
+   }
    ctx_ptr->lck.lock();
-   g_trees.emplace(std::this_thread::get_id(), std::move(prepare_tree(ctx_ptr->game, ctx_ptr->player)));
+   std::hash<std::thread::id> hasher;
+   spdlog::debug("thread {} pushes tree", hasher(std::this_thread::get_id()));
+   ctx_ptr->trees.emplace(std::this_thread::get_id(), std::move(tree));
+   spdlog::debug("thread {} pushed tree", hasher(std::this_thread::get_id()));
+   if (ctx_ptr->trees[std::this_thread::get_id()] == nullptr) {
+      spdlog::debug("ctx_ptr->trees[std::this_thread::get_id()] == nullptr");
+      return;
+   }
    ctx_ptr->lck.unlock();
    FullMove best_move;
    bool move_is_illegal = true;
    do {
       rl::run_mcts(ctx_ptr, 1000, 0);
-      best_move = rl::choose_move(ctx_ptr, game.move_index());
-      m_last_moves[static_cast<int>(m_player)] = best_move;
+      best_move = rl::choose_move(ctx_ptr, ctx_ptr->game.move_index());
+      ctx_ptr->last_moves[static_cast<int>(ctx_ptr->player)] = best_move;
       if (best_move.ignored_figure) {
-         if (game.board().can_place_at(best_move.x, best_move.y, game.tile_set()[game.move_index()], best_move.rotation)) {
+         if (ctx_ptr->game.board().can_place_at(best_move.x, best_move.y, ctx_ptr->game.tile_set()[ctx_ptr->game.move_index()], best_move.rotation)) {
             move_is_illegal = false;
             continue;
          }
-      } else if (game.can_place_tile_and_figure(best_move.x, best_move.y, best_move.rotation, game.tile_set()[game.move_index()], best_move.direction)) {
+      } else if (ctx_ptr->game.can_place_tile_and_figure(best_move.x, best_move.y, best_move.rotation, ctx_ptr->game.tile_set()[ctx_ptr->game.move_index()], best_move.direction)) {
          move_is_illegal = false;
          continue;
       }
@@ -66,34 +95,12 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    // ctx_ptr->lck.unlock(); // no need for lock
 }
 
-std::unique_ptr<Tree> DeepRLPlayer::prepare_tree(const IGame &game, Player player) {
-   Tree tree;
-   Player current_player = player;
-   NodeId node_id = 0;
-   do {
-      node_id = tree.find_node_by_move(node_id, m_last_moves[static_cast<mb::size>(player)]);
-      if (node_id == 0)
-         break;
-      player = next_player(player, game.player_count());
-   } while (player != current_player);
-
-   if (node_id == 0) {
-      spdlog::debug("deep rl: building MCTS tree from scratch");
-      tree.reset(game, current_player);
-      return std::make_unique<Tree>(std::move(tree));
-   }
-
-   spdlog::debug("deep rl: reusing existing MCTS tree node");
-   tree.change_root(node_id);
-   return std::make_unique<Tree>(std::move(tree));
-}
-
 void DeepRLPlayer::make_move(IGame &game) noexcept {
    unsigned trees_count = 1;
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    
    spdlog::info("deep rl: preparing move");
-   std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player);
+   std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player, m_last_moves);
    
    std::shared_ptr<std::condition_variable> condVar =
            std::make_shared<std::condition_variable>();
@@ -101,7 +108,7 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    m_clients_pool = std::make_unique<rl::client_threads>(trees_count, ctx_ptr, condVar);
    spdlog::info("deep rl: Waiting for move...");
    std::unique_lock<std::mutex> lck(mut);
-   condVar->wait(lck, [&my_que] {
+   condVar->wait(lck, [&ctx_ptr] {
       spdlog::info("deep rl: move_ready={}",
                    (ctx_ptr->move_ready ? "true" : "false"));
       return ctx_ptr->move_ready;
