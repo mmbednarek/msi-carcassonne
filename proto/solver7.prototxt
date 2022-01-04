@@ -1,0 +1,13 @@
+net: "proto/net_full_alphazero_40_res_blocks7.prototxt"
+base_lr: 0.02
+lr_policy: "step"
+gamma: 0.5
+stepsize: 1
+display: 2
+max_iter: 50
+snapshot: 50
+snapshot_prefix: "msi"
+random_seed: 0
+test_initialization: false
+solver_mode: GPU
+device_id: 7

@@ -1,0 +1,3293 @@
+layer {
+	name: "Input_data"
+	type: "Input"
+	top: "input_data"
+	input_param {
+		shape {
+			dim: 1 #batch_size
+			dim: 860
+            dim: 41
+            dim: 41
+		}
+	}
+}
+
+layer {
+	name: "Input_value"
+	type: "Input"
+	top: "label_value"
+	input_param {
+		shape {
+			dim: 1 #batch_size
+			dim: 1
+		}
+	}
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "Input_probas"
+	type: "Input"
+	top: "label_probas"
+	input_param {
+		shape {
+			dim: 1 #batch_size
+			dim: 67240
+		}
+	}
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+    name: "conv1"
+    type: "Convolution"
+    bottom: "input_data"
+    top: "conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "conv1_relu"
+	type: "ReLU"
+	bottom: "conv1"
+	top: "conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 1
+layer {
+    name: "res1_conv1"
+    type: "Convolution"
+    bottom: "conv1"
+    top: "res1_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "res1_relu1"
+	type: "ReLU"
+	bottom: "res1_conv1"
+	top: "res1_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res1_conv2"
+    type: "Convolution"
+    bottom: "res1_conv1"
+    top: "res1_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "res1_sum"
+	type: "Eltwise"
+	bottom: "conv1"
+	bottom: "res1_conv2"
+	top: "res1"
+	eltwise_param {
+		operation: SUM
+	}
+}
+
+layer {
+	name: "res1_relu2"
+	type: "ReLU"
+	bottom: "res1"
+	top: "res1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 2
+layer {
+    name: "res2_conv1"
+    type: "Convolution"
+    bottom: "res1"
+    top: "res2_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "res1_relu1"
+	type: "ReLU"
+	bottom: "res2_conv1"
+	top: "res2_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res2_conv2"
+    type: "Convolution"
+    bottom: "res2_conv1"
+    top: "res2_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "res2_sum"
+	type: "Eltwise"
+	bottom: "res1"
+	bottom: "res2_conv2"
+	top: "res2"
+	eltwise_param {
+		operation: SUM
+	}
+}
+
+layer {
+	name: "res2_relu2"
+	type: "ReLU"
+	bottom: "res2"
+	top: "res2"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+
+#Start of residual block 3
+layer {
+    name: "res3_conv1"
+    type: "Convolution"
+    bottom: "res2"
+    top: "res3_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res2_relu1"
+        type: "ReLU"
+        bottom: "res3_conv1"
+        top: "res3_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res3_conv2"
+    type: "Convolution"
+    bottom: "res3_conv1"
+    top: "res3_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res3_sum"
+        type: "Eltwise"
+        bottom: "res2"
+        bottom: "res3_conv2"
+        top: "res3"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res3_relu2"
+        type: "ReLU"
+        bottom: "res3"
+        top: "res3"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+
+#Start of residual block 4
+layer {
+    name: "res4_conv1"
+    type: "Convolution"
+    bottom: "res3"
+    top: "res4_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res3_relu1"
+        type: "ReLU"
+        bottom: "res4_conv1"
+        top: "res4_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res4_conv2"
+    type: "Convolution"
+    bottom: "res4_conv1"
+    top: "res4_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res4_sum"
+        type: "Eltwise"
+        bottom: "res3"
+        bottom: "res4_conv2"
+        top: "res4"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res4_relu2"
+        type: "ReLU"
+        bottom: "res4"
+        top: "res4"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 5
+layer {
+    name: "res5_conv1"
+    type: "Convolution"
+    bottom: "res4"
+    top: "res5_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res4_relu1"
+        type: "ReLU"
+        bottom: "res5_conv1"
+        top: "res5_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res5_conv2"
+    type: "Convolution"
+    bottom: "res5_conv1"
+    top: "res5_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res5_sum"
+        type: "Eltwise"
+        bottom: "res4"
+        bottom: "res5_conv2"
+        top: "res5"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res5_relu2"
+        type: "ReLU"
+        bottom: "res5"
+        top: "res5"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 6
+layer {
+    name: "res6_conv1"
+    type: "Convolution"
+    bottom: "res5"
+    top: "res6_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res5_relu1"
+        type: "ReLU"
+        bottom: "res6_conv1"
+        top: "res6_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res6_conv2"
+    type: "Convolution"
+    bottom: "res6_conv1"
+    top: "res6_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res6_sum"
+        type: "Eltwise"
+        bottom: "res5"
+        bottom: "res6_conv2"
+        top: "res6"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res6_relu2"
+        type: "ReLU"
+        bottom: "res6"
+        top: "res6"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 7
+layer {
+    name: "res7_conv1"
+    type: "Convolution"
+    bottom: "res6"
+    top: "res7_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res6_relu1"
+        type: "ReLU"
+        bottom: "res7_conv1"
+        top: "res7_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res7_conv2"
+    type: "Convolution"
+    bottom: "res7_conv1"
+    top: "res7_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res7_sum"
+        type: "Eltwise"
+        bottom: "res6"
+        bottom: "res7_conv2"
+        top: "res7"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res7_relu2"
+        type: "ReLU"
+        bottom: "res7"
+        top: "res7"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 8
+layer {
+    name: "res8_conv1"
+    type: "Convolution"
+    bottom: "res7"
+    top: "res8_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res7_relu1"
+        type: "ReLU"
+        bottom: "res8_conv1"
+        top: "res8_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res8_conv2"
+    type: "Convolution"
+    bottom: "res8_conv1"
+    top: "res8_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res8_sum"
+        type: "Eltwise"
+        bottom: "res7"
+        bottom: "res8_conv2"
+        top: "res8"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res8_relu2"
+        type: "ReLU"
+        bottom: "res8"
+        top: "res8"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 9
+layer {
+    name: "res9_conv1"
+    type: "Convolution"
+    bottom: "res8"
+    top: "res9_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res8_relu1"
+        type: "ReLU"
+        bottom: "res9_conv1"
+        top: "res9_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res9_conv2"
+    type: "Convolution"
+    bottom: "res9_conv1"
+    top: "res9_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res9_sum"
+        type: "Eltwise"
+        bottom: "res8"
+        bottom: "res9_conv2"
+        top: "res9"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res9_relu2"
+        type: "ReLU"
+        bottom: "res9"
+        top: "res9"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 10
+layer {
+    name: "res10_conv1"
+    type: "Convolution"
+    bottom: "res9"
+    top: "res10_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res9_relu1"
+        type: "ReLU"
+        bottom: "res10_conv1"
+        top: "res10_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res10_conv2"
+    type: "Convolution"
+    bottom: "res10_conv1"
+    top: "res10_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res10_sum"
+        type: "Eltwise"
+        bottom: "res9"
+        bottom: "res10_conv2"
+        top: "res10"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res10_relu2"
+        type: "ReLU"
+        bottom: "res10"
+        top: "res10"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 11
+layer {
+    name: "res11_conv1"
+    type: "Convolution"
+    bottom: "res10"
+    top: "res11_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res10_relu1"
+        type: "ReLU"
+        bottom: "res11_conv1"
+        top: "res11_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res11_conv2"
+    type: "Convolution"
+    bottom: "res11_conv1"
+    top: "res11_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res11_sum"
+        type: "Eltwise"
+        bottom: "res10"
+        bottom: "res11_conv2"
+        top: "res11"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res11_relu2"
+        type: "ReLU"
+        bottom: "res11"
+        top: "res11"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 12
+layer {
+    name: "res12_conv1"
+    type: "Convolution"
+    bottom: "res11"
+    top: "res12_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res11_relu1"
+        type: "ReLU"
+        bottom: "res12_conv1"
+        top: "res12_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res12_conv2"
+    type: "Convolution"
+    bottom: "res12_conv1"
+    top: "res12_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res12_sum"
+        type: "Eltwise"
+        bottom: "res11"
+        bottom: "res12_conv2"
+        top: "res12"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res12_relu2"
+        type: "ReLU"
+        bottom: "res12"
+        top: "res12"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 13
+layer {
+    name: "res13_conv1"
+    type: "Convolution"
+    bottom: "res12"
+    top: "res13_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res12_relu1"
+        type: "ReLU"
+        bottom: "res13_conv1"
+        top: "res13_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res13_conv2"
+    type: "Convolution"
+    bottom: "res13_conv1"
+    top: "res13_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res13_sum"
+        type: "Eltwise"
+        bottom: "res12"
+        bottom: "res13_conv2"
+        top: "res13"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res13_relu2"
+        type: "ReLU"
+        bottom: "res13"
+        top: "res13"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 14
+layer {
+    name: "res14_conv1"
+    type: "Convolution"
+    bottom: "res13"
+    top: "res14_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res13_relu1"
+        type: "ReLU"
+        bottom: "res14_conv1"
+        top: "res14_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res14_conv2"
+    type: "Convolution"
+    bottom: "res14_conv1"
+    top: "res14_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res14_sum"
+        type: "Eltwise"
+        bottom: "res13"
+        bottom: "res14_conv2"
+        top: "res14"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res14_relu2"
+        type: "ReLU"
+        bottom: "res14"
+        top: "res14"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 15
+layer {
+    name: "res15_conv1"
+    type: "Convolution"
+    bottom: "res14"
+    top: "res15_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res14_relu1"
+        type: "ReLU"
+        bottom: "res15_conv1"
+        top: "res15_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res15_conv2"
+    type: "Convolution"
+    bottom: "res15_conv1"
+    top: "res15_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res15_sum"
+        type: "Eltwise"
+        bottom: "res14"
+        bottom: "res15_conv2"
+        top: "res15"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res15_relu2"
+        type: "ReLU"
+        bottom: "res15"
+        top: "res15"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 16
+layer {
+    name: "res16_conv1"
+    type: "Convolution"
+    bottom: "res15"
+    top: "res16_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res15_relu1"
+        type: "ReLU"
+        bottom: "res16_conv1"
+        top: "res16_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res16_conv2"
+    type: "Convolution"
+    bottom: "res16_conv1"
+    top: "res16_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res16_sum"
+        type: "Eltwise"
+        bottom: "res15"
+        bottom: "res16_conv2"
+        top: "res16"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res16_relu2"
+        type: "ReLU"
+        bottom: "res16"
+        top: "res16"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 17
+layer {
+    name: "res17_conv1"
+    type: "Convolution"
+    bottom: "res16"
+    top: "res17_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res16_relu1"
+        type: "ReLU"
+        bottom: "res17_conv1"
+        top: "res17_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res17_conv2"
+    type: "Convolution"
+    bottom: "res17_conv1"
+    top: "res17_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res17_sum"
+        type: "Eltwise"
+        bottom: "res16"
+        bottom: "res17_conv2"
+        top: "res17"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res17_relu2"
+        type: "ReLU"
+        bottom: "res17"
+        top: "res17"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 18
+layer {
+    name: "res18_conv1"
+    type: "Convolution"
+    bottom: "res17"
+    top: "res18_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res17_relu1"
+        type: "ReLU"
+        bottom: "res18_conv1"
+        top: "res18_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res18_conv2"
+    type: "Convolution"
+    bottom: "res18_conv1"
+    top: "res18_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res18_sum"
+        type: "Eltwise"
+        bottom: "res17"
+        bottom: "res18_conv2"
+        top: "res18"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res18_relu2"
+        type: "ReLU"
+        bottom: "res18"
+        top: "res18"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 19
+layer {
+    name: "res19_conv1"
+    type: "Convolution"
+    bottom: "res18"
+    top: "res19_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res18_relu1"
+        type: "ReLU"
+        bottom: "res19_conv1"
+        top: "res19_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res19_conv2"
+    type: "Convolution"
+    bottom: "res19_conv1"
+    top: "res19_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res19_sum"
+        type: "Eltwise"
+        bottom: "res18"
+        bottom: "res19_conv2"
+        top: "res19"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res19_relu2"
+        type: "ReLU"
+        bottom: "res19"
+        top: "res19"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 20
+layer {
+    name: "res20_conv1"
+    type: "Convolution"
+    bottom: "res19"
+    top: "res20_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res19_relu1"
+        type: "ReLU"
+        bottom: "res20_conv1"
+        top: "res20_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res20_conv2"
+    type: "Convolution"
+    bottom: "res20_conv1"
+    top: "res20_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res20_sum"
+        type: "Eltwise"
+        bottom: "res19"
+        bottom: "res20_conv2"
+        top: "res20"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res20_relu2"
+        type: "ReLU"
+        bottom: "res20"
+        top: "res20"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 21
+layer {
+    name: "res21_conv1"
+    type: "Convolution"
+    bottom: "res20"
+    top: "res21_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res20_relu1"
+        type: "ReLU"
+        bottom: "res21_conv1"
+        top: "res21_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res21_conv2"
+    type: "Convolution"
+    bottom: "res21_conv1"
+    top: "res21_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res21_sum"
+        type: "Eltwise"
+        bottom: "res20"
+        bottom: "res21_conv2"
+        top: "res21"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res21_relu2"
+        type: "ReLU"
+        bottom: "res21"
+        top: "res21"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 22
+layer {
+    name: "res22_conv1"
+    type: "Convolution"
+    bottom: "res21"
+    top: "res22_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res21_relu1"
+        type: "ReLU"
+        bottom: "res22_conv1"
+        top: "res22_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res22_conv2"
+    type: "Convolution"
+    bottom: "res22_conv1"
+    top: "res22_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res22_sum"
+        type: "Eltwise"
+        bottom: "res21"
+        bottom: "res22_conv2"
+        top: "res22"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res22_relu2"
+        type: "ReLU"
+        bottom: "res22"
+        top: "res22"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 23
+layer {
+    name: "res23_conv1"
+    type: "Convolution"
+    bottom: "res22"
+    top: "res23_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res22_relu1"
+        type: "ReLU"
+        bottom: "res23_conv1"
+        top: "res23_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res23_conv2"
+    type: "Convolution"
+    bottom: "res23_conv1"
+    top: "res23_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res23_sum"
+        type: "Eltwise"
+        bottom: "res22"
+        bottom: "res23_conv2"
+        top: "res23"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res23_relu2"
+        type: "ReLU"
+        bottom: "res23"
+        top: "res23"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 24
+layer {
+    name: "res24_conv1"
+    type: "Convolution"
+    bottom: "res23"
+    top: "res24_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res23_relu1"
+        type: "ReLU"
+        bottom: "res24_conv1"
+        top: "res24_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res24_conv2"
+    type: "Convolution"
+    bottom: "res24_conv1"
+    top: "res24_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res24_sum"
+        type: "Eltwise"
+        bottom: "res23"
+        bottom: "res24_conv2"
+        top: "res24"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res24_relu2"
+        type: "ReLU"
+        bottom: "res24"
+        top: "res24"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 25
+layer {
+    name: "res25_conv1"
+    type: "Convolution"
+    bottom: "res24"
+    top: "res25_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res24_relu1"
+        type: "ReLU"
+        bottom: "res25_conv1"
+        top: "res25_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res25_conv2"
+    type: "Convolution"
+    bottom: "res25_conv1"
+    top: "res25_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res25_sum"
+        type: "Eltwise"
+        bottom: "res24"
+        bottom: "res25_conv2"
+        top: "res25"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res25_relu2"
+        type: "ReLU"
+        bottom: "res25"
+        top: "res25"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 26
+layer {
+    name: "res26_conv1"
+    type: "Convolution"
+    bottom: "res25"
+    top: "res26_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res25_relu1"
+        type: "ReLU"
+        bottom: "res26_conv1"
+        top: "res26_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res26_conv2"
+    type: "Convolution"
+    bottom: "res26_conv1"
+    top: "res26_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res26_sum"
+        type: "Eltwise"
+        bottom: "res25"
+        bottom: "res26_conv2"
+        top: "res26"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res26_relu2"
+        type: "ReLU"
+        bottom: "res26"
+        top: "res26"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 27
+layer {
+    name: "res27_conv1"
+    type: "Convolution"
+    bottom: "res26"
+    top: "res27_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res26_relu1"
+        type: "ReLU"
+        bottom: "res27_conv1"
+        top: "res27_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res27_conv2"
+    type: "Convolution"
+    bottom: "res27_conv1"
+    top: "res27_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res27_sum"
+        type: "Eltwise"
+        bottom: "res26"
+        bottom: "res27_conv2"
+        top: "res27"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res27_relu2"
+        type: "ReLU"
+        bottom: "res27"
+        top: "res27"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 28
+layer {
+    name: "res28_conv1"
+    type: "Convolution"
+    bottom: "res27"
+    top: "res28_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res27_relu1"
+        type: "ReLU"
+        bottom: "res28_conv1"
+        top: "res28_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res28_conv2"
+    type: "Convolution"
+    bottom: "res28_conv1"
+    top: "res28_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res28_sum"
+        type: "Eltwise"
+        bottom: "res27"
+        bottom: "res28_conv2"
+        top: "res28"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res28_relu2"
+        type: "ReLU"
+        bottom: "res28"
+        top: "res28"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 29
+layer {
+    name: "res29_conv1"
+    type: "Convolution"
+    bottom: "res28"
+    top: "res29_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res28_relu1"
+        type: "ReLU"
+        bottom: "res29_conv1"
+        top: "res29_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res29_conv2"
+    type: "Convolution"
+    bottom: "res29_conv1"
+    top: "res29_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res29_sum"
+        type: "Eltwise"
+        bottom: "res28"
+        bottom: "res29_conv2"
+        top: "res29"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res29_relu2"
+        type: "ReLU"
+        bottom: "res29"
+        top: "res29"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 30
+layer {
+    name: "res30_conv1"
+    type: "Convolution"
+    bottom: "res29"
+    top: "res30_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res29_relu1"
+        type: "ReLU"
+        bottom: "res30_conv1"
+        top: "res30_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res30_conv2"
+    type: "Convolution"
+    bottom: "res30_conv1"
+    top: "res30_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res30_sum"
+        type: "Eltwise"
+        bottom: "res29"
+        bottom: "res30_conv2"
+        top: "res30"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res30_relu2"
+        type: "ReLU"
+        bottom: "res30"
+        top: "res30"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 31
+layer {
+    name: "res31_conv1"
+    type: "Convolution"
+    bottom: "res30"
+    top: "res31_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res30_relu1"
+        type: "ReLU"
+        bottom: "res31_conv1"
+        top: "res31_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res31_conv2"
+    type: "Convolution"
+    bottom: "res31_conv1"
+    top: "res31_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res31_sum"
+        type: "Eltwise"
+        bottom: "res30"
+        bottom: "res31_conv2"
+        top: "res31"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res31_relu2"
+        type: "ReLU"
+        bottom: "res31"
+        top: "res31"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 32
+layer {
+    name: "res32_conv1"
+    type: "Convolution"
+    bottom: "res31"
+    top: "res32_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res31_relu1"
+        type: "ReLU"
+        bottom: "res32_conv1"
+        top: "res32_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res32_conv2"
+    type: "Convolution"
+    bottom: "res32_conv1"
+    top: "res32_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res32_sum"
+        type: "Eltwise"
+        bottom: "res31"
+        bottom: "res32_conv2"
+        top: "res32"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res32_relu2"
+        type: "ReLU"
+        bottom: "res32"
+        top: "res32"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 33
+layer {
+    name: "res33_conv1"
+    type: "Convolution"
+    bottom: "res32"
+    top: "res33_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res32_relu1"
+        type: "ReLU"
+        bottom: "res33_conv1"
+        top: "res33_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res33_conv2"
+    type: "Convolution"
+    bottom: "res33_conv1"
+    top: "res33_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res33_sum"
+        type: "Eltwise"
+        bottom: "res32"
+        bottom: "res33_conv2"
+        top: "res33"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res33_relu2"
+        type: "ReLU"
+        bottom: "res33"
+        top: "res33"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 34
+layer {
+    name: "res34_conv1"
+    type: "Convolution"
+    bottom: "res33"
+    top: "res34_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res33_relu1"
+        type: "ReLU"
+        bottom: "res34_conv1"
+        top: "res34_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res34_conv2"
+    type: "Convolution"
+    bottom: "res34_conv1"
+    top: "res34_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res34_sum"
+        type: "Eltwise"
+        bottom: "res33"
+        bottom: "res34_conv2"
+        top: "res34"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res34_relu2"
+        type: "ReLU"
+        bottom: "res34"
+        top: "res34"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 35
+layer {
+    name: "res35_conv1"
+    type: "Convolution"
+    bottom: "res34"
+    top: "res35_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res34_relu1"
+        type: "ReLU"
+        bottom: "res35_conv1"
+        top: "res35_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res35_conv2"
+    type: "Convolution"
+    bottom: "res35_conv1"
+    top: "res35_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res35_sum"
+        type: "Eltwise"
+        bottom: "res34"
+        bottom: "res35_conv2"
+        top: "res35"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res35_relu2"
+        type: "ReLU"
+        bottom: "res35"
+        top: "res35"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 36
+layer {
+    name: "res36_conv1"
+    type: "Convolution"
+    bottom: "res35"
+    top: "res36_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res35_relu1"
+        type: "ReLU"
+        bottom: "res36_conv1"
+        top: "res36_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res36_conv2"
+    type: "Convolution"
+    bottom: "res36_conv1"
+    top: "res36_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res36_sum"
+        type: "Eltwise"
+        bottom: "res35"
+        bottom: "res36_conv2"
+        top: "res36"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res36_relu2"
+        type: "ReLU"
+        bottom: "res36"
+        top: "res36"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 37
+layer {
+    name: "res37_conv1"
+    type: "Convolution"
+    bottom: "res36"
+    top: "res37_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res36_relu1"
+        type: "ReLU"
+        bottom: "res37_conv1"
+        top: "res37_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res37_conv2"
+    type: "Convolution"
+    bottom: "res37_conv1"
+    top: "res37_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res37_sum"
+        type: "Eltwise"
+        bottom: "res36"
+        bottom: "res37_conv2"
+        top: "res37"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res37_relu2"
+        type: "ReLU"
+        bottom: "res37"
+        top: "res37"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 38
+layer {
+    name: "res38_conv1"
+    type: "Convolution"
+    bottom: "res37"
+    top: "res38_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res37_relu1"
+        type: "ReLU"
+        bottom: "res38_conv1"
+        top: "res38_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res38_conv2"
+    type: "Convolution"
+    bottom: "res38_conv1"
+    top: "res38_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res38_sum"
+        type: "Eltwise"
+        bottom: "res37"
+        bottom: "res38_conv2"
+        top: "res38"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res38_relu2"
+        type: "ReLU"
+        bottom: "res38"
+        top: "res38"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 39
+layer {
+    name: "res39_conv1"
+    type: "Convolution"
+    bottom: "res38"
+    top: "res39_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res38_relu1"
+        type: "ReLU"
+        bottom: "res39_conv1"
+        top: "res39_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res39_conv2"
+    type: "Convolution"
+    bottom: "res39_conv1"
+    top: "res39_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res39_sum"
+        type: "Eltwise"
+        bottom: "res38"
+        bottom: "res39_conv2"
+        top: "res39"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res39_relu2"
+        type: "ReLU"
+        bottom: "res39"
+        top: "res39"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+#Start of residual block 40
+layer {
+    name: "res40_conv1"
+    type: "Convolution"
+    bottom: "res39"
+    top: "res40_conv1"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res39_relu1"
+        type: "ReLU"
+        bottom: "res40_conv1"
+        top: "res40_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+    name: "res40_conv2"
+    type: "Convolution"
+    bottom: "res40_conv1"
+    top: "res40_conv2"
+    convolution_param {
+        num_output: 256
+        kernel_size: 3
+        stride: 1
+        pad: 1
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+        name: "res40_sum"
+        type: "Eltwise"
+        bottom: "res39"
+        bottom: "res40_conv2"
+        top: "res40"
+        eltwise_param {
+                operation: SUM
+        }
+}
+
+layer {
+        name: "res40_relu2"
+        type: "ReLU"
+        bottom: "res40"
+        top: "res40"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+
+### Value head ###
+
+layer {
+    name: "Value_conv1"
+    type: "Convolution"
+    bottom: "res40"
+    top: "value_conv1"
+    convolution_param {
+        num_output: 2
+        kernel_size: 1
+        stride: 1
+        pad: 0
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "value_relu1"
+	type: "ReLU"
+	bottom: "value_conv1"
+	top: "value_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+	name: "Value_fc1"
+	type: "InnerProduct"
+	bottom: "value_conv1"
+	top: "value_fc1"
+	inner_product_param {
+		num_output: 8
+		weight_filler {
+            type: "gaussian"
+            std: 0.01
+		}
+		bias_filler {
+			type: "constant"
+			value: 0
+		}
+	}
+}
+
+layer {
+	name: "relu_value_fc1"
+	type: "ReLU"
+	bottom: "value_fc1"
+	top: "value_fc1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+	name: "Value_Output"
+	type: "InnerProduct"
+	bottom: "value_fc1"
+	top: "output_value"
+	inner_product_param {
+		num_output: 1
+		weight_filler {
+            type: "gaussian"
+            std: 0.01
+		}
+		bias_filler {
+			type: "constant"
+			value: 0
+		}
+	}
+}
+
+layer {
+	name: "TanH_value"
+	type: "TanH"
+	bottom: "output_value"
+	top: "output_value"
+}
+
+layer {
+	name: "Value_loss"
+	type: "EuclideanLoss"
+	bottom: "output_value"
+	bottom: "label_value"
+	top: "value_loss"
+	include {
+		phase: TRAIN
+	}
+}
+
+############## Probas head ################
+
+layer {
+    name: "Probas_conv1"
+    type: "Convolution"
+    bottom: "res40"
+    top: "probas_conv1"
+    convolution_param {
+        num_output: 2
+        kernel_size: 1
+        stride: 1
+        pad: 0
+        weight_filler {
+            type: "gaussian"
+            std: 0.01
+        }
+        bias_filler {
+            type: "constant"
+            value: 0
+        }
+    }
+}
+
+layer {
+	name: "probas_relu1"
+	type: "ReLU"
+	bottom: "probas_conv1"
+	top: "probas_conv1"
+    relu_param {
+        negative_slope: 0.02
+    }
+}
+
+layer {
+	name: "Probas_Output"
+	type: "InnerProduct"
+	bottom: "probas_conv1"
+	top: "raw_output_probas"
+	inner_product_param {
+		num_output: 67240
+		weight_filler {
+            type: "gaussian"
+            std: 0.01
+		}
+		bias_filler {
+			type: "constant"
+			value: 0
+		}
+	}
+}
+
+layer {
+	name: "Probas_Softmax"
+	type: "Softmax"
+	bottom: "raw_output_probas"
+	top: "output_probas"
+}
+
+### As Caffe doesn't have a cross entropy loss layer, we create it from existing layers ###
+layer {
+	name: "Log_Probas"
+	type: "Log"
+	bottom: "output_probas"
+	top: "log_output_probas"
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "Minus_Log_Probas"
+	type: "Scale"
+	bottom: "log_output_probas"
+	top: "minus_log_probas"
+	param {
+		lr_mult: 0
+		decay_mult: 0
+	}
+	scale_param {
+        axis: 0
+		num_axes: 0
+		filler {
+			type: "constant"
+			value: -1
+		}
+		bias_term: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "Cross_Entropy_Mult"
+	type: "Eltwise"
+	bottom: "minus_log_probas"
+	bottom: "label_probas"
+	top: "eltwise_prod"
+	eltwise_param {
+		operation: PROD
+	}
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "Cross_entropy_first_sum"
+	type: "Reduction"
+	bottom: "eltwise_prod"
+	top: "cross_entropy_summed"
+	reduction_param {
+		operation: SUM
+		axis: 1
+	}
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "Cross_Entropy_Scale"
+	type: "Scale"
+	bottom: "cross_entropy_summed"
+	top: "cross_entropy_scaled"
+	param {
+		lr_mult: 0
+		decay_mult: 0
+	}
+	scale_param {
+        axis: 0
+		num_axes: 0
+		filler {
+			type: "constant"
+			value: 7 #1 / batch_size
+		}
+		bias_term: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+
+layer {
+	name: "Cross_entropy_loss"
+	type: "Reduction"
+	bottom: "cross_entropy_scaled"
+	top: "probas_loss"
+	reduction_param {
+		operation: SUM
+		axis: 0
+	}
+	include {
+		phase: TRAIN
+	}
+    loss_weight: 1
+}
+

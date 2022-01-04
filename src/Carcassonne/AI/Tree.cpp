@@ -8,6 +8,11 @@ namespace carcassonne::ai {
 
 Tree::Tree(const IGame &game, const Player &player) {
    m_nodes.emplace_back(game.clone(), player, FullMove{});
+   lck = std::unique_lock<std::mutex>{m_tree_mutex, std::defer_lock};
+}
+
+Tree::Tree(Tree&& t) : m_nodes(std::move(t.m_nodes)), m_tree_mutex() {
+   lck = std::unique_lock<std::mutex>{m_tree_mutex, std::defer_lock};
 }
 
 struct NodePair {

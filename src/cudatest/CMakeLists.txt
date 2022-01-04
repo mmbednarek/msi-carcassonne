@@ -25,7 +25,6 @@ SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
 # target_compile_options(carcassonne_headless PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:my_cuda_option>) 
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")# -allow-unsupported-compiler")
 
-SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}  )
 
 SET(CUDA_PROPAGATE_HOST_FLAGS ON)
 SET(CUDA_SEPARABLE_COMPILATION OFF)

@@ -1,1 +1,0 @@
-CUDA_ADD_LIBRARY(carcassonne_gpu_decoder Decoder.cu STATIC)

@@ -1,11 +1,10 @@
-#include "Carcassonne/AI/DeepRLPlayer.h"
-#include "Carcassonne/AI/RandomPlayer.h"
-#include "Carcassonne/Game/Game.h"
+#include <Carcassonne/AI/DeepRLPlayer.h>
+#include <Carcassonne/AI/RandomPlayer.h>
+#include <Carcassonne/Game/Game.h>
 #include <boost/program_options.hpp>
+#include <google/protobuf/text_format.h>
 #define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
-#include <google/protobuf/text_format.h>
-// #include <cudatest/cudatest.h>
 
 namespace po = boost::program_options;
 
@@ -74,8 +73,8 @@ class Gameplay {
       });
    }
 
-   void add_rl_player(carcassonne::rl::Network &net) {
-      m_rl_players.emplace_back(m_game, m_next_player, net);
+   void add_rl_player() {
+      m_rl_players.emplace_back(m_game, m_next_player);
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
@@ -93,32 +92,7 @@ class Gameplay {
    }
 };
 
-mb::result<std::unique_ptr<carcassonne::rl::Network>> load_network() {
-   caffe::Caffe::set_mode(caffe::Caffe::GPU);
-   // caffe::Caffe::SetDevice(6);
-
-   caffe::SolverParameter solver_param;
-   caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
-
-   caffe::NetParameter net_parameter;
-   std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
-   std::string model((std::istreambuf_iterator<char>(t)),
-                     std::istreambuf_iterator<char>());
-   bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
-   if (!success) {
-      return mb::error("could not parse protobuf file");
-   }
-
-   net_parameter.mutable_state()->set_phase(caffe::TRAIN);
-
-   return std::make_unique<carcassonne::rl::Network>(net_parameter, solver_param);
-}
-
 int main(int argc, char **argv) {
-   // spdlog::debug("cudatest start\n");
-   // cudatest::test_cuda();
-   // spdlog::debug("cudatest complete\n");
-   // return 0;
    po::options_description desc("carcassonne headless");
    desc.add_options()
            ("help", "")
@@ -143,18 +117,11 @@ int main(int argc, char **argv) {
       spdlog::error("player count may not exceed 4");
       return EXIT_FAILURE;
    }
-
+   
    Gameplay gameplay(total_player_count, seed);
-
-   auto network_res = load_network();
-   if (!network_res.ok()) {
-      spdlog::error("could not load network: {}", network_res.msg());
-      return EXIT_FAILURE;
-   }
-   auto network = network_res.unwrap();
-
+   
    for (int i = 0; i < rl_count; ++i) {
-      gameplay.add_rl_player(*network);
+      gameplay.add_rl_player();
    }
 
    std::mt19937 generator(seed);

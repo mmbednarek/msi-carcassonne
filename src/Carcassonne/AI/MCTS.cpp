@@ -64,12 +64,12 @@ void simulate(Tree &tree, NodeId node_id) {
 }
 
 void backpropagate(Tree &tree, NodeId node_id, Player winner) {
-   while (node_id != g_root_node) {
+   while (node_id != g_root_node_id) {
       auto &node = tree.node_at(node_id);
       node.propagate(winner);
       node_id = node.parent_id();
    }
-   tree.node_at(g_root_node).propagate(winner);
+   tree.node_at(g_root_node_id).propagate(winner);
 }
 
 void expand(Tree &tree, NodeId node_id, SimulationType simulation_type) {
@@ -148,9 +148,9 @@ void expand(Tree &tree, NodeId node_id, SimulationType simulation_type) {
 }
 
 void run_selection(Tree &tree, SimulationType sim_type) {
-   const auto rollout_count = tree.node_at(g_root_node).simulation_count();
+   const auto rollout_count = tree.node_at(g_root_node_id).simulation_count();
 
-   auto current_node_id = g_root_node;
+   auto current_node_id = g_root_node_id;
    for (;;) {
       auto &current_node = tree.node_at(current_node_id);
       const auto &children = current_node.children();
@@ -181,8 +181,8 @@ void run_selection(Tree &tree, SimulationType sim_type) {
 }
 
 void run_mcts(Tree &tree, mb::i64 time_limit, SimulationType sim_type) {
-   if (!tree.node_at(g_root_node).expanded()) {
-      expand(tree, g_root_node, sim_type);
+   if (!tree.node_at(g_root_node_id).expanded()) {
+      expand(tree, g_root_node_id, sim_type);
    }
 
    auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds{time_limit};
@@ -192,7 +192,7 @@ void run_mcts(Tree &tree, mb::i64 time_limit, SimulationType sim_type) {
 }
 
 FullMove choose_move(Tree &tree, int move_index, Player player) {
-   auto &root_node = tree.node_at(g_root_node);
+   auto &root_node = tree.node_at(g_root_node_id);
    const auto &children = root_node.children();
    auto max_sim_count_it = std::max_element(
            children.begin(),

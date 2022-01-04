@@ -8,10 +8,10 @@
 namespace carcassonne::ai {
 
 Node::Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move)
-    : m_game(std::move(game)), m_player(player), m_move(move), m_id(0) {}
+    : m_game(std::move(game)), m_player(player), m_id(0), m_move(move) {}
 
 Node::Node(NodeId id, std::unique_ptr<IGame> &&game, const Player &player, FullMove move, NodeId parent_id)
-    : m_game(std::move(game)), m_player(player), m_move(move), m_parent_id(parent_id), m_id(id) {}
+    : m_game(std::move(game)), m_player(player), m_parent_id(parent_id), m_id(id), m_move(move) {}
 
 double Node::UCT1(mb::size rollout_count) const noexcept {
    const auto player_wins = m_player_wins[static_cast<int>(m_player)];
