@@ -101,6 +101,9 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    
    spdlog::info("deep rl: preparing move");
    std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player, m_last_moves);
+   spdlog::info("DeepRLPlayer::make_move: Sleeping atarted");
+   std::this_thread::sleep_for(std::chrono::seconds(20)); // 8 sekund mija pomiędzy rozpoczęciem wstawania pierwszej a wstaniem ostatniej sieci
+   spdlog::info("DeepRLPlayer::make_move: Sleeping ended");
    
    std::shared_ptr<std::condition_variable> condVar =
            std::make_shared<std::condition_variable>();

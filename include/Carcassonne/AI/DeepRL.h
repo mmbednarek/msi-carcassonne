@@ -32,8 +32,9 @@ struct Context {
    bool move_ready = false;
 };
 
+void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
 void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique_ptr<Tree>& tree);
-void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id);
+void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
 void backpropagate(
         NodeId node_id,
         Player winner,

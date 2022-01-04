@@ -32,13 +32,28 @@ std::array<RandomPlayer<>, 4> g_random_players{
         RandomPlayer(g_random_gen, Player::Yellow),
 };
 
+std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
+
 static FullMove get_move(const std::unique_ptr<IGame> &game) {
 #ifdef MEASURE_TIME
    fmt::print("\n{}\n", g_max_moves - game->move_index());
 #endif
    std::hash<std::thread::id> hasher;
    unsigned tid = hasher(std::this_thread::get_id());
-   FullMove mv = g_networks[std::this_thread::get_id()]->do_move(game, static_cast<float>(rand_r(&tid) % 1000) / 1000.0f);// rand is a hash
+   spdlog::debug("thread {} acquires network", hasher(std::this_thread::get_id()));
+   std::unique_ptr<Network> &net_ptr = g_networks[std::this_thread::get_id()];
+   spdlog::debug("thread {} acquired network", hasher(std::this_thread::get_id()));
+   if (nullptr == net_ptr) {
+      spdlog::debug("thread {} nullptr == net_ptr");
+      return FullMove{};
+   }
+   if (nullptr == game) {
+      spdlog::debug("thread {} nullptr == game");
+      return FullMove{};
+   }
+   spdlog::debug("thread {} nullptr != game");
+   FullMove mv = net_ptr->do_move(game, static_cast<float>(rand_r(&tid) % 1000) / 1000.0f, std::this_thread::get_id());// rand is a hash
+
    if (mv.ignored_figure) {
       if (!game->board().can_place_at(mv.x, mv.y, game->tile_set()[game->move_index()], mv.rotation)) {
          spdlog::error("deep rl, get_move(): INCORRECT TILE PLACEMENT 52 !!!");
@@ -49,39 +64,59 @@ static FullMove get_move(const std::unique_ptr<IGame> &game) {
    return mv;
 }
 
-void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique_ptr<Tree>& tree) {
+void simulate(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id, std::unique_ptr<Tree> &tree) {
+   std::hash<std::thread::id> hasher;
+   unsigned tid = hasher(std::this_thread::get_id());
+   spdlog::debug("thread {}: carcassonne::ai::rl::simulate", tid);
 
-      auto start = util::unix_time();
-      
-      auto simulate_lambda = [&ctx_ptr, &node_id, &tree]() {
-         auto simulated_game = tree->node_at(node_id).game().clone();
-         for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
+   auto start = util::unix_time();
+
+   auto simulate_lambda = [&ctx_ptr, &node_id, &tree]() {
+      std::hash<std::thread::id> hasher;
+      unsigned tid = hasher(std::this_thread::get_id());
+      spdlog::debug("thread {}: simulate_lambda", tid);
+      auto simulated_game = tree->node_at(node_id).game().clone();
+      spdlog::debug("thread {}: ok1", tid);
+      for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
 #ifdef MEASURE_TIME
-            auto start_move = util::unix_time();
+         auto start_move = util::unix_time();
 #endif
-            auto current_player = simulated_game->current_player();
-            auto full_move = get_move(simulated_game);
-            auto move = simulated_game->new_move(current_player);
-            move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
-            move->place_figure(full_move.direction);
-            simulated_game->update(0);
+      spdlog::debug("thread {}: simulate_lambda: ok2", tid);
+         auto current_player = simulated_game->current_player();
+      spdlog::debug("thread {}: simulate_lambda: ok3", tid);
+         auto full_move = get_move(simulated_game);
+      spdlog::debug("thread {}: simulate_lambda: ok4", tid);
+         auto move = simulated_game->new_move(current_player);
+      spdlog::debug("thread {}: simulate_lambda: ok5", tid);
+         move->place_tile_at(full_move.x, full_move.y, full_move.rotation);
+      spdlog::debug("thread {}: simulate_lambda: ok6", tid);
+         move->place_figure(full_move.direction);
+      spdlog::debug("thread {}: simulate_lambda: ok7", tid);
+         simulated_game->update(0);
+      spdlog::debug("thread {}: simulate_lambda: ok8", tid);
 #ifdef MEASURE_TIME
-            spdlog::debug("deep rl: move lasted {}ms", util::unix_time() - start_move);
+         spdlog::debug("deep rl: move lasted {}ms", util::unix_time() - start_move);
 #endif
-         }
-         auto max_score_it = std::max_element(simulated_game->scores().begin(), simulated_game->scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
-            return lhs.score < rhs.score;
-         });
-         return max_score_it->player;
-      };
-      auto winner_future = ctx_ptr->workers_pool.submit(simulate_lambda);
-      Player winner = winner_future.get();
-      tree->node_at(node_id).mark_as_simulated();
-      spdlog::debug("deep rl: simulation lasted {}ms", util::unix_time() - start);
-      
-      tree->lck.lock();
-      backpropagate(node_id, winner, tree);
-      tree->lck.unlock();
+      spdlog::debug("thread {}: simulate_lambda: ok9", tid);
+      }
+      spdlog::debug("thread {}: simulate_lambda: ok10", tid);
+      auto max_score_it = std::max_element(simulated_game->scores().begin(), simulated_game->scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
+         return lhs.score < rhs.score;
+      });
+      spdlog::debug("thread {}: simulate_lambda: ok11", tid);
+      return max_score_it->player;
+   };
+   spdlog::debug("ok1");
+   auto winner_future = ctx_ptr->workers_pool.submit(simulate_lambda);
+   spdlog::debug("ok2");
+   Player winner = winner_future.get();
+   spdlog::debug("SUCCESS!");
+   tree->node_at(node_id).mark_as_simulated();
+   spdlog::debug("deep rl: simulation lasted {}ms", util::unix_time() - start);
+
+   tree->lck.lock();
+   backpropagate(node_id, winner, tree);
+   tree->lck.unlock();
 }
 
 void backpropagate(
@@ -96,7 +131,7 @@ void backpropagate(
    tree->node_at(g_root_node_id).propagate(winner);
 }
 
-void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id) {
+void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
    auto &game = ctx_ptr->trees[std::this_thread::get_id()]->node_at(node_id).game();
    const auto current_player = game.current_player();
    for (auto tile_location : game.moves()) {
@@ -154,9 +189,10 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodeId node_id) {
    ctx_ptr->trees[std::this_thread::get_id()]->node_at(node_id).mark_as_expanded();
 }
 
-void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, Node &parent_node) {
-   auto &children = parent_node.children();
-   auto size = children.size();
+void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
+   Node &node = ctx_ptr->trees[std::this_thread::get_id()]->node_at(node_id);
+   auto &children = node.children();
+   auto size = node.children().size();
    if (0 == size) {
       spdlog::info("deep rl, run_selection: bottom of the tree reached");
       return;
@@ -194,13 +230,12 @@ void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
       assert(current_node.simulated());// selected must has been silmulated
       assert(current_node.children().empty());
       expand(ctx_ptr, current_node_id);
-      launch_simulations(ctx_ptr, current_node);
+      launch_simulations(ctx_ptr, current_node_id);
       return;
    }
 }
 
 void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit) {
-   spdlog::debug("ok1");
    std::hash<std::thread::id> hasher;
    spdlog::debug("thread {} acquires tree", hasher(std::this_thread::get_id()));
    auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
@@ -210,14 +245,9 @@ void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64
       return;
    }
    tree->lck.lock();
-   spdlog::debug("ok2");
-   Node &root_node = ctx_ptr->trees[std::this_thread::get_id()]->node_at(g_root_node_id);
-   spdlog::debug("ok3");
-   spdlog::debug("ok4");
-   spdlog::debug("ok5");
-   if (!root_node.expanded()) {
+   if (!ctx_ptr->trees[std::this_thread::get_id()]->node_at(g_root_node_id).expanded()) {
       expand(ctx_ptr, g_root_node_id);
-      launch_simulations(ctx_ptr, root_node);
+      launch_simulations(ctx_ptr, g_root_node_id);
    }
    ctx_ptr->trees[std::this_thread::get_id()]->lck.unlock();
    if (time_limit == 0) time_limit = std::numeric_limits<mb::i64>::max();

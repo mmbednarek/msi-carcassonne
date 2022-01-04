@@ -22,7 +22,7 @@
 
 namespace carcassonne::ai::rl {
 
-inline static std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
+extern std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
 
 template<typename T>
 class threadsafe_queue {
@@ -136,17 +136,23 @@ class thread_pool {
    std::unique_lock<std::mutex> lck;
    unsigned networks_per_gpu = 2;
    void worker_thread(int gpu_id) {
+      std::hash<std::thread::id> hasher;
+      spdlog::debug("thread {} wakes up", hasher(std::this_thread::get_id()));
+      spdlog::debug("thread {} ok0.0", hasher(std::this_thread::get_id()));
       auto network_res = load_network(gpu_id);
+      // lck.lock();
       if (!network_res.ok()) {
          spdlog::error("could not load network: {}", network_res.msg());
          return;
       }
       auto network = network_res.unwrap();
-      lck.lock();
+      spdlog::debug("thread {} emplaces network, nullptr{}=net", hasher(std::this_thread::get_id()), nullptr==network ? "=" : "!");
       g_networks.emplace(std::this_thread::get_id(), std::move(network));
-      lck.unlock();
-      std::cout << "worker Thread " << std::this_thread::get_id() << " run on gpu " << gpu_id << std::endl;
+      spdlog::debug("thread {} emplaced network", hasher(std::this_thread::get_id()));
+      // lck.unlock();
+      // std::cout << "worker Thread " << std::this_thread::get_id() << " run on gpu " << gpu_id << std::endl;
       std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
+      spdlog::debug("thread {} waked up", hasher(std::this_thread::get_id()));
       while (!done) {
          function_wrapper task;
          if (work_queue.try_pop(task)) {
@@ -159,24 +165,38 @@ class thread_pool {
    }
    
    mb::result<std::unique_ptr<Network>> load_network(int gpu_id) const {
-      caffe::Caffe::set_mode(caffe::Caffe::GPU);
-      caffe::Caffe::SetDevice(gpu_id);
+      spdlog::debug("thread ok0");
+      std::hash<std::thread::id> hasher;
+      spdlog::debug("thread {} ok1", hasher(std::this_thread::get_id()));
+      // caffe::Caffe::set_mode(caffe::Caffe::GPU);
+      spdlog::debug("thread {} ok2", hasher(std::this_thread::get_id()));
+      // caffe::Caffe::SetDevice(gpu_id);
+      spdlog::debug("thread {} ok3", hasher(std::this_thread::get_id()));
+      spdlog::warn("load_network: device={}", gpu_id);
       
       caffe::SolverParameter solver_param;
-      caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver.prototxt", &solver_param);
-      
+      std::string param_file = std::string("./proto/solver") + std::to_string(gpu_id) + std::string(".prototxt");
+      spdlog::debug("thread {} ok4 param_file={} ", hasher(std::this_thread::get_id()), param_file);
+      caffe::ReadSolverParamsFromTextFileOrDie(param_file, &solver_param);
+      spdlog::debug("thread {} ok5", hasher(std::this_thread::get_id()));
       caffe::NetParameter net_parameter;
-      std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
+      std::string model_file = std::string("./proto/net_full_alphazero_40_res_blocks") + std::to_string(gpu_id) + std::string(".prototxt");
+      std::ifstream t(model_file.c_str());
+      spdlog::debug("thread {} ok6", hasher(std::this_thread::get_id()));
       std::string model((std::istreambuf_iterator<char>(t)),
                         std::istreambuf_iterator<char>());
+      spdlog::debug("thread {} ok7", hasher(std::this_thread::get_id()));
       bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
+      spdlog::debug("thread {} ok8", hasher(std::this_thread::get_id()));
       if (!success) {
          return mb::error("could not parse protobuf file");
       }
+      spdlog::debug("thread {} ok9", hasher(std::this_thread::get_id()));
       
       net_parameter.mutable_state()->set_phase(caffe::TRAIN);
       
-      return std::make_unique<Network>(net_parameter, solver_param);
+      spdlog::debug("thread {} ok10", hasher(std::this_thread::get_id()));
+      return std::make_unique<Network>(net_parameter, solver_param, gpu_id);
    }
 
  public:

@@ -18,15 +18,19 @@ class Network {
    boost::shared_ptr<caffe::Blob<float>> m_label;
    std::vector<float> m_neuron_input;
    std::vector<bool> m_allowed_moves;
+   std::thread::id m_thread_id;
+   int m_gpu_id;
 
  public:
-   Network(const caffe::NetParameter &net_parameter, const caffe::SolverParameter &solver_param);
+   Network(const caffe::NetParameter &net_parameter, const caffe::SolverParameter &solver_param, int gpu_id);
    Network(Network &&) noexcept = default;
    Network &operator=(Network &&) noexcept = default;
    Network(const Network &other) = delete;
    Network &operator=(const Network &other) = delete;
 
-   FullMove do_move(const std::unique_ptr<IGame> &g, float prob);
+   FullMove do_move(const std::unique_ptr<IGame> &g, float prob, std::thread::id thread_id);
+   std::thread::id get_thread_id() { return m_thread_id; }
+   int get_gpu_id() { return m_gpu_id; }
 
 };
 
