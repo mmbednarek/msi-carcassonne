@@ -5,6 +5,7 @@
 #include <Carcassonne/IGame.h>
 #include <mb/int.h>
 #include <tuple>
+#include <boost/pool/pool.hpp>
 
 namespace carcassonne::ai {
 
@@ -12,7 +13,7 @@ constexpr NodeId g_root_node_id = 0;
 
 class Tree {
  public:
-   std::vector<Node> m_nodes;
+   boost::object_pool<Node> m_object_pool;
    std::mutex m_tree_mutex;
    std::unique_lock<std::mutex> lck;
    
