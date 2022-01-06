@@ -64,6 +64,8 @@ class Node {
 
    [[nodiscard]] double UCT1(unsigned long rollout_count) const noexcept;
 
+   [[nodiscard]] double PUCT() const noexcept;
+
    [[nodiscard]] IGame &game() const noexcept;
 
    [[nodiscard]] constexpr const Player &player() const noexcept {

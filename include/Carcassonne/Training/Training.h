@@ -13,6 +13,7 @@ class Training {
    mb::size m_games_till_training = 350; // 1 game = 280 sek
    mb::size m_training_steps_till_checkpoint = 1000;
    uint64_t m_seed = 1000;
+   ai::rl::thread_pool m_workers_pool;
 
  public:
    Training(uint64_t seed) : m_seed(seed) {} 
@@ -33,20 +34,20 @@ class Training {
       
       while (true) {
          for (mb::size i = 0; i < m_parallel_games; ++i) {
-            games_threads.push_back(std::thread{produce_game, m_seed, 2});
+            games_threads.push_back(std::thread{produce_game, m_seed, 2, std::ref(m_workers_pool)});
          }
          train_network();
          create_training_checkpoint();
       }    
    }
 
-   static void produce_game(int seed, int rl_count) {
+   static void produce_game(int seed, int rl_count, carcassonne::ai::rl::thread_pool& workers_pool) {
       Gameplay gameplay(rl_count, seed);
 
       std::mt19937 generator(seed);
       
       for (int i = 0; i < rl_count; ++i) {
-         gameplay.add_rl_player(generator);
+         gameplay.add_rl_player(generator, workers_pool);
       }
 
       gameplay.add_random_player(generator);

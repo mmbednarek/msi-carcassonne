@@ -21,8 +21,9 @@ class DeepRLPlayer {
    explicit DeepRLPlayer(
       IGame &game,
       Player player,
-      std::mt19937 &generator);
-   void make_move(IGame &game) noexcept;
+      std::mt19937 &generator,
+      rl::thread_pool& workers_pool );
+   void make_move(IGame &game, rl::thread_pool& workers_pool) noexcept;
 };
 
 }// namespace carcassonne::ai

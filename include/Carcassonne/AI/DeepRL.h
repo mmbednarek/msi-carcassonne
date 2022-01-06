@@ -23,7 +23,7 @@ struct Context {
    Player player;
    std::array<FullMove, 4> &last_moves;
    std::map<std::thread::id, std::unique_ptr<Tree>> trees;
-   thread_pool workers_pool;
+   thread_pool& workers_pool;
    std::thread::id leading_tread_id;
    bool leading_tread_assigned = false;
    std::mutex mutex;
@@ -32,8 +32,8 @@ struct Context {
    bool move_ready = false;
 
  public:
-   Context(IGame &_game, Player &_player, std::array<FullMove, 4>& _last_moves)
-       : game(_game), player(_player), last_moves(_last_moves) {}
+   Context(IGame &_game, Player &_player, std::array<FullMove, 4>& _last_moves, thread_pool& _workers_pool)
+       : game(_game), player(_player), last_moves(_last_moves), workers_pool(_workers_pool) {}
 };
 
 void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);

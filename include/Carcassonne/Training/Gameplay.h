@@ -32,8 +32,8 @@ class Gameplay {
       });
    }
 
-   void add_rl_player(std::mt19937 &generator) {
-      m_rl_players.emplace_back(m_game, m_next_player, generator);
+   void add_rl_player(std::mt19937 &generator, carcassonne::ai::rl::thread_pool& workers_pool) {
+      m_rl_players.emplace_back(m_game, m_next_player, generator, workers_pool);
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 

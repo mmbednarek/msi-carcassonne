@@ -8,17 +8,18 @@ namespace carcassonne::ai {
 DeepRLPlayer::DeepRLPlayer(
    IGame &game,
    Player player,
-   std::mt19937 &generator )
+   std::mt19937 &generator,
+   rl::thread_pool& workers_pool )
     : m_player(player)
     , m_player_count(game.player_count())
     , m_generator(generator) {
    spdlog::info("deep rl: initialising agent");
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
-   game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
+   game.on_next_move([this, &workers_pool](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
       if (player != m_player)
          return;
-      make_move(game);
+      make_move(game, workers_pool);
    });
 }
 
@@ -87,11 +88,11 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    // ctx_ptr->lck.unlock(); // no need for lock
 }
 
-void DeepRLPlayer::make_move(IGame &game) noexcept {
+void DeepRLPlayer::make_move(IGame &game, rl::thread_pool& workers_pool) noexcept {
    unsigned trees_count = 1;
    
    spdlog::info("deep rl: preparing move");
-   std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player, m_last_moves);
+   std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player, m_last_moves, workers_pool);
    
    std::shared_ptr<std::condition_variable> condVar =
            std::make_shared<std::condition_variable>();

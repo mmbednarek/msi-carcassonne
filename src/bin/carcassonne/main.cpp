@@ -122,10 +122,13 @@ int main() {
    player_id += mcts_ai_player_count;
 
    std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game](carcassonne::Player p) {
-      std::mt19937 generator;
-      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, generator);
-   });
+   if (0 != rl_ai_player_count) {
+      carcassonne::ai::rl::thread_pool workers_pool;
+      std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &workers_pool](carcassonne::Player p) {
+         std::mt19937 generator;
+         return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, generator, workers_pool);
+      });
+   }
 
    constexpr double dt = 1000.0 / 60.0;
    auto prev_time = static_cast<double>(now_milis());

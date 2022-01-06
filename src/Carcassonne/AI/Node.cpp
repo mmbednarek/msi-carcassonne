@@ -21,6 +21,13 @@ double Node::UCT1(mb::size rollout_count) const noexcept {
    return static_cast<double>(player_wins) / static_cast<double>(m_simulation_count) + g_C * std::sqrt(std::log(static_cast<double>(rollout_count)) / static_cast<double>(m_simulation_count));
 }
 
+double Node::PUCT() const noexcept {
+   if (m_simulation_count == 0) {
+      return 1.0;
+   }
+   return g_C * m_P * std::sqrt(static_cast<double>(m_parent->simulation_count()) / (1 + static_cast<double>(m_simulation_count)));
+}
+
 NodePtr Node::add_child(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P) noexcept {
    std::lock_guard<std::mutex> lock(*m_mutex);
    m_children.push_back(std::make_unique<Node>(std::move(game), player, move, P, this));
