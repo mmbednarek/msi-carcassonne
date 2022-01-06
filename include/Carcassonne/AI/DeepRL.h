@@ -36,10 +36,10 @@ struct Context {
        : game(_game), player(_player), last_moves(_last_moves) {}
 };
 
-void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
-void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
+void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
+void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
 void backpropagate(
-        NodeId node_id,
+        NodePtr node_id,
         Player winner,
         std::unique_ptr<Tree> &tree);
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr);

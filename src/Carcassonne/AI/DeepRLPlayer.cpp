@@ -22,28 +22,28 @@ DeepRLPlayer::DeepRLPlayer(
 
 std::unique_ptr<Tree> prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr) {
    Tree tree(ctx_ptr->game, ctx_ptr->player);
-   Player current_player = ctx_ptr->player;
-   NodeId node_id = 0;
+   auto current_player = ctx_ptr->player;
+   auto node = tree.root();
    do {
-      node_id = tree.find_node_by_move(node_id, ctx_ptr->last_moves[static_cast<mb::size>(ctx_ptr->player)]);
-      if (node_id == 0)
+      node = tree.find_node_by_move(node, ctx_ptr->last_moves[static_cast<mb::size>(ctx_ptr->player)]);
+      if (node == nullptr)
          break;
       ctx_ptr->player = next_player(ctx_ptr->player, ctx_ptr->game.player_count());
    } while (ctx_ptr->player != current_player);
 
-   if (node_id == 0) {
+   if (node == nullptr) {
       spdlog::debug("deep rl: building MCTS tree from scratch");
       tree.reset(ctx_ptr->game, current_player);
       return std::make_unique<Tree>(std::move(tree));
    }
 
    spdlog::debug("deep rl: reusing existing MCTS tree node");
-   tree.change_root(node_id);
+   tree.change_root(node);
    return std::make_unique<Tree>(std::move(tree));
 }
 
 void rl::client_threads::client_work(unsigned cpu_id) {
-   spdlog::debug("client_work: client Thread({}) run on cpu {}", cpu_id);
+   spdlog::debug("client_work: client Thread(?) run on cpu {}", cpu_id);
    ctx_ptr->lck.lock();
    if (!ctx_ptr->leading_tread_assigned) {
       ctx_ptr->leading_tread_id = std::this_thread::get_id();
