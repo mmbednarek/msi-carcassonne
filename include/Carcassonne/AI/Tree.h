@@ -20,7 +20,7 @@ class Tree {
    Tree(Tree&&);
    void change_root(NodeId new_root_id);
    NodeId find_node_by_move(NodeId base_id, const FullMove &move);
-   mb::size add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, NodeId parent_id);
+   mb::size add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, float P, NodeId parent_id);
    Node &node_at(NodeId id) noexcept;
    void reset(const IGame &game, Player player);
 

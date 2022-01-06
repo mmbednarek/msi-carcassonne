@@ -37,7 +37,7 @@ void simulate_random(Tree &tree, NodeId node_id) {
       auto current_player = simulated_game->current_player();
       auto full_move = g_random_players[static_cast<mb::size>(current_player)].make_move(*simulated_game);
       simulated_game->update(0);
-      parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
+      parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, 0.0, parent_id);
    }
 
    auto &leaf_node = tree.node_at(parent_id);
@@ -54,7 +54,7 @@ void simulate(Tree &tree, NodeId node_id) {
       auto full_move = g_heuristic_players[static_cast<mb::size>(current_player)].make_move(*simulated_game).unwrap();
       simulated_game->update(0);
 
-      parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, parent_id);
+      parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, 0.0, parent_id);
    }
 
    auto &leaf_node = tree.node_at(parent_id);
@@ -125,7 +125,7 @@ void expand(Tree &tree, NodeId node_id, SimulationType simulation_type) {
                  .ignored_figure = false,
                  .direction = figure_move,
          };
-         tree.add_node(std::move(game_clone_clone), current_player, full_move, node_id);
+         tree.add_node(std::move(game_clone_clone), current_player, full_move, 0.0, node_id);
       }
 
       if (simulated_tile && simulation_move.ignored_figure)
@@ -140,7 +140,7 @@ void expand(Tree &tree, NodeId node_id, SimulationType simulation_type) {
                  .rotation = tile_location.rotation,
                  .ignored_figure = true,
          };
-         tree.add_node(std::move(game_clone), current_player, full_move, node_id);
+         tree.add_node(std::move(game_clone), current_player, full_move, 0.0, node_id);
       }
    }
 

@@ -598,58 +598,58 @@ inline void figures_to_caffe(const F& figures, int x, int y, U output_edges_it, 
    switch (figure_it->dir) {
      case Direction::North:
        *std::next(output_it, 0) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 0)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 0)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 0)) role = 2;
+       if (*std::next(output_edges_it, 0 + 3 * 0)) role = 0; // grass
+       if (*std::next(output_edges_it, 1 + 3 * 0)) role = 1; // path
+       if (*std::next(output_edges_it, 2 + 3 * 0)) role = 2; // town
        break;
      case Direction::East:
        *std::next(output_it, 1) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 1)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 1)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 1)) role = 2;
+       if (*std::next(output_edges_it, 0 + 3 * 1)) role = 0; // gras
+       if (*std::next(output_edges_it, 1 + 3 * 1)) role = 1; // path
+       if (*std::next(output_edges_it, 2 + 3 * 1)) role = 2; // town
        break;
      case Direction::South:
        *std::next(output_it, 2) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 2)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 2)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 2)) role = 2;
+       if (*std::next(output_edges_it, 0 + 3 * 2)) role = 0; // gras
+       if (*std::next(output_edges_it, 1 + 3 * 2)) role = 1; // path
+       if (*std::next(output_edges_it, 2 + 3 * 2)) role = 2; // town
        break;
      case Direction::West:
        *std::next(output_it, 3) = true;
-       if (*std::next(output_edges_it, 0 + 3 * 3)) role = 0;
-       if (*std::next(output_edges_it, 1 + 3 * 3)) role = 1;
-       if (*std::next(output_edges_it, 2 + 3 * 3)) role = 2;
+       if (*std::next(output_edges_it, 0 + 3 * 3)) role = 0; // gras
+       if (*std::next(output_edges_it, 1 + 3 * 3)) role = 1; // path
+       if (*std::next(output_edges_it, 2 + 3 * 3)) role = 2; // town
        break;
      case Direction::Middle:
        *std::next(output_it, 4) = true;
-       role = 4;
+       role = 4; // monastery
        break;
      case Direction::NorthEast:
      case Direction::EastNorth:
        *std::next(output_it, 5) = true;
-       role = 0;
+       role = 0; // monastery
        break;
      case Direction::SouthEast:
      case Direction::EastSouth:
        *std::next(output_it, 6) = true;
-       role = 0;
+       role = 0; // monastery
        break;
      case Direction::SouthWest:
      case Direction::WestSouth:
        *std::next(output_it, 7) = true;
-       role = 0;
+       role = 0; // monastery
        break;
      case Direction::NorthWest:
      case Direction::WestNorth:
        *std::next(output_it, 8) = true;
-       role = 0;
+       role = 0; // monastery
        break;
    }
    advance(output_it, 9);
 
    // figure role: neurons_to_set = 4
    *std::next(output_it, role) = true;
-   advance(output_it, 4);
+   // advance(output_it, 4);
 }
 
 
@@ -660,31 +660,30 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
       // field edges    = 8 * city_or_field[3]
       // contacts       = g_contact_types_count[24]
       // connections    = g_connection_types_count[22]
-      // pennant        = true_or_false[1] x 5 pennant locations
+      // pennant        = true_or_false[1]
       // moastery       = true_or_false[1]
-      // figure         = npcs[2]
+      // figure owner   = npcs[2]
       // figure posit.  = pos[9]
       // figure role    = at_city_or_field_or_path_or_moastery[4]
+   // current tile               = sum_of_above[99]
    // remaining figures          = figs[7] * npcs[2]
-   // current tile               = sum_of_above[87]
    // remaining tiles            = m_tile_set[70]
    // best score <1<2<3...<255   = g_max_possible_score+1[256]
    // current player score       = g_max_possible_score+1[256]
    // best player id             = npcs[2]
    // current player id          = npcs[2]
-   auto result = mb::ok;
-   const size_t tile_features_count = (4*3) + (8*3) + 24 + 22 + 1 + 1 + m_player_count + 9 + 4; // 87;
+   const size_t tile_features_count = (4*3) + (8*3) + 24 + 22 + 1 + 1 + m_player_count + 9 + 4; // 99;
    const size_t board_features_count = (g_board_width * g_board_height * tile_features_count)
        + (g_initial_figures_count * m_player_count) + tile_features_count + m_tile_set.size()
-       + 2 * (g_max_possible_score + 1) + 2 * m_player_count; // 166'784;
+       + 2 * (g_max_possible_score + 1) + 2 * m_player_count; // 166'419 + 699; <==> 41x41x100
    if (output.size() == 0) {
       output = std::vector<float>(board_features_count, 0.0f);
    } else {
       std::fill(output.begin(), output.end(), 0.0f);
    }
    auto output_it = output.begin();
-   for (int x = 0; x < g_board_width; ++x) {
-      for (int y = 0; y < g_board_height; ++y) {
+   for (int y = 0; y < g_board_height; ++y) {
+      for (int x = 0; x < g_board_width; ++x) {
          const TilePlacement& placed_tile = board().tile_at(x,y);
          if (0 == placed_tile.type) continue;
          int neurons_offset = (x + y * g_board_width) * tile_features_count;

@@ -24,9 +24,9 @@ if (NOT ${HIP_PLATFORM_AMD})
     find_package(CUDA REQUIRED)
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-fconcepts)
-endif()
+# if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+#     add_compile_options(-fconcepts)
+# endif()
 
 
 set(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)

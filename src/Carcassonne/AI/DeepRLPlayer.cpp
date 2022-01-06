@@ -11,6 +11,7 @@ DeepRLPlayer::DeepRLPlayer(
     : m_player(player)
     , m_player_count(game.player_count()) {
    spdlog::info("deep rl: initialising agent");
+   std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
       if (player != m_player)
@@ -42,27 +43,17 @@ std::unique_ptr<Tree> prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr) {
 }
 
 void rl::client_threads::client_work(unsigned cpu_id) {
-   std::cout << "client Thread(" << cpu_id << ") " << thread_name() << " run on cpu " << cpu_id << std::endl;
+   spdlog::debug("client_work: client Thread({}) run on cpu {}", cpu_id);
    ctx_ptr->lck.lock();
    if (!ctx_ptr->leading_tread_assigned) {
       ctx_ptr->leading_tread_id = std::this_thread::get_id();
    }
    ctx_ptr->lck.unlock();
-   
-   // auto tile = ctx_ptr->game.tile_set()[ctx_ptr->game.move_index()];
    auto tree = prepare_tree(ctx_ptr);
-   if (tree == nullptr) {
-      spdlog::debug("tree == nullptr");
-      return;
-   }
    ctx_ptr->lck.lock();
    spdlog::debug("thread {} pushes tree", thread_name());
    ctx_ptr->trees.emplace(std::this_thread::get_id(), std::move(tree));
    spdlog::debug("thread {} pushed tree", thread_name());
-   if (ctx_ptr->trees[std::this_thread::get_id()] == nullptr) {
-      spdlog::debug("ctx_ptr->trees[std::this_thread::get_id()] == nullptr");
-      return;
-   }
    ctx_ptr->lck.unlock();
    FullMove best_move;
    bool move_is_illegal = true;
@@ -96,13 +87,9 @@ void rl::client_threads::client_work(unsigned cpu_id) {
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {
    unsigned trees_count = 1;
-   std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    
    spdlog::info("deep rl: preparing move");
    std::unique_ptr<rl::Context> ctx_ptr = std::make_unique<rl::Context>(game, m_player, m_last_moves);
-   spdlog::info("DeepRLPlayer::make_move: Sleeping started");
-   // std::this_thread::sleep_for(std::chrono::seconds(10)); // 8 sekund mija pomiędzy rozpoczęciem wstawania pierwszej a wstaniem ostatniej sieci
-   spdlog::info("DeepRLPlayer::make_move: Sleeping ended");
    
    std::shared_ptr<std::condition_variable> condVar =
            std::make_shared<std::condition_variable>();
