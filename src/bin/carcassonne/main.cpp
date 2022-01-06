@@ -123,7 +123,8 @@ int main() {
 
    std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
    std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game](carcassonne::Player p) {
-      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p);
+      std::mt19937 generator;
+      return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, generator);
    });
 
    constexpr double dt = 1000.0 / 60.0;

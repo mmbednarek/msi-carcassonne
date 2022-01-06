@@ -11,25 +11,23 @@
 #include <array>
 #include <list>
 #include <unordered_map>
-#include <Util_GPU/hash_map.h>
 #include <thrust/device_vector.h>
 
 namespace cudatest {
 
 class Point {
 public:
+    int x, y;
     DEVHOST Point();
     DEVHOST Point(int a,int b) = delete;
     DEVHOST Point(const Point &&);
     DEVHOST Point(const Point &) = delete;
     DEVHOST Point(Point &) = delete;
     std::array<int, 2> arr{};
-    CUDASTL::UniqueList<CUDASTL::HashMapNode<const unsigned int, int>> m;
-    int x,y;
 };
 Point::Point() { std::printf("point\n"); };
 // Point::Point(int a,int b) : x(std::move(a)), y(std::move(b)) { printf("param\n"); arr[0] = a; arr[1] = b; }
-Point::Point(const Point &&p) : x(p.x), y(p.y), arr(p.arr), m(p.m) { printf("moved\n"); }
+Point::Point(const Point &&p) : x(p.x), y(p.y), arr(p.arr) { printf("moved\n"); }
 
 __global__ void init_point(void* buffer, int a, int b) {
     Point p;

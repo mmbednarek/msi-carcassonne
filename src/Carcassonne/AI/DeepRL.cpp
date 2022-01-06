@@ -140,7 +140,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
          node->add_child(std::move(game_clone), current_player, full_move, probabilities[probability_index]);
       }
    }
-   for (int i = 0; i < node->children().size(); ++i) {
+   for (mb::size i = 0; i < node->children().size(); ++i) {
       backpropagate_state_value(node, state_value, tree);
    }
    node->mark_as_expanded();
