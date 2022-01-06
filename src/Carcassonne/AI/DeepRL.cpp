@@ -84,31 +84,6 @@ std::tuple<std::span<float>, float> get_probabilities(const Node& node) {
    return std::make_tuple(std::span<float>(output->mutable_cpu_data(), output_neuron_count), *label->mutable_cpu_data());
 }
 
-constexpr std::size_t encode_direction(Direction dir, bool ignored_figure) {
-   if (ignored_figure)
-      return 9;
-   switch (dir) {
-   case Direction::North: return 0;
-   case Direction::East: return 1;
-   case Direction::South: return 2;
-   case Direction::West: return 3;
-   case Direction::Middle: return 4;
-   case Direction::NorthEast:
-   case Direction::EastNorth: return 5;
-   case Direction::EastSouth:
-   case Direction::SouthEast: return 6;
-   case Direction::SouthWest:
-   case Direction::WestSouth: return 7;
-   case Direction::WestNorth:
-   case Direction::NorthWest: return 8;
-   }
-   return 0;
-}
-
-constexpr std::size_t encode_move(const FullMove &move) {
-   return g_board_width * 4 * 10 * move.y + 4 * 10 * move.x +  10 * move.rotation + encode_direction(move.direction, move.ignored_figure);
-}
-
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
    std::unique_ptr<Tree>& tree = ctx_ptr->trees[std::this_thread::get_id()];
    Node& node = tree->node_at(node_id);
@@ -207,7 +182,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
       backpropagate_state_value(node_id, state_value, tree);
    }
 }
-struct NodeWithPromise;
+struct DataWithPromise;
 
 // void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
 //    auto& tree = ctx_ptr->trees[std::this_thread::get_id()];
@@ -218,9 +193,9 @@ struct NodeWithPromise;
 //       return;
 //    }
 //    std::vector<std::promise<Player>> promises{size};
-//    std::vector<NodeWithPromise> data{size};
+//    std::vector<util::DataWithPromise<Node, Player>> data{size};
 //    std::transform(node.children().begin(), node.children().end(), promises.begin(), data.begin(), 
-//       [&tree](NodeId n, std::promise<Player>& p){ return NodeWithPromise{ &p, &tree->node_at(n) }; } );
+//       [&tree](NodeId n, std::promise<Player>& p){ return util::DataWithPromise<Node, Player>{ &p, &tree->node_at(n) }; } );
 //    for (int i = 0; i < size; ++i) {
 //       ctx_ptr->workers_pool.submit(data[i]);
 //    }

@@ -13,7 +13,7 @@ constexpr NodeId g_root_node_id = 0;
 
 class Tree {
  public:
-   boost::object_pool<Node> m_object_pool;
+   std::vector<Node> m_nodes;
    std::mutex m_tree_mutex;
    std::unique_lock<std::mutex> lck;
    

@@ -4,6 +4,7 @@
 #include <Carcassonne/RL/Network.h>
 #include <Eden_resources/Ngpus_Ncpus.h>
 #include <Carcassonne/AI/Tree.h>
+#include <Util/DataWithPromise.h>
 #include <google/protobuf/text_format.h>
 #include <Util/Time.h>
 #include <spdlog/spdlog.h>
@@ -128,15 +129,6 @@ class function_wrapper {
    function_wrapper &operator=(const function_wrapper &) = delete;
 };
 
-struct NodeWithPromise {
-   std::promise<Player> *promise{nullptr};
-   Node *node{nullptr};
-
- public:
-   NodeWithPromise() = default;
-   NodeWithPromise(std::promise<Player> *_promise, Node *_node) : promise(_promise), node(_node) {}
-};
-
 static FullMove get_move(const std::unique_ptr<IGame> &game) {
 #ifdef MEASURE_TIME
    fmt::print("\n{}\n", g_max_moves - game->move_index());
@@ -184,7 +176,7 @@ class thread_pool {
    std::atomic_bool done;
    std::vector<std::thread> threads;
    join_threads joiner;
-   threadsafe_queue<NodeWithPromise> work_queue;
+   threadsafe_queue<util::DataWithPromise<Node, Player>> work_queue;
    std::mutex mut;
    std::unique_lock<std::mutex> lck;
    unsigned networks_per_gpu = 1;
@@ -206,7 +198,7 @@ class thread_pool {
       std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
       spdlog::debug("thread {} waked up", thread_name());
       while (!done) {
-         NodeWithPromise np;
+         util::DataWithPromise<Node, Player> np;
          if (work_queue.try_pop(np)) {
             np.promise->set_value(simulate(np.node));
          } else {
@@ -269,7 +261,7 @@ class thread_pool {
       done = true;
    }
 
-   void submit(NodeWithPromise np) {
+   void submit(util::DataWithPromise<Node, Player> np) {
       work_queue.push(np);
    }
 };
