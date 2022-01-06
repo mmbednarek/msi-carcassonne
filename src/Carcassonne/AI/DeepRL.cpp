@@ -185,7 +185,6 @@ void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
          current_node = selected_child_it->get();
          continue;
       }
-//      assert(current_node->simulated());// selected must has been silmulated
       assert(current_node->children().empty());
       expand(ctx_ptr, current_node);
       // launch_simulations(ctx_ptr, current_node_id);

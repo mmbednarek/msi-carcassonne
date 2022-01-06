@@ -25,7 +25,6 @@ class Node {
    std::vector<std::unique_ptr<Node>> m_children;
    FullMove m_move;
    bool m_expanded = false;
-   bool m_simulated = false;
 
  public:
    mb::size m_simulation_count = 0;        // (N in the paper)
@@ -84,10 +83,6 @@ class Node {
       return m_expanded;
    }
 
-   [[nodiscard]] constexpr bool simulated() const noexcept {
-      return m_simulated;
-   }
-
    [[nodiscard]] constexpr bool is_root() const noexcept {
       return m_parent == nullptr;
    }
@@ -132,10 +127,6 @@ class Node {
    inline void mark_as_expanded() noexcept {
       m_expanded = true;
       m_game = nullptr;
-   }
-
-   inline void mark_as_simulated() noexcept {
-      m_simulated = true;
    }
 
 

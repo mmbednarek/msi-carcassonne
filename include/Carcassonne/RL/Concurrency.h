@@ -175,7 +175,6 @@ inline Player simulate(Node* node) {
    auto max_score_it = std::max_element(simulated_game->scores().begin(), simulated_game->scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
       return lhs.score < rhs.score;
    });
-   node->mark_as_simulated();
    spdlog::debug("deep rl: simulation lasted {}ms", util::unix_time() - start);
    return max_score_it->player;
 }
