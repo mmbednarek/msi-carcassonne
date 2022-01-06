@@ -30,8 +30,9 @@ class Network {
    Network(const Network &other) = delete;
    Network &operator=(const Network &other) = delete;
 
-   FullMove do_move(const std::unique_ptr<IGame> &g, float prob, std::string tid_name);
+   FullMove do_move(const std::unique_ptr<IGame> &g, float prob);
    std::string get_thread_name() { return m_pthread_name; }
+   caffe::SGDSolver<float>& solver() { return m_solver; }
    int get_gpu_id() { return m_gpu_id; }
 
 };

@@ -146,7 +146,7 @@ static FullMove get_move(const std::unique_ptr<IGame> &game) {
    spdlog::debug("thread {} acquires network", thread_name());
    std::unique_ptr<Network> &net_ptr = g_networks[std::this_thread::get_id()];
    spdlog::debug("thread {} acquired network", thread_name());
-   FullMove mv = net_ptr->do_move(game, static_cast<float>(rand_r(&tid) % 1000) / 1000.0f, thread_name());// rand is a hash
+   FullMove mv = net_ptr->do_move(game, static_cast<float>(rand_r(&tid) % 1000) / 1000.0f);// rand is a hash
    if (mv.ignored_figure) {
       if (!game->board().can_place_at(mv.x, mv.y, game->tile_set()[game->move_index()], mv.rotation)) {
       }
@@ -156,19 +156,9 @@ static FullMove get_move(const std::unique_ptr<IGame> &game) {
 }
 
 inline Player simulate(Node* node) {
-   // std::hash<std::thread::id> hasher;
-   // unsigned tid = hasher(std::this_thread::get_id());
-   // spdlog::debug("thread {}: simulate ok0", thread_name());
-
    auto start = util::unix_time();
-   // if(nullptr == node) spdlog::debug("thread {}: simulate nullptr == node", thread_name());
-   // spdlog::debug("thread {}: simulate ok2", thread_name());
-
    auto simulated_game = node->game().clone();
-   // if(nullptr == simulated_game) spdlog::debug("thread {}: simulate nullptr == simulated_game", thread_name());
-   // spdlog::debug("thread {}: simulate ok1", thread_name());
    for (auto move_index = simulated_game->move_index(); move_index < g_max_moves; ++move_index) {
-   // spdlog::debug("thread {}: simulate ok3", thread_name());
 #ifdef MEASURE_TIME
       auto start_move = util::unix_time();
 #endif
@@ -230,9 +220,6 @@ class thread_pool {
       // spdlog::debug("thread ok0");
       spdlog::debug("thread {} ok1", thread_name());
       caffe::Caffe::set_mode(caffe::Caffe::GPU);
-      // spdlog::debug("thread {} ok2", thread_name();
-      // caffe::Caffe::SetDevice(gpu_id);
-      // spdlog::debug("thread {} ok3", thread_name();
       spdlog::warn("load_network: device={}", gpu_id);
       
       caffe::SolverParameter solver_param;
@@ -264,7 +251,7 @@ class thread_pool {
    thread_pool() : done(false), joiner(threads), lck(mut, std::defer_lock) {
       // unsigned const thread_count = std::thread::hardware_concurrency();
       unsigned gpus_count = Eden_resources::get_gpus_count();
-      // gpus_count = 1;
+      gpus_count = 1;
       unsigned networks_count = gpus_count * networks_per_gpu;
       try {
          for (unsigned i = 0; i < networks_count; ++i) {

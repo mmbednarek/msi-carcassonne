@@ -12,18 +12,19 @@ static bool should_skip_iter(Direction d) {
    case Direction::SouthWest:
    case Direction::WestNorth:
       return true;
+   default:
+      return false;
    }
-   return false;
 }
 
-static float fill_allowed_vec(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, const std::span<float> blob) {
+float fill_allowed_vec(const IGame *game, std::vector<bool> &allowed_moves, const std::span<float> blob) {
    auto &tile = game->tile_set()[game->move_index()];
    auto sum_neurons = 0.0f;
    auto allowed_it = allowed_moves.begin();
    auto blob_it = blob.begin();
 
-   for (int y = 0; y < g_board_width; ++y) {
-      for (int x = 0; x < g_board_height; ++x) {
+   for (int y = 0; y < g_board_height; ++y) {
+      for (int x = 0; x < g_board_width; ++x) {
          for (mb::u8 rot = 0; rot < 4; ++rot) {
             if (!game->board().can_place_at(x, y, tile, rot)) {
                for (int i = 0; i < 14; ++i) {
@@ -73,15 +74,15 @@ static float fill_allowed_vec(const std::unique_ptr<IGame> &game, std::vector<bo
 
 FullMove decode_move(const std::unique_ptr<IGame> &game, std::vector<bool> &allowed_moves, const std::span<float> blob, float prob) {
    using mb::size, mb::u8;
-   auto sum_neurons = fill_allowed_vec(game, allowed_moves, blob);
+   auto sum_neurons = fill_allowed_vec(game.get(), allowed_moves, blob);
    auto threshold = sum_neurons * prob;
 
    auto allowed_it = allowed_moves.begin();
    auto blob_it = blob.begin();
    auto sum = 0.0f;
 
-   for (int y = 0; y < g_board_width; ++y) {
-      for (int x = 0; x < g_board_height; ++x) {
+   for (int y = 0; y < g_board_height; ++y) {
+      for (int x = 0; x < g_board_width; ++x) {
          for (mb::u8 rot = 0; rot < 4; ++rot) {
             for (auto dir : g_directions) {
                if (*allowed_it) {

@@ -56,9 +56,9 @@ void Tree::change_root(NodeId new_root_id) {
    m_nodes.erase(m_nodes.begin() + static_cast<long>(node_count), m_nodes.end());
 }
 
-mb::size Tree::add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, NodeId parent_id) {
+mb::size Tree::add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, float P, NodeId parent_id) {
    auto node_id = m_nodes.size();
-   m_nodes.emplace_back(node_id, std::move(game), player, move, parent_id);
+   m_nodes.emplace_back(node_id, std::move(game), player, move, P, parent_id);
    m_nodes[parent_id].add_child(node_id);
    return node_id;
 }

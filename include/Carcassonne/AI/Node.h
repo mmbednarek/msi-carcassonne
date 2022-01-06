@@ -35,7 +35,7 @@ class Node {
    float m_P = 0.0; // prior probability of selecting the Node (for DeepRL)
 
    Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move);
-   Node(NodeId id, std::unique_ptr<IGame> &&game, const Player &player, FullMove move, NodeId parent_id);
+   Node(NodeId id, std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P, NodeId parent_id);
 
    Node(Node &&) noexcept = default;
    Node &operator=(Node &&) noexcept = default;
@@ -109,9 +109,22 @@ class Node {
          if (static_cast<mb::size>(winner) == i) {
             m_player_wins[i] += 1;
             m_W[i] += 1;
-            break;
+            continue;
          }
          m_W[i] -= 1;
+         m_Q[i] = m_W[i] / static_cast<float>(m_simulation_count);
+      }
+      m_simulation_count += 1;
+   }
+
+   constexpr void propagate_state_value(const float &state_value) noexcept {
+      const auto current_player = m_game->current_player();
+      for (mb::size i = 0; i < m_player_wins.size(); ++i) {
+         if (static_cast<mb::size>(current_player) == i) {
+            m_W[i] += state_value;
+            continue;
+         }
+         m_W[i] -= state_value;
          m_Q[i] = m_W[i] / static_cast<float>(m_simulation_count);
       }
       m_simulation_count += 1;
