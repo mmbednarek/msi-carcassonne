@@ -35,6 +35,32 @@ struct FullMove {
    }
 };
 
+constexpr std::size_t encode_direction(Direction dir, bool ignored_figure) {
+   if (ignored_figure)
+      return 9;
+
+   switch (dir) {
+   case Direction::North: return 0;
+   case Direction::East: return 1;
+   case Direction::South: return 2;
+   case Direction::West: return 3;
+   case Direction::Middle: return 4;
+   case Direction::NorthEast:
+   case Direction::EastNorth: return 5;
+   case Direction::EastSouth:
+   case Direction::SouthEast: return 6;
+   case Direction::SouthWest:
+   case Direction::WestSouth: return 7;
+   case Direction::WestNorth:
+   case Direction::NorthWest: return 8;
+   }
+   return 0;
+}
+
+constexpr std::size_t encode_move(const FullMove &move) {
+   return g_board_width * 4 * 10 * move.y + 4 * 10 * move.x +  10 * move.rotation + encode_direction(move.direction, move.ignored_figure);
+}
+
 class MoveIter {
    TileMove m_move;
    TileType m_tile_type;

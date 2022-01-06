@@ -41,6 +41,7 @@ std::string thread_name() {
 }
 
 FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob, std::string tid_name) {
+   m_net->SaveNetwork(g, prob, tid_name);
    // spdlog::debug("thread {}: Network({})::do_move, Network.gpu_id={}, parent_caller_thread_id={}", thread_name(), this->get_thread_name(), this->get_gpu_id(), tid_name);
    caffe::Caffe::SetDevice(this->get_gpu_id());
    // spdlog::debug("ok3.1");
