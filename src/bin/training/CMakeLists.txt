@@ -1,0 +1,2 @@
+add_executable(carcassonne_training main.cpp gameplay.cpp)
+target_link_libraries(carcassonne_training msi_carcassonne_game msi_carcassonne_ai fmt Boost::program_options spdlog pthread)

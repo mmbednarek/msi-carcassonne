@@ -15,12 +15,13 @@ class DeepRLPlayer {
    std::array<FullMove, 4> m_last_moves{};
    mb::size m_player_count;
    std::unique_ptr<rl::client_threads> m_clients_pool = nullptr;
+   std::mt19937 m_generator;
 
  public:
    explicit DeepRLPlayer(
       IGame &game,
-      Player player);
-   void train_network(const IGame &game); // to be implemented
+      Player player,
+      std::mt19937 &generator);
    void make_move(IGame &game) noexcept;
 };
 

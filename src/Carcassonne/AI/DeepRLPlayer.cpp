@@ -7,9 +7,11 @@ namespace carcassonne::ai {
 
 DeepRLPlayer::DeepRLPlayer(
    IGame &game,
-   Player player )
+   Player player,
+   std::mt19937 &generator )
     : m_player(player)
-    , m_player_count(game.player_count()) {
+    , m_player_count(game.player_count())
+    , m_generator(generator) {
    spdlog::info("deep rl: initialising agent");
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {

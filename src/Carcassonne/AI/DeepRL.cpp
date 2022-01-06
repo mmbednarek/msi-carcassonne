@@ -145,7 +145,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    }
    node->mark_as_expanded();
 }
-struct NodeWithPromise;
+struct DataWithPromise;
 
 // void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
 //    auto& tree = ctx_ptr->trees[std::this_thread::get_id()];
@@ -156,9 +156,9 @@ struct NodeWithPromise;
 //       return;
 //    }
 //    std::vector<std::promise<Player>> promises{size};
-//    std::vector<NodeWithPromise> data{size};
+//    std::vector<util::DataWithPromise<Node, Player>> data{size};
 //    std::transform(node.children().begin(), node.children().end(), promises.begin(), data.begin(), 
-//       [&tree](NodeId n, std::promise<Player>& p){ return NodeWithPromise{ &p, &tree->node_at(n) }; } );
+//       [&tree](NodeId n, std::promise<Player>& p){ return util::DataWithPromise<Node, Player>{ &p, &tree->node_at(n) }; } );
 //    for (int i = 0; i < size; ++i) {
 //       ctx_ptr->workers_pool.submit(data[i]);
 //    }
