@@ -111,31 +111,33 @@ int main() {
    for (auto &player : heuristic_players) {
       player.await_turn(game);
    }
-
+   
    player_id += heuristic_ai_player_count;
-
+   
    std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
    std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p, carcassonne::ai::SimulationType::Heuristic);
    });
-
+   
    player_id += mcts_ai_player_count;
-
+   
    std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
    if (0 != rl_ai_player_count) {
-      carcassonne::ai::rl::thread_pool workers_pool;
+   std::unique_ptr<carcassonne::ai::rl::thread_pool> workers_pool = 
+      std::make_unique<carcassonne::ai::rl::thread_pool>();
       std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &workers_pool](carcassonne::Player p) {
          std::mt19937 generator;
-         return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, generator, workers_pool);
+         unsigned trees_count = 1;
+         return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, generator, workers_pool, trees_count);
       });
    }
-
+   
    constexpr double dt = 1000.0 / 60.0;
    auto prev_time = static_cast<double>(now_milis());
    auto dt_accum = 0.0;
-
+   
    game.start();
-
+   
    while (view.status() != Status::Quitting) {
       auto now = static_cast<double>(now_milis());
       auto diff = now - prev_time;

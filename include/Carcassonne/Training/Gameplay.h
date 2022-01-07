@@ -16,10 +16,14 @@ class Gameplay {
    std::vector<carcassonne::ai::RandomPlayer<>> m_random_players;
    carcassonne::Player m_next_player = carcassonne::Player::Black;
    carcassonne::encoder::Rollout m_rollout;
+   unsigned m_trees_count;
 
  public:
-   Gameplay(int player_count, uint64_t seed) : m_game(player_count, seed),
-                                               m_rollout(player_count, seed) {
+   Gameplay(int player_count, uint64_t seed, unsigned trees_count)
+    : m_game(player_count, seed)
+    , m_rollout(player_count, seed)
+    , m_trees_count(trees_count)
+   {
       m_game.on_next_move([this](carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
          m_rollout.register_move(move);
          auto tile = game.tile_set()[game.move_index()];
@@ -32,8 +36,8 @@ class Gameplay {
       });
    }
 
-   void add_rl_player(std::mt19937 &generator, carcassonne::ai::rl::thread_pool& workers_pool) {
-      m_rl_players.emplace_back(m_game, m_next_player, generator, workers_pool);
+   void add_rl_player(std::mt19937 &generator, std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool) {
+      m_rl_players.emplace_back(m_game, m_next_player, generator, workers_pool, m_trees_count);
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 

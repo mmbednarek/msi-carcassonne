@@ -13,10 +13,16 @@ class Training {
    mb::size m_games_till_training = 350; // 1 game = 280 sek
    mb::size m_training_steps_till_checkpoint = 1000;
    uint64_t m_seed = 1000;
-   ai::rl::thread_pool m_workers_pool;
+   unsigned m_rl_count = 2;
+   unsigned m_trees_count = 1;
+   std::unique_ptr<carcassonne::ai::rl::thread_pool> m_workers_pool = nullptr;
 
  public:
-   Training(uint64_t seed) : m_seed(seed) {} 
+   Training(uint64_t seed)
+    : m_seed(seed)
+    , m_workers_pool(std::make_unique<carcassonne::ai::rl::thread_pool>())
+   {
+   } 
 
    void run() {
       std::vector<uint64_t> seeds;
@@ -34,15 +40,24 @@ class Training {
       
       while (true) {
          for (mb::size i = 0; i < m_parallel_games; ++i) {
-            games_threads.push_back(std::thread{produce_game, m_seed, 2, std::ref(m_workers_pool)});
+            games_threads.push_back(std::thread{produce_game,
+                                                m_seed,
+                                                m_rl_count,
+                                                std::ref(m_workers_pool), 
+                                                m_trees_count});
          }
          train_network();
          create_training_checkpoint();
       }    
    }
 
-   static void produce_game(int seed, int rl_count, carcassonne::ai::rl::thread_pool& workers_pool) {
-      Gameplay gameplay(rl_count, seed);
+   static void produce_game(
+      int seed,
+      int rl_count,
+      std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool,
+      unsigned trees_count)
+   {
+      Gameplay gameplay(rl_count, seed, trees_count);
 
       std::mt19937 generator(seed);
       

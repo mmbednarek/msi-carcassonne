@@ -25,8 +25,8 @@ class Network {
 
  public:
    Network(const caffe::NetParameter &net_parameter, const caffe::SolverParameter &solver_param, int gpu_id);
-   Network(Network &&) noexcept = default;
-   Network &operator=(Network &&) noexcept = default;
+   Network(Network &&) noexcept = delete;
+   Network &operator=(Network &&) noexcept = delete;
    Network(const Network &other) = delete;
    Network &operator=(const Network &other) = delete;
 

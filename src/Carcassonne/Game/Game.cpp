@@ -7,8 +7,8 @@
 
 namespace carcassonne::game {
 
-Game::Game(int player_count, mb::u64 seed) : m_random_generator(seed),
-                                             m_player_count(player_count) {
+Game::Game(int player_count, mb::u64 seed) : m_player_count(player_count),
+                                             m_random_generator(seed) {
    std::fill(m_figure_count.begin(), m_figure_count.end(), g_initial_figures_count);
    apply_tile(g_board_center_x, g_board_center_y, 1, 3);
    draw_tiles();
@@ -343,7 +343,7 @@ void Game::assign_final_points() noexcept {
       }
    }
 
-   for (const auto pair : m_towns) {
+   for (const auto& pair : m_towns) {
       Edge town, field;
       std::tie(town, field) = pair;
 
@@ -698,7 +698,7 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    output_it = std::next(output.begin(), (g_board_height * g_board_width) * tile_features_count);
    
    // remaining figures: neurons_to_set = m_player_count * g_initial_figures_count
-   for (int i = 0; i < m_player_count; ++i) {
+   for (mb::size i = 0; i < m_player_count; ++i) {
       *std::next(output_it, m_figure_count[i]) = 1.0f;
       std::advance(output_it, g_initial_figures_count);
    }
@@ -785,10 +785,7 @@ bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_typ
    }
 
    auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
-   if (d == Direction::Middle) {
-      return tile.monastery;
-   }
-
+   
    switch (d) {
    case Direction::North:
    case Direction::East:
@@ -807,6 +804,9 @@ bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_typ
    case Direction::WestNorth:
       if (tile.field_edges[static_cast<int>(d) - 5] != EdgeType::Grass)
          return false;
+      break;
+   case Direction::Middle:
+      return tile.monastery;
       break;
    }
 

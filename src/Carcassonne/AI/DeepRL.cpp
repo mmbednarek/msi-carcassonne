@@ -57,42 +57,32 @@ void backpropagate_state_value(
    node->propagate_state_value(state_value);
 }
 
-std::tuple<std::span<float>, float> get_probabilities(const Node& node) {
+std::tuple<std::span<float>, float> get_probabilities(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    std::vector<float> neuron_input;
    std::uniform_int_distribution<int> distribution(0, g_networks.size()-1);
-   IGame& game = node.game();
+   IGame& game = node->game();
    game.board_to_caffe_X(neuron_input);
    auto network_it = g_networks.begin();
-   std::advance(network_it, distribution(g_random_gen));
-   boost::shared_ptr<caffe::Blob<float>> input{network_it->second->solver().net()->blob_by_name("input_data")};
-   boost::shared_ptr<caffe::Blob<float>> output{network_it->second->solver().net()->blob_by_name("output_probas")};
-   boost::shared_ptr<caffe::Blob<float>> label{network_it->second->solver().net()->blob_by_name("output_value")};
-   std::copy(neuron_input.begin(), neuron_input.end(), input->mutable_cpu_data());
-   network_it->second->solver().net()->Forward();
-   static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
-   // filtering moves:
-   // std::span<float> out_span(output->mutable_cpu_data(), output_neuron_count);
-   // std::vector<std::reference_wrapper<float>> out_refs(output->mutable_cpu_data(), output->mutable_cpu_data() + output_neuron_count);
-   // std::vector<bool> allowed_moves;
-   // auto sum_neurons = decoder::fill_allowed_vec(&game, allowed_moves, out_span);
-   // out_refs.erase(std::remove_if(out_refs.begin(), out_refs.end(), [&allowed_moves, &out_refs, &sum_neurons](float& prob) { 
-   //    bool ok = allowed_moves[&prob - &(*out_refs.begin()).get()]; 
-   //    if (ok) prob /= sum_neurons;
-   //    return !ok;}), out_refs.end());
-   return std::make_tuple(std::span<float>(output->mutable_cpu_data(), output_neuron_count), *label->mutable_cpu_data());
+   int net_id = distribution(g_random_gen);
+   std::advance(network_it, net_id);
+   std::promise<std::tuple<std::span<float>, float>> promise;
+   util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> > data{ &promise, &neuron_input };
+   ctx_ptr->workers_pool->submit(data);
+   return data.promise->get_future().get();
 }
 
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    std::unique_ptr<Tree>& tree = ctx_ptr->trees[std::this_thread::get_id()];
    auto &game = node->game();
    const auto current_player = game.current_player();
-   auto [probabilities, state_value] = get_probabilities(*node);
+   auto [probabilities, state_value] = get_probabilities(ctx_ptr, node);
+
    for (auto tile_location : game.moves()) {
       if (!game.board().can_place_at(tile_location.x, tile_location.y, game.tile_set()[game.move_index()], tile_location.rotation)) {
          spdlog::error("deep rl, expand(): INCORRECT TILE PLACEMENT 114!!!");
       }
       std::array<bool, g_directions.size()> feasible_dirs{};
-      for (int i = 0; i < g_directions.size(); ++i) {
+      for (mb::size i = 0; i < g_directions.size(); ++i) {
          if (game.can_place_tile_and_figure(tile_location.x, tile_location.y, tile_location.rotation, game.tile_set()[game.move_index()], g_directions[i])) {
             feasible_dirs[i] = true;
          }
@@ -147,26 +137,6 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
 }
 struct DataWithPromise;
 
-// void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id) {
-//    auto& tree = ctx_ptr->trees[std::this_thread::get_id()];
-//    Node &node = tree->node_at(node_id);
-//    auto size = node.children().size();
-//    if (0 == size) {
-//       spdlog::info("deep rl, run_selection: bottom of the tree reached");
-//       return;
-//    }
-//    std::vector<std::promise<Player>> promises{size};
-//    std::vector<util::DataWithPromise<Node, Player>> data{size};
-//    std::transform(node.children().begin(), node.children().end(), promises.begin(), data.begin(), 
-//       [&tree](NodeId n, std::promise<Player>& p){ return util::DataWithPromise<Node, Player>{ &p, &tree->node_at(n) }; } );
-//    for (int i = 0; i < size; ++i) {
-//       ctx_ptr->workers_pool.submit(data[i]);
-//    }
-//    for (int i = 0; i < size; ++i) {
-//       backpropagate(node_id, data[i].promise->get_future().get(), tree);
-//    }
-// }
-
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
    auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
    const auto rollout_count = tree->root()->simulation_count();
@@ -178,7 +148,7 @@ void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
          selected_child_it = std::max_element(
                  children.begin(),
                  children.end(),
-                 [&tree, rollout_count](NodeUPtr lhs, NodeUPtr rhs) -> bool {
+                 [&rollout_count](NodeUPtr lhs, NodeUPtr rhs) -> bool {
                     return lhs->UCT1(rollout_count) < rhs->UCT1(rollout_count);
                  });
          assert(selected_child_it != children.end());
@@ -217,13 +187,13 @@ FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
    auto max_sim_count_it = std::max_element(
            children.begin(),
            children.end(),
-           [&ctx_ptr](NodeUPtr lhs, NodeUPtr rhs) -> bool {
+           [](NodeUPtr lhs, NodeUPtr rhs) -> bool {
               return lhs->simulation_count() < rhs->simulation_count();
            });
    auto max_sim_count = max_sim_count_it->get()->simulation_count();
 
    auto selected = std::max_element(
-           children.begin(), children.end(), [&ctx_ptr, player, max_sim_count](NodeUPtr lhs, NodeUPtr rhs) {
+           children.begin(), children.end(), [player, max_sim_count](NodeUPtr lhs, NodeUPtr rhs) {
               auto lhs_sc = lhs->simulation_count();
               auto rhs_sc = rhs->simulation_count();
               if (lhs_sc != max_sim_count && rhs_sc == max_sim_count)

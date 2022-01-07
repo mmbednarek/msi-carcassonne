@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 project(carcassonne)
 
-set(CMAKE_CXX_FLAGS "-O0 -Wall -g")
+set(CMAKE_CXX_FLAGS "-O0 -Wall -g -Wno-sign-compare -Wno-macro-redefined")
 set(CMAKE_CXX_STANDARD 20)
 option(HIP_PLATFORM_AMD "should be built for AMD" OFF)
 option(SPDLOG_EXTERNAL_FMT "bulding spdlog with external fmt" ON)
