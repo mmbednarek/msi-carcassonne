@@ -1,9 +1,9 @@
 #ifndef MSI_CARCASSONNE_NODE_H
 #define MSI_CARCASSONNE_NODE_H
 #include "AI.h"
-#include <Carcassonne/Player.h>
-#include <Carcassonne/Move.h>
 #include <Carcassonne/IGame.h>
+#include <Carcassonne/Move.h>
+#include <Carcassonne/Player.h>
 #include <functional>
 #include <mb/int.h>
 #include <memory>
@@ -19,23 +19,22 @@ class Tree;
 
 class Node {
    std::unique_ptr<IGame> m_game;
+   std::unique_ptr<std::mutex> m_mutex;
    Player m_player;
-   NodeId m_parent_id{};
-   std::vector<NodeId> m_children;
-   NodeId m_id = 0;
+   NodePtr m_parent = nullptr;
+   std::vector<std::unique_ptr<Node>> m_children;
    FullMove m_move;
    bool m_expanded = false;
-   bool m_simulated = false;
 
  public:
-   mb::size m_simulation_count = 0; // (N in the paper)
-   std::array<mb::size, 4> m_player_wins{}; // (not used in DeepRL)
-   std::array<int, 4> m_W{}; // total action values (for DeepRL)
-   std::array<float, 4> m_Q{}; // mean action values (for DeepRL)
-   float m_P = 0.0; // prior probability of selecting the Node (for DeepRL)
+   mb::size m_simulation_count = 0;        // (N in the paper)
+   std::array<mb::size, 4> m_player_wins{};// (not used in DeepRL)
+   std::array<int, 4> m_W{};               // total action values (for DeepRL)
+   std::array<float, 4> m_Q{};             // mean action values (for DeepRL)
+   float m_P = 0.0;                        // prior probability of selecting the Node (for DeepRL)
 
    Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move);
-   Node(NodeId id, std::unique_ptr<IGame> &&game, const Player &player, FullMove move, NodeId parent_id);
+   Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P, NodePtr parent_ptr);
 
    Node(Node &&) noexcept = default;
    Node &operator=(Node &&) noexcept = default;
@@ -51,12 +50,8 @@ class Node {
       return static_cast<Player>(*win_it);
    }
 
-   constexpr void update_id(NodeId id) noexcept {
-      m_id = id;
-   }
-
-   constexpr void update_parent_id(NodeId id) noexcept {
-      m_parent_id = id;
+   constexpr void update_parent_id(NodePtr id) noexcept {
+      m_parent = id;
    }
 
    inline void clear_children() noexcept {
@@ -69,28 +64,29 @@ class Node {
 
    [[nodiscard]] double UCT1(unsigned long rollout_count) const noexcept;
 
+   [[nodiscard]] double PUCT() const noexcept;
+
    [[nodiscard]] IGame &game() const noexcept;
 
-   [[nodiscard]] constexpr mb::u64 id() const noexcept {
-      return m_id;
-   }
    [[nodiscard]] constexpr const Player &player() const noexcept {
       return m_player;
    }
-   [[nodiscard]] constexpr NodeId parent_id() const noexcept {
-      return m_parent_id;
+   [[nodiscard]] constexpr NodePtr parent() const noexcept {
+      return m_parent;
    }
-   [[nodiscard]] constexpr std::vector<NodeId> &children() noexcept {
+   [[nodiscard]] constexpr std::vector<std::unique_ptr<Node>> &children() noexcept {
       return m_children;
    }
    [[nodiscard]] constexpr FullMove move() const noexcept {
       return m_move;
    }
+
    [[nodiscard]] constexpr bool expanded() const noexcept {
       return m_expanded;
    }
-   [[nodiscard]] constexpr bool simulated() const noexcept {
-      return m_simulated;
+
+   [[nodiscard]] constexpr bool is_root() const noexcept {
+      return m_parent == nullptr;
    }
 
    [[nodiscard]] constexpr double win_ratio() const noexcept {
@@ -109,9 +105,22 @@ class Node {
          if (static_cast<mb::size>(winner) == i) {
             m_player_wins[i] += 1;
             m_W[i] += 1;
-            break;
+            continue;
          }
          m_W[i] -= 1;
+         m_Q[i] = m_W[i] / static_cast<float>(m_simulation_count);
+      }
+      m_simulation_count += 1;
+   }
+
+   inline void propagate_state_value(const float &state_value) noexcept {
+      const auto current_player = m_player;
+      for (mb::size i = 0; i < m_player_wins.size(); ++i) {
+         if (static_cast<mb::size>(current_player) == i) {
+            m_W[i] += state_value;
+            continue;
+         }
+         m_W[i] -= state_value;
          m_Q[i] = m_W[i] / static_cast<float>(m_simulation_count);
       }
       m_simulation_count += 1;
@@ -122,11 +131,14 @@ class Node {
       m_game = nullptr;
    }
 
-   inline void mark_as_simulated() noexcept {
-      m_simulated = true;
+
+   constexpr void mark_as_root() noexcept {
+      m_parent = nullptr;
    }
 
-   void add_child(NodeId id) noexcept;
+   NodePtr add_child(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P) noexcept;
+
+   [[nodiscard]] std::size_t count_children() const;
 };
 
 }// namespace carcassonne::ai

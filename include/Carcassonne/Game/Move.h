@@ -10,8 +10,9 @@ class Move : public IMove {
    Game &m_game;
    Player m_player;
    TileType m_tile_type;
+   int m_x{};
+   int m_y{};
    MovePhase m_phase = MovePhase::PlaceTile;
-   int m_x{}, m_y{};
    mb::u8 m_rotation{};
 
  public:

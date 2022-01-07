@@ -12,13 +12,13 @@ namespace carcassonne::ai {
 
 template<typename Generator = std::mt19937>
 class RandomPlayer {
+   Generator &m_random_generator;
    Player m_player;
 
-   Generator &m_random_generator;
-
  public:
-   explicit RandomPlayer(Generator &generator, Player player) : m_random_generator(generator),
-                                                                m_player(player) {}
+   explicit RandomPlayer(Generator &generator, Player player)
+    : m_random_generator(generator)
+    , m_player(player) {}
 
    void await_turn(IGame &game) {
       game.on_next_move([this](IGame &game, Player player, FullMove) {

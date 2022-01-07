@@ -22,24 +22,39 @@ struct Context {
    IGame &game;
    Player player;
    std::array<FullMove, 4> &last_moves;
+   std::unique_ptr<carcassonne::ai::rl::thread_pool> &workers_pool;
+   std::shared_ptr<rl::DataWrapper<rl::MoveReadyness>> &move_readyness;
+   std::shared_ptr<std::condition_variable> &ready_to_move;
+   std::shared_ptr<std::condition_variable> &move_found;
+   FullMove best_move;
    std::map<std::thread::id, std::unique_ptr<Tree>> trees;
-   thread_pool workers_pool;
    std::thread::id leading_tread_id;
    bool leading_tread_assigned = false;
    std::mutex mutex;
    std::unique_lock<std::mutex> lck{mutex, std::defer_lock};
-   FullMove best_move;
-   bool move_ready = false;
 
  public:
-   Context(IGame &_game, Player &_player, std::array<FullMove, 4>& _last_moves)
-       : game(_game), player(_player), last_moves(_last_moves) {}
+   Context(
+     IGame &_game,
+     Player &_player,
+     std::array<FullMove, 4> &_last_moves,
+     std::unique_ptr<carcassonne::ai::rl::thread_pool> &_workers_pool,
+     std::shared_ptr<rl::DataWrapper<rl::MoveReadyness>> &_move_readyness,
+     std::shared_ptr<std::condition_variable>& _ready_to_move,
+     std::shared_ptr<std::condition_variable>& _move_found)
+    : game(_game)
+    , player(_player)
+    , last_moves(_last_moves)
+    , workers_pool(_workers_pool)
+    , move_readyness(_move_readyness)
+    , ready_to_move(_ready_to_move)
+    , move_found(_move_found) {}
 };
 
-void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
-void expand(std::unique_ptr<rl::Context> &ctx_ptr, const NodeId node_id);
+void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
+void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
 void backpropagate(
-        NodeId node_id,
+        NodePtr node_id,
         Player winner,
         std::unique_ptr<Tree> &tree);
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr);

@@ -1,6 +1,6 @@
 project(msi_carcassonne_bin)
 add_executable(msi_carcassonne_bin main.cpp)
-target_link_libraries(msi_carcassonne_bin fmt msi_carcassonne_frontend msi_carcassonne_game msi_carcassonne_ai)
+target_link_libraries(msi_carcassonne_bin fmt msi_carcassonne_frontend msi_carcassonne_game msi_carcassonne_ai pthread)
 
 # configure_file(../../../resource/font.ttf resource/font.ttf COPYONLY)
 # configure_file(../../../resource/figures.png resource/figures.png COPYONLY)
