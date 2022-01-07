@@ -1,3 +1,4 @@
+#include "Carcassonne/AI/DeepRLPlayer.h"
 #include <Carcassonne/AI/HeuristicPlayer.h>
 #include <Carcassonne/AI/MCTSPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
@@ -8,6 +9,7 @@
 #include <Input/Input.h>
 #include <chrono>
 #include <fmt/core.h>
+#include <google/protobuf/text_format.h>
 #include <mb/core.h>
 
 uint64_t now_milis() {
@@ -26,8 +28,9 @@ int main() {
    auto game_seed = std::stoull(mb::getenv("C_SEED").unwrap("9"));
    auto human_player_count = std::stoi(mb::getenv("C_HUMAN_PLAYERS").unwrap("1"));
    auto random_ai_player_count = std::stoi(mb::getenv("C_AI_RANDOM_PLAYERS").unwrap("0"));
-   auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("1"));
+   auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("0"));
    auto heuristic_ai_player_count = std::stoi(mb::getenv("C_AI_HEURISTIC_PLAYERS").unwrap("0"));
+   auto rl_ai_player_count = std::stoi(mb::getenv("C_AI_RL_PLAYERS").unwrap("1"));
 
    if (!player_range_ok(human_player_count)) {
       fmt::print(stderr, "invalid human player count (0-4): {}", human_player_count);
@@ -44,14 +47,20 @@ int main() {
       return 1;
    }
 
-   if (!player_range_ok(human_player_count + random_ai_player_count + mcts_ai_player_count + heuristic_ai_player_count)) {
+   auto player_count = human_player_count +
+                       random_ai_player_count +
+                       heuristic_ai_player_count +
+                       mcts_ai_player_count +
+                       rl_ai_player_count;
+
+   if (!player_range_ok(player_count)) {
       fmt::print(stderr, "invalid player count (0-4): {}", human_player_count + random_ai_player_count + mcts_ai_player_count + heuristic_ai_player_count);
       return 1;
    }
 
    graphics::Config cfg{
-           .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("800")),
-           .height = std::stoi(mb::getenv("WND_HEIGHT").unwrap("600")),
+           .width = std::stoi(mb::getenv("WND_WIDTH").unwrap("960")),
+           .height = std::stoi(mb::getenv("WND_HEIGHT").unwrap("540")),
            .title = "Carcassonne",
    };
    auto surface_re = graphics::Surface::create(cfg);
@@ -67,7 +76,7 @@ int main() {
       return 1;
    }
 
-   carcassonne::game::Game game(human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count, game_seed);
+   carcassonne::game::Game game(player_count, game_seed);
 
    auto human_players = std::accumulate(
            carcassonne::g_players.begin(),
@@ -81,35 +90,54 @@ int main() {
    std::random_device random_device;
    std::mt19937 random_generator(random_device());
 
+   auto player_id = human_player_count;
+
    std::vector<carcassonne::ai::RandomPlayer<>> random_players;
    random_players.reserve(random_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + human_player_count, carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), std::back_inserter(random_players), [&random_generator](carcassonne::Player p) {
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + random_ai_player_count), std::back_inserter(random_players), [&random_generator](carcassonne::Player p) {
       return carcassonne::ai::RandomPlayer<>(random_generator, p);
    });
    for (auto &player : random_players) {
       player.await_turn(game);
    }
 
+   player_id += random_ai_player_count;
+
    std::vector<carcassonne::ai::HeuristicPlayer> heuristic_players;
    heuristic_players.reserve(heuristic_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), std::back_inserter(heuristic_players), [](carcassonne::Player p) {
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + heuristic_ai_player_count), std::back_inserter(heuristic_players), [](carcassonne::Player p) {
       return carcassonne::ai::HeuristicPlayer(p);
    });
    for (auto &player : heuristic_players) {
       player.await_turn(game);
    }
-
+   
+   player_id += heuristic_ai_player_count;
+   
    std::vector<std::unique_ptr<carcassonne::ai::MCTSPlayer>> mcts_players(mcts_ai_player_count);
-   std::transform(carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count), carcassonne::g_players.begin() + (human_player_count + random_ai_player_count + heuristic_ai_player_count + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
+   std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + mcts_ai_player_count), mcts_players.begin(), [&game](carcassonne::Player p) {
       return std::make_unique<carcassonne::ai::MCTSPlayer>(game, p, carcassonne::ai::SimulationType::Heuristic);
    });
-
+   
+   player_id += mcts_ai_player_count;
+   
+   std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
+   if (0 != rl_ai_player_count) {
+   std::unique_ptr<carcassonne::ai::rl::thread_pool> workers_pool = 
+      std::make_unique<carcassonne::ai::rl::thread_pool>();
+      std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &workers_pool](carcassonne::Player p) {
+         std::mt19937 generator;
+         unsigned trees_count = 1;
+         return std::make_unique<carcassonne::ai::DeepRLPlayer>(game, p, generator, workers_pool, trees_count);
+      });
+   }
+   
    constexpr double dt = 1000.0 / 60.0;
    auto prev_time = static_cast<double>(now_milis());
    auto dt_accum = 0.0;
-
+   
    game.start();
-
+   
    while (view.status() != Status::Quitting) {
       auto now = static_cast<double>(now_milis());
       auto diff = now - prev_time;
@@ -126,5 +154,6 @@ int main() {
       carcassonne::frontend::ResourceManager::the().post_render_hook();
       input::handle_events(view);
    }
-   return 0;
+
+   return EXIT_SUCCESS;
 }

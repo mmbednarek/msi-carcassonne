@@ -1,8 +1,11 @@
-#ifndef MSI_CARCASSONNE_DEEP_RL_H
-#define MSI_CARCASSONNE_DEEP_RL_H
+#ifndef MSI_CARCASSONNE_DEEPRL_H
+#define MSI_CARCASSONNE_DEEPRL_H
+#pragma once
 #include "AI.h"
 #include <Carcassonne/Player.h>
-#include <mb/int.h>
+#include <Carcassonne/RL/Network.h>
+#include <mb/result.h>
+#include <Carcassonne/RL/Concurrency.h>
 
 namespace carcassonne {
 struct FullMove;
@@ -10,21 +13,56 @@ struct FullMove;
 
 namespace carcassonne::ai {
 
-enum class SimulationType {
-   Heuristic,
-   Random
-};
-
 class Tree;
 
-mb::result<FullMove> find_non_idiotic(Tree &tree, Player player);
-void simulate(Tree &tree, NodeId node_id);
-void expand(Tree &tree, NodeId node_id, carcassonne::ai::SimulationType simulation_type);
-void backpropagate(Tree &tree, NodeId node_id, Player winner);
-void run_selection(Tree &tree, carcassonne::ai::SimulationType sim_type);
-void run_mcts(Tree &tree, mb::i64 time_limit, carcassonne::ai::SimulationType sim_type);
-FullMove choose_move(Tree &tree, int move_index, Player player);
+namespace rl {
+
+struct Context {
+   // Tree &tree;
+   IGame &game;
+   Player player;
+   std::array<FullMove, 4> &last_moves;
+   std::unique_ptr<carcassonne::ai::rl::thread_pool> &workers_pool;
+   std::shared_ptr<rl::DataWrapper<rl::MoveReadyness>> &move_readyness;
+   std::shared_ptr<std::condition_variable> &ready_to_move;
+   std::shared_ptr<std::condition_variable> &move_found;
+   FullMove best_move;
+   std::map<std::thread::id, std::unique_ptr<Tree>> trees;
+   std::thread::id leading_tread_id;
+   bool leading_tread_assigned = false;
+   std::mutex mutex;
+   std::unique_lock<std::mutex> lck{mutex, std::defer_lock};
+
+ public:
+   Context(
+     IGame &_game,
+     Player &_player,
+     std::array<FullMove, 4> &_last_moves,
+     std::unique_ptr<carcassonne::ai::rl::thread_pool> &_workers_pool,
+     std::shared_ptr<rl::DataWrapper<rl::MoveReadyness>> &_move_readyness,
+     std::shared_ptr<std::condition_variable>& _ready_to_move,
+     std::shared_ptr<std::condition_variable>& _move_found)
+    : game(_game)
+    , player(_player)
+    , last_moves(_last_moves)
+    , workers_pool(_workers_pool)
+    , move_readyness(_move_readyness)
+    , ready_to_move(_ready_to_move)
+    , move_found(_move_found) {}
+};
+
+void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
+void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
+void backpropagate(
+        NodePtr node_id,
+        Player winner,
+        std::unique_ptr<Tree> &tree);
+void run_selection(std::unique_ptr<rl::Context> &ctx_ptr);
+void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit);
+FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index);
+
+}
 
 }// namespace carcassonne::ai
 
-#endif//MSI_CARCASSONNE_DEEP_RL_H
+#endif//MSI_CARCASSONNE_DEEPRL_H

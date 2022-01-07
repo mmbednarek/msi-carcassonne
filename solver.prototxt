@@ -1,10 +1,10 @@
-net: "model.prototxt"
+net: "net_tic_tac_6_4_2_res_block.prototxt"
 base_lr: 0.02
 lr_policy: "step"
 gamma: 0.5
-stepsize: 50000
-display: 200
-max_iter: 500000
-snapshot: 100000
+stepsize: 1
+display: 2
+max_iter: 50
+snapshot: 50
 snapshot_prefix: "XOR"
 solver_mode: CPU

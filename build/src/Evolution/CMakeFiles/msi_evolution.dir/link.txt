@@ -1,2 +1,0 @@
-/bin/x86_64-linux-gnu-ar qc libmsi_evolution.a CMakeFiles/msi_evolution.dir/DiffEvol.cpp.o
-/bin/x86_64-linux-gnu-ranlib libmsi_evolution.a

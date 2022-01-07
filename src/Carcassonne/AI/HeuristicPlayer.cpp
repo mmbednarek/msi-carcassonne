@@ -20,7 +20,7 @@ mb::result<FullMove> HeuristicPlayer::make_move(IGame &game, const Parameters &p
    TileMove best_move{};
    const auto possible_tile_moves = game.moves(move->tile_type());
    std::vector<TileMove> possibilities(possible_tile_moves.begin(), possible_tile_moves.end());
-   if (possibilities.size() == 0) {
+   if (possibilities.empty()) {
       fmt::print("possible_tile_moves.size()=0 !!!!!!!!!!!!!!\n");
    }
    for (const auto possible_move : possible_tile_moves) {

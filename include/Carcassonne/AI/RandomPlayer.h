@@ -3,6 +3,8 @@
 #include <Carcassonne/IGame.h>
 #include <Util/Random.h>
 #include <random>
+// #define SPDLOG_FMT_EXTERNAL
+#include <spdlog/spdlog.h>
 
 // AI implementation
 
@@ -10,13 +12,13 @@ namespace carcassonne::ai {
 
 template<typename Generator = std::mt19937>
 class RandomPlayer {
+   Generator &m_random_generator;
    Player m_player;
 
-   Generator &m_random_generator;
-
  public:
-   explicit RandomPlayer(Generator &generator, Player player) : m_random_generator(generator),
-                                                                m_player(player) {}
+   explicit RandomPlayer(Generator &generator, Player player)
+    : m_random_generator(generator)
+    , m_player(player) {}
 
    void await_turn(IGame &game) {
       game.on_next_move([this](IGame &game, Player player, FullMove) {
@@ -27,6 +29,7 @@ class RandomPlayer {
    }
 
    FullMove make_move(IGame &game) noexcept {
+      spdlog::info("random: selecting move");
       auto move = game.new_move(m_player);
 
       const auto possible_tile_moves = game.moves(move->tile_type());

@@ -1,5 +1,6 @@
 #ifndef MSI_CARCASSONNE_RANDOM_H
 #define MSI_CARCASSONNE_RANDOM_H
+#include <random>
 
 namespace util {
 

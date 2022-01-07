@@ -1,2 +1,0 @@
-/bin/x86_64-linux-gnu-ar qc libmsi_graphics.a CMakeFiles/msi_graphics.dir/Surface.cpp.o CMakeFiles/msi_graphics.dir/Context.cpp.o CMakeFiles/msi_graphics.dir/Texture.cpp.o CMakeFiles/msi_graphics.dir/TextCache.cpp.o CMakeFiles/msi_graphics.dir/Font.cpp.o
-/bin/x86_64-linux-gnu-ranlib libmsi_graphics.a

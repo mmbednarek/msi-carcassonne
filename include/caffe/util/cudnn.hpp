@@ -45,6 +45,12 @@ inline const char* cudnnGetErrorString(cudnnStatus_t status) {
     case CUDNN_STATUS_RUNTIME_PREREQUISITE_MISSING:
       return "CUDNN_STATUS_RUNTIME_PREREQUISITE_MISSING";
 #endif
+#if CUDNN_VERSION_MIN(7, 0, 0)
+    case CUDNN_STATUS_RUNTIME_IN_PROGRESS:
+      return "CUDNN_STATUS_RUNTIME_IN_PROGRESS";
+    case CUDNN_STATUS_RUNTIME_FP_OVERFLOW:
+      return "CUDNN_STATUS_RUNTIME_FP_OVERFLOW";
+#endif
   }
   return "Unknown cudnn status";
 }
@@ -118,7 +124,7 @@ inline void setConvolutionDesc(cudnnConvolutionDescriptor_t* conv,
       pad_h, pad_w, stride_h, stride_w, 1, 1, CUDNN_CROSS_CORRELATION,
       dataType<Dtype>::type));
 #else
-  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*conv,
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*conv,
       pad_h, pad_w, stride_h, stride_w, 1, 1, CUDNN_CROSS_CORRELATION));
 #endif
 }

@@ -1,2 +1,0 @@
-/bin/x86_64-linux-gnu-ar qc liblibmb.a CMakeFiles/libmb.dir/src/error.cpp.o CMakeFiles/libmb.dir/src/core.cpp.o
-/bin/x86_64-linux-gnu-ranlib liblibmb.a
