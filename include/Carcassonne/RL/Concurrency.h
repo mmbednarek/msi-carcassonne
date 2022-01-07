@@ -283,35 +283,37 @@ class thread_pool {
 struct Context;
 
 class client_threads {
-   std::atomic_bool done;
-   std::vector<std::thread> threads;
-   join_threads joiner;
-   std::unique_ptr<Context>& ctx_ptr;
+   std::atomic_bool m_done;
+   std::vector<std::thread> m_threads;
+   join_threads m_joiner;
+   std::unique_ptr<Context>& m_ctx_ptr;
+   Player m_player;
    void client_work(unsigned cpu_id);
 
  public:
    client_threads(
       unsigned cpus_count, 
-      std::unique_ptr<Context> &_ctx_ptr)
-       : done(false), joiner(threads), ctx_ptr(_ctx_ptr)
+      std::unique_ptr<Context> &_ctx_ptr,
+      Player _player )
+       : m_done(false), m_joiner(m_threads), m_ctx_ptr(_ctx_ptr), m_player(_player)
    {
       if (cpus_count == 0)
          cpus_count = Eden_resources::get_cpus_count();
       spdlog::debug("creating {} client threads", cpus_count);
       try {
          for (unsigned i = 0; i < cpus_count; ++i) {
-            threads.push_back(std::thread(&client_threads::client_work, this, i));
+            m_threads.push_back(std::thread(&client_threads::client_work, this, i));
          }
       } catch (...) {
-         done = true;
+         m_done = true;
          throw;
       }
    }
    ~client_threads() {
-      done = true;
+      m_done = true;
    }
    void join_clients() {
-      joiner.join_earlier();
+      m_joiner.join_earlier();
    }
 };
 
