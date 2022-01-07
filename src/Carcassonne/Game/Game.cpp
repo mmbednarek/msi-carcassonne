@@ -785,10 +785,7 @@ bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_typ
    }
 
    auto tile = TilePlacement{.type = tile_type, .rotation = rot}.tile();
-   if (d == Direction::Middle) {
-      return tile.monastery;
-   }
-
+   
    switch (d) {
    case Direction::North:
    case Direction::East:
@@ -807,6 +804,9 @@ bool Game::can_place_tile_and_figure(int x, int y, mb::u8 rot, TileType tile_typ
    case Direction::WestNorth:
       if (tile.field_edges[static_cast<int>(d) - 5] != EdgeType::Grass)
          return false;
+      break;
+   case Direction::Middle:
+      return tile.monastery;
       break;
    }
    if (player_figure_count(current_player()) == 0) {
