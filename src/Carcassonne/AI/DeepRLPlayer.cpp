@@ -75,6 +75,7 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    spdlog::debug("thread {} pushed tree", thread_name());
    m_ctx_ptr->lck.unlock();
    FullMove best_move;
+   Node* node_with_best_move = nullptr;
    spdlog::debug("client_work: client '{}' started", cpu_id);
    while (true) {
       spdlog::info("client_work: client '{}' waiting...", cpu_id);
@@ -97,7 +98,8 @@ void rl::client_threads::client_work(unsigned cpu_id) {
       bool move_is_illegal = true;
       do {
          rl::run_mcts(m_ctx_ptr, 0, 1600);
-         best_move = rl::choose_move(m_ctx_ptr, m_ctx_ptr->game.move_index());
+         node_with_best_move = rl::choose_move(m_ctx_ptr, m_ctx_ptr->game.move_index());
+         best_move = node_with_best_move->move();
          m_ctx_ptr->last_moves[static_cast<int>(m_ctx_ptr->player)] = best_move;
          if (best_move.ignored_figure) {
             if (m_ctx_ptr->game.board().can_place_at(best_move.x, best_move.y, m_ctx_ptr->game.tile_set()[m_ctx_ptr->game.move_index()], best_move.rotation)) {
@@ -117,7 +119,7 @@ void rl::client_threads::client_work(unsigned cpu_id) {
          */
          // ctx_ptr->lck.lock(); // no need for lock
          spdlog::info("Worker: Finished !!!");
-         m_ctx_ptr->best_move = best_move;
+         m_ctx_ptr->node_with_best_move = node_with_best_move;
          m_ctx_ptr->move_readyness->m_data.resultReady = true;
          m_ctx_ptr->move_found->notify_one();
          // ctx_ptr->lck.unlock(); // no need for lock
@@ -126,6 +128,17 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    m_ctx_ptr->move_readyness->terminated = true;
    m_ctx_ptr->move_found->notify_one();
    spdlog::info("client_work: terminated");
+}
+
+void DeepRLPlayer::add_record(IGame &game, Node* node_with_best_move) {
+   // std::vector<float> board_state(board_features_count(game.player_count(), g_max_moves));
+   training::MoveNetworkRecord record;
+   game.board_to_caffe_X(record.game_state);
+   for (const auto& node : node_with_best_move->children()) {
+      record.children_visits[encode_move(node->move())] = node->m_simulation_count / static_cast<float>(node_with_best_move->m_simulation_count);
+   }
+   record.player = m_ctx_ptr->player;
+   game.training_data().emplace_back(std::move(record));
 }
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {   
@@ -147,26 +160,31 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    });
    m_ctx_ptr->move_readyness->m_data.resultReady = false;
    
-   FullMove best_move = m_ctx_ptr->best_move;
+   Node* node_with_best_move = m_ctx_ptr->node_with_best_move;
+   FullMove best_move = node_with_best_move->move();
    auto move = game.new_move(m_ctx_ptr->player);
    if (auto res = move->place_tile_at(best_move.x, best_move.y, best_move.rotation); !res.ok()) {
       spdlog::error("deep rl: selected tile placement is not feasible: {}", res.msg());
       return;
    }
 
-   if (move->phase() == MovePhase::Done)
+   if (move->phase() == MovePhase::Done) {
+      add_record(game, node_with_best_move);
       return;
-
+   }
+   
    if (best_move.ignored_figure) {
       if (auto res = move->ignore_figure(); !res.ok()) {
          spdlog::error("deep rl: cannot ignore figure at this location: {}", res.msg());
       }
+      add_record(game, node_with_best_move);
       return;
    }
 
    if (auto res = move->place_figure(best_move.direction); !res.ok()) {
       spdlog::error("deep rl: error placing figure: {}", res.msg());
    }
+   add_record(game, node_with_best_move);
 }
 
 }// namespace carcassonne::ai

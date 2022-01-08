@@ -29,6 +29,7 @@ class Game : public IGame {
    bool m_tour_finished = false;
    FullMove m_performed_move{};
    FullMove m_last_move{};
+   training::OneGame m_training_data;
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -76,6 +77,10 @@ class Game : public IGame {
 
    [[nodiscard]] constexpr const EdgeGroups &groups() const noexcept {
       return m_groups;
+   }
+
+   [[nodiscard]] constexpr training::OneGame &training_data() noexcept override {
+      return m_training_data;
    }
 
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {
