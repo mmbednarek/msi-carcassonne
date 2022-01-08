@@ -6,6 +6,7 @@
 #include <Carcassonne/RL/Network.h>
 #include <mb/result.h>
 #include <Carcassonne/RL/Concurrency.h>
+#include <Carcassonne/Training/TrainingSet.h>
 
 namespace carcassonne {
 struct FullMove;
@@ -26,7 +27,7 @@ struct Context {
    std::shared_ptr<rl::DataWrapper<rl::MoveReadyness>> &move_readyness;
    std::shared_ptr<std::condition_variable> &ready_to_move;
    std::shared_ptr<std::condition_variable> &move_found;
-   FullMove best_move;
+   Node* node_with_best_move;
    std::map<std::thread::id, std::unique_ptr<Tree>> trees;
    std::thread::id leading_tread_id;
    bool leading_tread_assigned = false;
@@ -41,7 +42,8 @@ struct Context {
      std::unique_ptr<carcassonne::ai::rl::thread_pool> &_workers_pool,
      std::shared_ptr<rl::DataWrapper<rl::MoveReadyness>> &_move_readyness,
      std::shared_ptr<std::condition_variable>& _ready_to_move,
-     std::shared_ptr<std::condition_variable>& _move_found)
+     std::shared_ptr<std::condition_variable>& _move_found
+   )
     : game(_game)
     , player(_player)
     , last_moves(_last_moves)
@@ -52,6 +54,10 @@ struct Context {
 };
 
 void launch_simulations(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
+std::tuple<std::span<float>, float> get_probabilities(
+   std::unique_ptr<rl::Context> &ctx_ptr,
+   NodePtr node,
+   std::vector<float> &neuron_input );
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node_id);
 void backpropagate(
         NodePtr node_id,
@@ -59,7 +65,7 @@ void backpropagate(
         std::unique_ptr<Tree> &tree);
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr);
 void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit);
-FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index);
+Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index);
 
 }
 

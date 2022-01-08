@@ -2,6 +2,7 @@
 #define MSI_CARCASSONNE_TRAINING_GAMEPLAY
 #include <Carcassonne/AI/DeepRLPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
+#include <Carcassonne/Training/TrainingSet.h>
 #include <Carcassonne/Encoder/Rollout.h>
 #include <Carcassonne/Game/Game.h>
 #include <google/protobuf/text_format.h>
@@ -17,27 +18,23 @@ class Gameplay {
    carcassonne::Player m_next_player = carcassonne::Player::Black;
    carcassonne::encoder::Rollout m_rollout;
    unsigned m_trees_count;
+   std::promise<training::OneGame> *m_promise_ptr = nullptr;
 
  public:
-   Gameplay(int player_count, uint64_t seed, unsigned trees_count)
-    : m_game(player_count, seed)
-    , m_rollout(player_count, seed)
-    , m_trees_count(trees_count)
-   {
-      m_game.on_next_move([this](carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
-         m_rollout.register_move(move);
-         auto tile = game.tile_set()[game.move_index()];
-         spdlog::info("game: Player {} places tile {} at location ({}, {}, {})", player_to_string(player), tile, move.x, move.y, move.rotation);
-         if (move.ignored_figure) {
-            spdlog::info("game: Player {} did not place any figure", player_to_string(player));
-         } else {
-            spdlog::info("game: Player {} placed figure at direction {}.", player_to_string(player), direction_to_string(move.direction));
-         }
-      });
-   }
+   Gameplay(
+      int player_count,
+      uint64_t seed,
+      unsigned trees_count,
+      std::promise<training::OneGame> *promise_ptr
+   );
 
-   void add_rl_player(std::mt19937 &generator, std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool) {
+   void add_rl_player(
+      std::mt19937 &generator,
+      std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool
+   )
+   {
       m_rl_players.emplace_back(m_game, m_next_player, generator, workers_pool, m_trees_count);
+      std::this_thread::sleep_for(std::chrono::seconds(5));
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
@@ -51,59 +48,35 @@ class Gameplay {
       m_rollout.save_rollout(filename);
    }
 
+   void submit_game_data() {
+      auto winner_it = std::max_element(m_game.scores().begin(), m_game.scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
+         return lhs.score < rhs.score;
+      });
+      for (auto& record : m_game.training_data()) {
+         if (winner_it->player == record.player) {
+            record.reward = 1.0;
+            continue;
+         }
+         record.reward = -1.0;
+      }
+      try {
+         m_promise_ptr->set_value(std::move(m_game.training_data()));
+      } catch (std::future_error& err) {
+         spdlog::error("set_value error: {}", err.what());
+      }
+   }
+
    void run() {
       m_game.start();
       while (m_game.move_index() < carcassonne::g_max_moves) {
          m_game.update(0);
       }
+      submit_game_data();
    }
 
 private:
-   std::string_view player_to_string(carcassonne::Player player) {
-      switch (player) {
-      case carcassonne::Player::Black:
-         return "black";
-      case carcassonne::Player::Blue:
-         return "blue";
-      case carcassonne::Player::Yellow:
-         return "yellow";
-      case carcassonne::Player::Red:
-         return "red";
-      }
-      return "";
-   }
-
-   std::string_view direction_to_string(carcassonne::Direction dir) {
-      switch (dir) {
-      case carcassonne::Direction::North:
-         return "North";
-      case carcassonne::Direction::East:
-         return "East";
-      case carcassonne::Direction::South:
-         return "South";
-      case carcassonne::Direction::West:
-         return "West";
-      case carcassonne::Direction::Middle:
-         return "Middle";
-      case carcassonne::Direction::NorthEast:
-         return "NorthEast";
-      case carcassonne::Direction::EastNorth:
-         return "EastNorth";
-      case carcassonne::Direction::EastSouth:
-         return "EastSouth";
-      case carcassonne::Direction::SouthEast:
-         return "SouthEast";
-      case carcassonne::Direction::SouthWest:
-         return "SouthWest";
-      case carcassonne::Direction::WestSouth:
-         return "WestSouth";
-      case carcassonne::Direction::WestNorth:
-         return "WestNorth";
-      case carcassonne::Direction::NorthWest:
-         return "NorthWest";
-      }
-      return "";
-   }
+   std::string_view player_to_string(carcassonne::Player player);
+   std::string_view direction_to_string(carcassonne::Direction dir);
 };
 
 } // namespace carcassonne::training

@@ -31,6 +31,7 @@ int main() {
    auto mcts_ai_player_count = std::stoi(mb::getenv("C_AI_MCTS_PLAYERS").unwrap("0"));
    auto heuristic_ai_player_count = std::stoi(mb::getenv("C_AI_HEURISTIC_PLAYERS").unwrap("0"));
    auto rl_ai_player_count = std::stoi(mb::getenv("C_AI_RL_PLAYERS").unwrap("1"));
+   mb::size workers_per_gpu = 1;
 
    if (!player_range_ok(human_player_count)) {
       fmt::print(stderr, "invalid human player count (0-4): {}", human_player_count);
@@ -124,7 +125,7 @@ int main() {
    std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> rl_players(rl_ai_player_count);
    if (0 != rl_ai_player_count) {
    std::unique_ptr<carcassonne::ai::rl::thread_pool> workers_pool = 
-      std::make_unique<carcassonne::ai::rl::thread_pool>();
+      std::make_unique<carcassonne::ai::rl::thread_pool>(workers_per_gpu);
       std::transform(carcassonne::g_players.begin() + player_id, carcassonne::g_players.begin() + (player_id + rl_ai_player_count), rl_players.begin(), [&game, &workers_pool](carcassonne::Player p) {
          std::mt19937 generator;
          unsigned trees_count = 1;
