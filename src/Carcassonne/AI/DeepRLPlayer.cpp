@@ -25,9 +25,10 @@ DeepRLPlayer::DeepRLPlayer(
                                                 m_ready_to_move,
                                                 m_move_found) )
     , m_trees_count(trees_count)
+    , m_clients_pool(std::make_unique<rl::client_threads>(m_trees_count, m_ctx_ptr, m_player) )
 {
    spdlog::info("deep rl: initialising agent");
-   m_clients_pool = std::make_unique<rl::client_threads>(m_trees_count, m_ctx_ptr, m_player);
+   std::this_thread::sleep_for(std::chrono::seconds(5));
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;

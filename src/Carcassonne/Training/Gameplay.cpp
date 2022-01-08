@@ -2,7 +2,6 @@
 
 namespace carcassonne::training {
 
-
 Gameplay::Gameplay(
    int player_count,
    uint64_t seed,
@@ -71,5 +70,4 @@ std::string_view Gameplay::direction_to_string(carcassonne::Direction dir) {
    }
    return "";
 }
-
 }

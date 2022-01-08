@@ -30,14 +30,18 @@ std::unique_ptr<game::Game> Rollout::as_game() {
    auto player = Player::Black;
 
    for (const auto &move : m_rollout.moves()) {
+      if (move.x() == 0 && move.y() == 0)
+         continue;
       auto game_move = game->new_move(player);
       if (auto res = game_move->place_tile_at(move.x(), move.y(), move.rotation()); !res.ok()) {
          return {};
       }
 
       if (move.skip_figure()) {
-         if (auto res = game_move->ignore_figure(); !res.ok()) {
-            return {};
+         if (game_move->phase() != MovePhase::Done) {
+            if (auto res = game_move->ignore_figure(); !res.ok()) {
+               return {};
+            }
          }
 
          player = next_player(player, m_rollout.player_count());
