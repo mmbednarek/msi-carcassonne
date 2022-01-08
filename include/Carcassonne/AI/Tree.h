@@ -5,32 +5,30 @@
 #include <Carcassonne/IGame.h>
 #include <mb/int.h>
 #include <tuple>
-#include <boost/pool/pool.hpp>
 
 namespace carcassonne::ai {
 
+constexpr NodeId g_root_node_id = 0;
+
 class Tree {
  public:
-   std::unique_ptr<Node> m_root;
+   std::vector<Node> m_nodes;
    std::mutex m_tree_mutex;
    std::unique_lock<std::mutex> lck;
    
    Tree(const IGame &game, const Player &player);
-   Tree(Tree&&) noexcept;
-   void change_root(NodePtr new_root_id);
-   NodePtr find_node_by_move(NodePtr base_id, const FullMove &move);
-   NodePtr add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, float P, NodePtr parent_id);
+   Tree(Tree&&);
+   void change_root(NodeId new_root_id);
+   NodeId find_node_by_move(NodeId base_id, const FullMove &move);
+   mb::size add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, float P, NodeId parent_id);
+   Node &node_at(NodeId id) noexcept;
    void reset(const IGame &game, Player player);
 
    [[nodiscard]] inline mb::size node_count() {
       lck.lock();
-      auto count = m_root->count_children();
+      mb::size size = m_nodes.size();
       lck.unlock();
-      return count;
-   }
-
-   [[nodiscard]] inline NodePtr root() const {
-      return m_root.get();
+      return size;
    }
 };
 

@@ -2,7 +2,6 @@
 .vscode
 cmake-build-debug
 out
-out.txt
 cmake-install
 testRot.sh
 run.sh

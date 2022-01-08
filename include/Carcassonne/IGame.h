@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "ScoreBoard.h"
 #include "Parameters.h"
+#include <Carcassonne/Training/TrainingSet.h>
 #include <mb/view.h>
 #include <memory>
 
@@ -14,6 +15,15 @@ namespace carcassonne {
 
 constexpr mb::size g_initial_figures_count = 7;
 constexpr short g_max_possible_score = 255;
+
+constexpr mb::size tile_features_count(mb::size player_count) {
+   return (4*3) + (8*3) + 24 + 22 + 1 + 1 + player_count + 9 + 4; // 99;
+}
+constexpr mb::size board_features_count(mb::size player_count, mb::size tile_set_size) {
+   return (g_board_width * g_board_height * tile_features_count(player_count))
+       + (g_initial_figures_count * player_count) + tile_features_count(player_count) + tile_set_size
+       + 2 * (g_max_possible_score + 1) + 2 * player_count; // 166'419 + 699; <==> 41x41x100
+}
 
 struct Figure {
    Player player;
@@ -30,6 +40,7 @@ class IGame {
    virtual ~IGame() = default;
    [[nodiscard]] virtual std::unique_ptr<IGame> clone() const noexcept = 0;
    [[nodiscard]] virtual const IBoard &board() const noexcept = 0;
+   [[nodiscard]] virtual constexpr training::OneGame &training_data() noexcept = 0;
    [[nodiscard]] virtual Player current_player() const noexcept = 0;
    [[nodiscard]] virtual constexpr const mb::size &player_count() const noexcept = 0;
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
