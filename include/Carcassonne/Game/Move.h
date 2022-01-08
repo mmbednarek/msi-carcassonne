@@ -16,14 +16,24 @@ class Move : public IMove {
    mb::u8 m_rotation{};
 
  public:
-   constexpr Move(Player p, TileType t, Game &game) : m_game(game), m_player(p), m_tile_type(t) {}
+   constexpr Move(Player p, TileType t, Game &game)
+    : m_game(game)
+    , m_player(p)
+    , m_tile_type(t) {}
 
-   constexpr Move(Game &game, Player player, TileType tile_type, int x, int y) : m_game(game),
-                                                                                 m_player(player),
-                                                                                 m_tile_type(tile_type),
-                                                                                 m_x(x),
-                                                                                 m_y(y),
-                                                                                 m_phase(MovePhase::PlaceFigure) {}
+   constexpr Move(
+     Game &game,
+     Player player,
+     TileType tile_type,
+     int x,
+     int y
+   )
+    : m_game(game)
+    , m_player(player)
+    , m_tile_type(tile_type)
+    , m_x(x)
+    , m_y(y)
+    , m_phase(MovePhase::PlaceFigure) {}
 
    [[nodiscard]] Player player() const noexcept override;
    [[nodiscard]] TileType tile_type() const noexcept override;

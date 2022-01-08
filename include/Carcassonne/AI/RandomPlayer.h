@@ -35,6 +35,7 @@ class RandomPlayer {
       const auto possible_tile_moves = game.moves(move->tile_type());
       auto tile_placement_it = util::random_from_range(m_random_generator, possible_tile_moves.begin(), possible_tile_moves.end() - 1);
       const auto tile_placement = *tile_placement_it;
+      assert(tile_placement != TileMove{});
 
       move->place_tile_at(tile_placement.x, tile_placement.y, tile_placement.rotation);
       if (move->phase() == MovePhase::Done) {

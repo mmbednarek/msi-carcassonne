@@ -76,7 +76,10 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    auto &game = node->game();
    const auto current_player = game.current_player();
    auto [probabilities, state_value] = get_probabilities(ctx_ptr, node);
-
+   if (node->game().move_index() >= g_max_moves) {
+      backpropagate_state_value(node, state_value, tree);
+      return;
+   }
    for (auto tile_location : game.moves()) {
       if (!game.board().can_place_at(tile_location.x, tile_location.y, game.tile_set()[game.move_index()], tile_location.rotation)) {
          spdlog::error("deep rl, expand(): INCORRECT TILE PLACEMENT 114!!!");
@@ -130,9 +133,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
          node->add_child(std::move(game_clone), current_player, full_move, probabilities[probability_index]);
       }
    }
-   for (mb::size i = 0; i < node->children().size(); ++i) {
-      backpropagate_state_value(node, state_value, tree);
-   }
+   backpropagate_state_value(node, state_value, tree);
    node->mark_as_expanded();
 }
 struct DataWithPromise;
@@ -178,7 +179,7 @@ void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64
    }
 }
 
-FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
+Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
    Player player = ctx_ptr->player;
    auto root_node = ctx_ptr->trees[std::this_thread::get_id()]->root();
    const auto &children = root_node->children();
@@ -205,8 +206,7 @@ FullMove choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
 
 
    assert(selected != children.end());
-   auto node = selected->get();
-   return node->move();
+   return selected->get();
 }
 
 }// namespace carcassonne::ai::rl
