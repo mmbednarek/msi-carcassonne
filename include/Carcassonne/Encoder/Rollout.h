@@ -2,8 +2,10 @@
 #define CARCASSONNE_ROLLOUT_H
 
 #include <Carcassonne/Proto/Carcassonne.pb.h>
+#include <Carcassonne/Training/TrainingSet.h>
 #include <string_view>
 #include <memory>
+#include <future>
 
 namespace carcassonne {
 struct FullMove;
@@ -16,6 +18,7 @@ namespace carcassonne::encoder {
 
 class Rollout {
    proto::Rollout m_rollout{};
+   std::promise<carcassonne::training::OneGame> m_promise;
 
  public:
    explicit Rollout(int player_count, std::uint64_t seed);

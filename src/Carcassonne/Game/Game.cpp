@@ -7,8 +7,14 @@
 
 namespace carcassonne::game {
 
-Game::Game(int player_count, mb::u64 seed) : m_player_count(player_count),
-                                             m_random_generator(seed) {
+Game::Game(
+   int player_count,
+   mb::u64 seed
+)
+ : m_player_count(player_count)
+ , m_random_generator(seed)
+{
+   m_training_data.reserve(g_max_moves-1);
    std::fill(m_figure_count.begin(), m_figure_count.end(), g_initial_figures_count);
    apply_tile(g_board_center_x, g_board_center_y, 1, 3);
    draw_tiles();
@@ -672,12 +678,16 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    // current player score       = g_max_possible_score+1[256]
    // best player id             = npcs[2]
    // current player id          = npcs[2]
+   /* #########################################################
+             //     MOVED TO GLOBALS
    const size_t tile_features_count = (4*3) + (8*3) + 24 + 22 + 1 + 1 + m_player_count + 9 + 4; // 99;
    const size_t board_features_count = (g_board_width * g_board_height * tile_features_count)
        + (g_initial_figures_count * m_player_count) + tile_features_count + m_tile_set.size()
        + 2 * (g_max_possible_score + 1) + 2 * m_player_count; // 166'419 + 699; <==> 41x41x100
+   // ########################################################## */
+
    if (output.size() == 0) {
-      output = std::vector<float>(board_features_count, 0.0f);
+      output = std::vector<float>(board_features_count(m_player_count, m_tile_set.size()), 0.0f);
    } else {
       std::fill(output.begin(), output.end(), 0.0f);
    }
@@ -686,16 +696,16 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
       for (int x = 0; x < g_board_width; ++x) {
          const TilePlacement& placed_tile = board().tile_at(x,y);
          if (0 == placed_tile.type) continue;
-         int neurons_offset = (x + y * g_board_width) * tile_features_count;
+         int neurons_offset = (x + y * g_board_width) * tile_features_count(m_player_count);
          output_it = std::next(output.begin(), neurons_offset);
          auto output_edges_it = std::next(output.begin(), neurons_offset);
          tile_to_caffe(placed_tile.tile(), output_it);
 
-         output_it = std::next(output.begin(), neurons_offset + tile_features_count - (m_player_count + 9 + 4));
+         output_it = std::next(output.begin(), neurons_offset + tile_features_count(m_player_count) - (m_player_count + 9 + 4));
          figures_to_caffe(m_figures, x, y, output_edges_it, m_player_count, output_it);
       }
    }
-   output_it = std::next(output.begin(), (g_board_height * g_board_width) * tile_features_count);
+   output_it = std::next(output.begin(), (g_board_height * g_board_width) * tile_features_count(m_player_count));
    
    // remaining figures: neurons_to_set = m_player_count * g_initial_figures_count
    for (mb::size i = 0; i < m_player_count; ++i) {
@@ -706,7 +716,7 @@ void Game::board_to_caffe_X(std::vector<float> &output) const {
    // current tile: neurons_to_set =  g_tiles.size()
    const Tile& tile = g_tiles[ m_tile_set[m_move_index] ];
    tile_to_caffe(tile, output_it);
-   std::advance(output_it, tile_features_count);
+   std::advance(output_it, tile_features_count(m_player_count));
    
    // remaining tiles: neurons_to_set = m_tile_set.size()
    *std::next(output_it, m_move_index) = 1.0f;
