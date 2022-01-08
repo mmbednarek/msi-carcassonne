@@ -5,6 +5,7 @@
 #include <Carcassonne/AI/Tree.h>
 #include <Carcassonne/IGame.h>
 #include <Carcassonne/RL/Network.h>
+#include <Carcassonne/Training/TrainingSet.h>
 #include <random>
 #include <thread>
 
@@ -18,6 +19,7 @@ class DeepRLPlayer {
    std::shared_ptr<std::condition_variable> m_ready_to_move;
    std::shared_ptr<std::condition_variable> m_move_found;
    std::mt19937 m_generator;
+   training::MoveNetworkRecord m_record{};
    std::unique_ptr<rl::Context> m_ctx_ptr = nullptr;
    unsigned m_trees_count = 1;
    std::unique_ptr<rl::client_threads> m_clients_pool = nullptr;
@@ -28,7 +30,8 @@ class DeepRLPlayer {
       Player player,
       std::mt19937 &generator,
       std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool,
-      unsigned trees_count );
+      unsigned trees_count
+   );
    DeepRLPlayer() = delete;
    DeepRLPlayer(const DeepRLPlayer&) = delete;
    DeepRLPlayer(DeepRLPlayer&&) = default;
@@ -40,6 +43,7 @@ class DeepRLPlayer {
       m_clients_pool->join_clients();
       spdlog::info("~DeepRLPlayer: terminated threads");
    }
+   void add_record(IGame &game, Node* node_with_best_move);
    void make_move(IGame &game) noexcept;
 };
 

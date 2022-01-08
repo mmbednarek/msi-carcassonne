@@ -12,7 +12,14 @@ namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
    po::options_description desc("carcassonne headless");
-   desc.add_options()("help", "")("seed,s", po::value<int>()->default_value(10), "seed of a game")("rl-ai-count,l", po::value<int>()->default_value(1), "number of rl agents")("random-ai-count,r", po::value<int>()->default_value(1), "number of random agents")("verbose,v", "verbose output");
+   desc.add_options()
+   ("help", "")
+   ("seed,s", po::value<int>()->default_value(10), "seed of a game")
+   ("rl-ai-count,l", po::value<int>()->default_value(1), "number of rl agents")
+   ("random-ai-count,r", po::value<int>()->default_value(1), "number of random agents")
+   ("verbose,v", "verbose output");
+   unsigned trees_count = 1;
+   unsigned workers_per_gpu = 1;
 
    po::variables_map values;
    po::store(po::command_line_parser(argc, argv).options(desc).run(), values);
@@ -31,18 +38,21 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
    }
 
-   unsigned trees_count = 1;
-   carcassonne::training::Gameplay gameplay(total_player_count, seed, trees_count);
+   std::promise<carcassonne::training::OneGame> p;
+   carcassonne::training::Gameplay gameplay(total_player_count, seed, trees_count, &p);
    std::mt19937 generator(seed);
    std::unique_ptr<carcassonne::ai::rl::thread_pool> workers_pool = 
-      std::make_unique<carcassonne::ai::rl::thread_pool>();
+      std::make_unique<carcassonne::ai::rl::thread_pool>(workers_per_gpu);
 
    for (int i = 0; i < rl_count; ++i) {
       gameplay.add_rl_player(generator, workers_pool);
    }
 
-   gameplay.add_random_player(generator);
+   for (int i = 0; i < random_count; ++i) {
+      gameplay.add_random_player(generator);
+   }
 
    gameplay.run();
    gameplay.save("gameplay.proto");
+   spdlog::error("p.get_future().get().size()={}", p.get_future().get().size());
 }
