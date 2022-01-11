@@ -32,15 +32,20 @@ class DeepRLPlayer {
       std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool,
       unsigned trees_count
    );
-   DeepRLPlayer() = delete;
+
    DeepRLPlayer(const DeepRLPlayer&) = delete;
-   DeepRLPlayer(DeepRLPlayer&&) = default;
+   DeepRLPlayer &operator=(const DeepRLPlayer&) = delete;
+
    ~DeepRLPlayer() {
       spdlog::info("~DeepRLPlayer: terminating threads");
-      m_ctx_ptr->move_readyness->terminate = true;
-      m_ctx_ptr->ready_to_move->notify_one();
-      await_for_termination(m_ctx_ptr->move_readyness, m_ctx_ptr->move_found);
-      m_clients_pool->join_clients();
+      if (m_ctx_ptr != nullptr) {
+         m_ctx_ptr->move_readyness->terminate = true;
+         m_ctx_ptr->ready_to_move->notify_one();
+         await_for_termination(m_ctx_ptr->move_readyness, m_ctx_ptr->move_found);
+      }
+      if (m_clients_pool != nullptr) {
+         m_clients_pool->join_clients();
+      }
       spdlog::info("~DeepRLPlayer: terminated threads");
    }
    void add_record(IGame &game, Node* node_with_best_move);

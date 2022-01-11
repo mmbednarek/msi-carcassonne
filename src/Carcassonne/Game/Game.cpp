@@ -546,7 +546,7 @@ inline void flags_to_states(const T flags, const int neurons_to_set, U output_it
 
 template <typename T, typename U>
 inline void vector_to_states(const T vector, const size_t neurons_to_set, U& output_it) noexcept {
-   std::vector<bool> states(neurons_to_set, false);
+   std::vector<bool> states(neurons_to_set);
    for (int i = 0; i < vector.size(); ++i) {
       auto val = to_underlying(vector.at(i));
        states.at(val + neurons_to_set / vector.size() * i) = true;

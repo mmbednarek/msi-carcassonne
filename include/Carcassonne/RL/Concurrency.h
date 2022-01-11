@@ -67,6 +67,8 @@ extern std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
 //    return max_score_it->player;
 // }
 
+mb::result<std::unique_ptr<Network>> load_network(int gpu_id);
+
 inline std::tuple<std::span<float>, float> just_forward(std::vector<float> *data_in) {
    auto &neuron_inputs = data_in;
    std::unique_ptr<Network> &network = g_networks[std::this_thread::get_id()];
@@ -126,28 +128,6 @@ class thread_pool {
       threads_finished = true;
    }
    
-   mb::result<std::unique_ptr<Network>> load_network(int gpu_id) const {
-      // spdlog::debug("thread ok0");
-      spdlog::debug("thread {} ok1", thread_name());
-      caffe::Caffe::set_mode(caffe::Caffe::GPU);
-      caffe::Caffe::SetDevice(gpu_id);
-      spdlog::warn("load_network: device={}", gpu_id);
-      
-      caffe::SolverParameter solver_param;
-      std::string param_file = std::string("./proto/solver") + std::to_string(gpu_id) + std::string(".prototxt");
-      caffe::ReadSolverParamsFromTextFileOrDie(param_file, &solver_param);
-      caffe::NetParameter net_parameter;
-      std::string model_file = std::string("./proto/net_full_alphazero_40_res_blocks") + std::to_string(gpu_id) + std::string(".prototxt");
-      std::ifstream t(model_file.c_str());
-      std::string model((std::istreambuf_iterator<char>(t)),
-                        std::istreambuf_iterator<char>());
-      bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
-      if (!success) {
-         return mb::error("could not parse protobuf file");
-      }
-      net_parameter.mutable_state()->set_phase(caffe::TRAIN);
-      return std::make_unique<Network>(net_parameter, solver_param, gpu_id);
-   }
 
  public:
    thread_pool(mb::size workers_per_gpu) : done(false), joiner(threads) {

@@ -43,6 +43,10 @@ class ScoreBoard {
    [[nodiscard]] inline std::vector<PlayerScore>::const_iterator end() const {
       return m_score.cend();
    }
+
+   [[nodiscard]] inline bool is_empty() const {
+      return m_score.empty();
+   }
 };
 
 }// namespace carcassonne

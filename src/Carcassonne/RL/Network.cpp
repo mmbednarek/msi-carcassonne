@@ -14,8 +14,6 @@ constexpr boost::shared_ptr<T> make_shared(ARGS... args) {
    return boost::shared_ptr<T>(new T(args...));
 }
 
-std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
-
 Network::Network(
    const caffe::NetParameter &net_parameter,
    const caffe::SolverParameter &solver_param,
@@ -74,6 +72,17 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    spdlog::debug("net: decode_move lasted {}ms", util::unix_time() - start_decode_move);
 #endif
    return move;
+}
+
+void Network::train( const std::vector<training::OneGame> &data_set) {
+   spdlog::info("training network!");
+   for (const auto &game : data_set) {
+      for (const auto &move: game) {
+         std::copy(move.game_state.begin(), move.game_state.end(), m_input->mutable_cpu_data());
+         std::copy(move.children_visits.begin(), move.children_visits.end(), m_output->mutable_cpu_data());
+         m_net->Backward();
+      }
+   }
 }
 
 }// namespace carcassonne::rl

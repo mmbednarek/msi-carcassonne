@@ -1,2 +1,2 @@
-add_library(carcassonne_rl Network.cpp)
+add_library(carcassonne_rl Network.cpp Concurrency.cpp)
 target_link_libraries(carcassonne_rl caffe carcassonne_decoder eden_resources)

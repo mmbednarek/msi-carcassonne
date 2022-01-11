@@ -13,7 +13,7 @@ namespace carcassonne::training {
 
 class Gameplay {
    carcassonne::game::Game m_game;
-   std::vector<carcassonne::ai::DeepRLPlayer> m_rl_players;
+   std::vector<std::unique_ptr<carcassonne::ai::DeepRLPlayer>> m_rl_players;
    std::vector<carcassonne::ai::RandomPlayer<>> m_random_players;
    carcassonne::Player m_next_player = carcassonne::Player::Black;
    carcassonne::encoder::Rollout m_rollout;
@@ -28,17 +28,17 @@ class Gameplay {
       std::promise<training::OneGame> *promise_ptr
    );
 
-   void add_rl_player(
+   inline void add_rl_player(
       std::mt19937 &generator,
       std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool
    )
    {
-      m_rl_players.emplace_back(m_game, m_next_player, generator, workers_pool, m_trees_count);
+      m_rl_players.emplace_back(std::make_unique<carcassonne::ai::DeepRLPlayer>(m_game, m_next_player, generator, workers_pool, m_trees_count));
       std::this_thread::sleep_for(std::chrono::seconds(5));
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 
-   void add_random_player(std::mt19937 &generator) {
+   inline void add_random_player(std::mt19937 &generator) {
       m_random_players.emplace_back(generator, m_next_player);
       m_random_players.back().await_turn(m_game);
       m_next_player = carcassonne::next_player(m_next_player, 4);
@@ -49,11 +49,15 @@ class Gameplay {
    }
 
    void submit_game_data() {
-      auto winner_it = std::max_element(m_game.scores().begin(), m_game.scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
-         return lhs.score < rhs.score;
-      });
+      auto winner_player = Player::Black;
+      if (!m_game.scores().is_empty()) {
+         auto winner_it = std::max_element(m_game.scores().begin(), m_game.scores().end(), [](PlayerScore lhs, PlayerScore rhs) {
+           return lhs.score < rhs.score;
+         });
+         winner_player = winner_it->player;
+      }
       for (auto& record : m_game.training_data()) {
-         if (winner_it->player == record.player) {
+         if (winner_player == record.player) {
             record.reward = 1.0;
             continue;
          }
@@ -68,7 +72,7 @@ class Gameplay {
 
    void run() {
       m_game.start();
-      while (m_game.move_index() < carcassonne::g_max_moves) {
+      while (m_game.move_index() < carcassonne::g_max_moves-1) {
          m_game.update(0);
       }
       submit_game_data();

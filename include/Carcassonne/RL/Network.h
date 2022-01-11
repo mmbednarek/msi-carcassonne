@@ -7,6 +7,7 @@
 #include <caffe/util/math_functions.hpp>
 #include <caffe/sgd_solvers.hpp>
 #include <Carcassonne/IGame.h>
+#include <Carcassonne/Training/TrainingSet.h>
 
 namespace carcassonne::ai::rl {
 
@@ -34,6 +35,7 @@ class Network {
    std::string get_thread_name() { return m_pthread_name; }
    caffe::SGDSolver<float>& solver() { return m_solver; }
    int get_gpu_id() { return m_gpu_id; }
+   void train(const std::vector<training::OneGame> &data_set);
 
 };
 
