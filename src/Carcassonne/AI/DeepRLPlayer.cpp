@@ -28,7 +28,7 @@ DeepRLPlayer::DeepRLPlayer(
     , m_clients_pool(std::make_unique<rl::client_threads>(m_trees_count, m_ctx_ptr, m_player) )
 {
    spdlog::info("deep rl: initialising agent");
-   std::this_thread::sleep_for(std::chrono::seconds(5));
+   // std::this_thread::sleep_for(std::chrono::seconds(5));
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
@@ -54,7 +54,7 @@ bool prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr, Player m_player) {
    } while (player != m_player);
 
    if (node == nullptr) {
-      spdlog::debug("deep rl: building MCTS tree from scratch");
+      // spdlog::debug("deep rl: building MCTS tree from scratch");
       tree->reset(ctx_ptr->game, m_player);
       return 0;
    }
@@ -65,7 +65,7 @@ bool prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr, Player m_player) {
 
 void rl::client_threads::client_work(unsigned cpu_id) {
    spdlog::debug("client_work: client run on cpu '{}'", cpu_id);
-   std::this_thread::sleep_for(std::chrono::seconds(1));
+   // std::this_thread::sleep_for(std::chrono::seconds(1));
    m_ctx_ptr->lck.lock();
    if (!m_ctx_ptr->leading_tread_assigned) {
       m_ctx_ptr->leading_tread_id = std::this_thread::get_id();
@@ -78,11 +78,11 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    Node* node_with_best_move = nullptr;
    spdlog::debug("client_work: client '{}' started", cpu_id);
    while (true) {
-      spdlog::info("client_work: client '{}' waiting...", cpu_id);
+      // spdlog::info("client_work: client '{}' waiting...", cpu_id);
       std::unique_lock<std::mutex> lck(m_ctx_ptr->move_readyness->m_mutex);
       m_ctx_ptr->ready_to_move->wait(lck, [this] {
-         spdlog::info("client_work: dataReady={}",
-                      (m_ctx_ptr->move_readyness->m_data.dataReady ? "true" : "false"));
+         // spdlog::info("client_work: dataReady={}",
+         //              (m_ctx_ptr->move_readyness->m_data.dataReady ? "true" : "false"));
          return m_ctx_ptr->move_readyness->m_data.dataReady || m_ctx_ptr->move_readyness->terminate;
       });
       m_ctx_ptr->move_readyness->m_data.dataReady = false;
@@ -90,7 +90,7 @@ void rl::client_threads::client_work(unsigned cpu_id) {
          spdlog::info("client_work: terminate");
          break;
       }
-      spdlog::info("client_work: client '{}' Running !!!");
+      // spdlog::info("client_work: client '{}' Running !!!");
       if (prepare_tree(m_ctx_ptr, m_player)) {
          spdlog::debug("nullptr == tree");
          return;
@@ -118,7 +118,7 @@ void rl::client_threads::client_work(unsigned cpu_id) {
             Only the leading thread does merging
          */
          // ctx_ptr->lck.lock(); // no need for lock
-         spdlog::info("Worker: Finished !!!");
+         // spdlog::info("Worker: Finished !!!");
          m_ctx_ptr->node_with_best_move = node_with_best_move;
          m_ctx_ptr->move_readyness->m_data.resultReady = true;
          m_ctx_ptr->move_found->notify_one();
@@ -142,7 +142,7 @@ void DeepRLPlayer::add_record(IGame &game, Node* node_with_best_move) {
 }
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {   
-   spdlog::info("deep rl: preparing move");
+   // spdlog::info("deep rl: preparing move");
    // rl::DataWrapper<rl::MoveReadyness> mrw{rl::MoveReadyness{false, false}};
       
    m_ctx_ptr->game = game;
@@ -152,10 +152,10 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    m_ctx_ptr->ready_to_move->notify_one();
    std::mutex mut;
    std::unique_lock<std::mutex> lck(mut);
-   spdlog::info("deep rl: Waiting for move...");
+   // spdlog::info("deep rl: Waiting for move...");
    m_ctx_ptr->move_found->wait(lck, [this] {
-      spdlog::info("deep rl: move_ready={}",
-                   (m_ctx_ptr->move_readyness->m_data.resultReady ? "true" : "false"));
+      // spdlog::info("deep rl: move_ready={}",
+      //              (m_ctx_ptr->move_readyness->m_data.resultReady ? "true" : "false"));
       return m_ctx_ptr->move_readyness->m_data.resultReady;
    });
    m_ctx_ptr->move_readyness->m_data.resultReady = false;

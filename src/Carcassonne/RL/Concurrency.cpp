@@ -10,11 +10,11 @@ mb::result<std::unique_ptr<Network>> load_network(int gpu_id) {
    spdlog::warn("load_network: device={}", gpu_id);
 
    caffe::SolverParameter solver_param;
-   std::string param_file = std::string("./proto/solver") + std::to_string(gpu_id) + std::string(".prototxt");
+   std::string param_file = std::string("./proto/solver.prototxt");
    fLI::FLAGS_minloglevel=3;
    caffe::ReadSolverParamsFromTextFileOrDie(param_file, &solver_param);
    caffe::NetParameter net_parameter;
-   std::string model_file = std::string("./proto/net_full_alphazero_40_res_blocks") + std::to_string(gpu_id) + std::string(".prototxt");
+   std::string model_file = std::string("./proto/net_full_alphazero_40_res_blocks.prototxt");
    std::ifstream t(model_file.c_str());
    std::string model((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());

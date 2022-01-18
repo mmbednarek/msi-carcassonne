@@ -15,10 +15,11 @@ std::string thread_name();
 
 class Network {
    caffe::SGDSolver<float> m_solver;
+   caffe::NetParameter m_net_parameter;
    boost::shared_ptr<caffe::Blob<float>> m_input_data;
-   boost::shared_ptr<caffe::Blob<float>> m_output_probas;
+   boost::shared_ptr<caffe::Blob<float>> m_output_probabs;
    boost::shared_ptr<caffe::Blob<float>> m_output_value;
-   boost::shared_ptr<caffe::Blob<float>> m_label_probas;
+   boost::shared_ptr<caffe::Blob<float>> m_label_probabs;
    boost::shared_ptr<caffe::Blob<float>> m_label_value;
    std::vector<float> m_neuron_input;
    std::vector<bool> m_allowed_moves;

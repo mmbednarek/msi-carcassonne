@@ -16,7 +16,7 @@ Gameplay::Gameplay(
    m_game.on_next_move([this](carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
       m_rollout.register_move(move);
       auto tile = game.tile_set()[game.move_index()];
-      spdlog::info("game: Player {} places tile {} at location ({}, {}, {})", player_to_string(player), tile, move.x, move.y, move.rotation);
+      spdlog::info("game: Player {} places tile {} at location ({}, {}, {}), {} remaining", player_to_string(player), tile, move.x, move.y, move.rotation, game.tile_set().size() - game.move_index() - 2);
       if (move.ignored_figure) {
          spdlog::info("game: Player {} did not place any figure", player_to_string(player));
       } else {

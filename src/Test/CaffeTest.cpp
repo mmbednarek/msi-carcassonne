@@ -35,7 +35,7 @@ void test_net() {
   //   data[i * 2 + 1] = b;
   //   label[i] = c;
   // }
-  const size_t batch_size = 7;
+  const size_t batch_size = 1;
   const size_t samples_count = 180;
   const size_t size_S = batch_size * 41 * 41 * 86 * samples_count;
   const size_t size_P = batch_size * 41 * 41 * 40 * samples_count;
@@ -90,7 +90,6 @@ void test_net() {
     fmt::print("{}: size={}\n", i, solver->net()->input_blob_indices()[i] );
   
   boost::shared_ptr<caffe::Blob<float>> input_data_blob = solver->net()->blob_by_name("input_data");
-  boost::shared_ptr<caffe::Blob<float>> output_data_blob = solver->net()->blob_by_name("output_probas");
   boost::shared_ptr<caffe::Blob<float>> label_value_blob = solver->net()->blob_by_name("label_value");
 
   float* input_data_begin = input_data_blob->mutable_cpu_data();
@@ -127,7 +126,7 @@ void test_net() {
   boost::shared_ptr<caffe::Blob<float>> output_probabs_layer =
       testnet->blob_by_name("output_probas");
   const float *begin_probabs = output_probabs_layer->cpu_data();
-  const float *end_probabs = begin_probabs + size_S / samples_count / batch_size;
+  const float *end_probabs = begin_probabs + size_P / samples_count / batch_size;
 
   fmt::print("Result probabilities\n");
   std::vector<float> result_probabs(begin_probabs, end_probabs);

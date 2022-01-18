@@ -31,7 +31,7 @@ void Training::run() {
 }
 
 void Training::train_network() {
-   spdlog::debug("m_new_training_data.size={}", m_new_training_data.size());
+   spdlog::debug("m_new_training_data[0].size={}", m_new_training_data[0].size());
    auto tid_net_map_it = ai::rl::g_networks.begin();
    tid_net_map_it->second->train(m_new_training_data);
 }
