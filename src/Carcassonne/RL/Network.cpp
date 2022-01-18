@@ -131,7 +131,7 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
 
    caffe::NetParameter net_parameter;
 
-   std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
+   std::ifstream t("./proto/net_full_alphazero_2_res_blocks.prototxt");
    std::string model((std::istreambuf_iterator<char>(t)),
                   std::istreambuf_iterator<char>());
    bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);

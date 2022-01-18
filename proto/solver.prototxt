@@ -1,4 +1,4 @@
-net: "proto/net_full_alphazero_40_res_blocks.prototxt"
+net: "proto/net_full_alphazero_2_res_blocks.prototxt"
 base_lr: 0.02
 lr_policy: "step"
 gamma: 0.5

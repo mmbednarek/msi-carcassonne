@@ -203,7 +203,7 @@ layer {
 layer {
         name: "res40_sum"
         type: "Eltwise"
-        bottom: "res39"
+        bottom: "res1"
         bottom: "res40_conv2"
         top: "res40"
         eltwise_param {
