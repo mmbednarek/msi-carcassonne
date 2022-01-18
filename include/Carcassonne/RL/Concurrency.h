@@ -72,22 +72,22 @@ mb::result<std::unique_ptr<Network>> load_network(int gpu_id);
 inline std::tuple<std::span<float>, float> just_forward(std::vector<float> *data_in) {
    auto &neuron_inputs = data_in;
    std::unique_ptr<Network> &network = g_networks[std::this_thread::get_id()];
-   boost::shared_ptr<caffe::Blob<float>> input{network->solver().net()->blob_by_name("input_data")};
-   boost::shared_ptr<caffe::Blob<float>> output{network->solver().net()->blob_by_name("output_probas")};
-   boost::shared_ptr<caffe::Blob<float>> label{network->solver().net()->blob_by_name("output_value")};
-   std::copy(neuron_inputs->begin(), neuron_inputs->end(), input->mutable_cpu_data());
+   boost::shared_ptr<caffe::Blob<float>> input_data{network->solver().net()->blob_by_name("input_data")};
+   boost::shared_ptr<caffe::Blob<float>> output_probas{network->solver().net()->blob_by_name("output_probas")};
+   boost::shared_ptr<caffe::Blob<float>> output_value{network->solver().net()->blob_by_name("output_value")};
+   std::copy(neuron_inputs->begin(), neuron_inputs->end(), input_data->mutable_cpu_data());
    network->solver().net()->Forward();
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
    // filtering moves:
-   // std::span<float> out_span(output->mutable_cpu_data(), output_neuron_count);
-   // std::vector<std::reference_wrapper<float>> out_refs(output->mutable_cpu_data(), output->mutable_cpu_data() + output_neuron_count);
+   // std::span<float> out_span(output_probas->mutable_cpu_data(), output_neuron_count);
+   // std::vector<std::reference_wrapper<float>> out_refs(output_probas->mutable_cpu_data(), output_probas->mutable_cpu_data() + output_neuron_count);
    // std::vector<bool> allowed_moves;
    // auto sum_neurons = decoder::fill_allowed_vec(&game, allowed_moves, out_span);
    // out_refs.erase(std::remove_if(out_refs.begin(), out_refs.end(), [&allowed_moves, &out_refs, &sum_neurons](float& prob) { 
    //    bool ok = allowed_moves[&prob - &(*out_refs.begin()).get()]; 
    //    if (ok) prob /= sum_neurons;
    //    return !ok;}), out_refs.end());
-   return std::make_tuple(std::span<float>(output->mutable_cpu_data(), output_neuron_count), *label->mutable_cpu_data());
+   return std::make_tuple(std::span<float>(output_probas->mutable_cpu_data(), output_neuron_count), *output_value->mutable_cpu_data());
 }
 
 class thread_pool {

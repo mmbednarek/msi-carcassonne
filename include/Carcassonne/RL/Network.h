@@ -14,11 +14,12 @@ namespace carcassonne::ai::rl {
 std::string thread_name();
 
 class Network {
-   boost::shared_ptr<caffe::Net<float>> m_net;
    caffe::SGDSolver<float> m_solver;
-   boost::shared_ptr<caffe::Blob<float>> m_input;
-   boost::shared_ptr<caffe::Blob<float>> m_output;
-   boost::shared_ptr<caffe::Blob<float>> m_label;
+   boost::shared_ptr<caffe::Blob<float>> m_input_data;
+   boost::shared_ptr<caffe::Blob<float>> m_output_probas;
+   boost::shared_ptr<caffe::Blob<float>> m_output_value;
+   boost::shared_ptr<caffe::Blob<float>> m_label_probas;
+   boost::shared_ptr<caffe::Blob<float>> m_label_value;
    std::vector<float> m_neuron_input;
    std::vector<bool> m_allowed_moves;
    int m_gpu_id;

@@ -25,14 +25,7 @@ int main(int argc, char **argv) {
       spdlog::set_level(spdlog::level::debug);
    }
 
-   auto net_res = carcassonne::ai::rl::load_network(0);
-   if (!net_res.ok()) {
-     spdlog::error("could not load network: {}", net_res.msg());
-     return EXIT_FAILURE;
-   }
-   auto net = net_res.unwrap();
-
-   carcassonne::training::Training training(seed, *net);
+   carcassonne::training::Training training(seed);
 
    training.run();
 }

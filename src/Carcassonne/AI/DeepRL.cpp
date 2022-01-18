@@ -59,12 +59,8 @@ void backpropagate_state_value(
 
 std::tuple<std::span<float>, float> get_probabilities(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    std::vector<float> neuron_input;
-   std::uniform_int_distribution<int> distribution(0, g_networks.size()-1);
    IGame& game = node->game();
    game.board_to_caffe_X(neuron_input);
-   auto network_it = g_networks.begin();
-   int net_id = distribution(g_random_gen);
-   std::advance(network_it, net_id);
    std::promise<std::tuple<std::span<float>, float>> promise;
    util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> > data{ &promise, &neuron_input };
    ctx_ptr->workers_pool->submit(data);

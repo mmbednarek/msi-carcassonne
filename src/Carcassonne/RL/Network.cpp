@@ -19,9 +19,11 @@ Network::Network(
    const caffe::SolverParameter &solver_param,
    int gpu_id )
     : m_solver(solver_param)
-    , m_input(m_solver.net()->blob_by_name("input_data"))
-    , m_output(m_solver.net()->blob_by_name("output_probas"))
-    , m_label(m_solver.net()->blob_by_name("output_value"))
+    , m_input_data(m_solver.net()->blob_by_name("input_data"))
+    , m_output_probas(m_solver.net()->blob_by_name("output_probas"))
+    , m_output_value(m_solver.net()->blob_by_name("output_value"))
+    , m_label_probas(m_solver.net()->blob_by_name("label_probas"))
+    , m_label_value(m_solver.net()->blob_by_name("label_value"))
     , m_allowed_moves(g_board_width * g_board_height * 4 * 14, false)
     , m_gpu_id(gpu_id)
     , m_pthread_name(fmt::format("gpu_thread_{}", gpu_id))
@@ -48,11 +50,11 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
    spdlog::debug("net: board_to_caffe_X lasted {}ms", util::unix_time() - start_board_to_caffe_X);
    auto start_copy_to_mutable_cpu_data = util::unix_time();
 #endif
-   std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input->mutable_cpu_data());
+   std::copy(m_neuron_input.begin(), m_neuron_input.end(), m_input_data->mutable_cpu_data());
 #ifdef MEASURE_TIME
    spdlog::debug("net: copy_to_mutable_cpu_data lasted {}ms", util::unix_time() - start_copy_to_mutable_cpu_data);
    auto start_copy_cpu_to_gpu = util::unix_time();
-   m_input->gpu_data();
+   m_input_data->gpu_data();
    spdlog::debug("net: copy_cpu_to_gpu lasted {}ms", util::unix_time() - start_copy_cpu_to_gpu);
    auto start_forward = util::unix_time();
 #endif
@@ -60,9 +62,9 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
 #ifdef MEASURE_TIME
    spdlog::debug("net: forward lasted {}ms", util::unix_time() - start_forward);
    auto start_copy_gpu_to_cpu = util::unix_time();
-   const float &mutable_cpu_data = *m_output->mutable_cpu_data();
+   const float &mutable_cpu_data = *m_output_probas->mutable_cpu_data();
 #endif
-   std::span<float> out_span(m_output->mutable_cpu_data(), output_neuron_count);
+   std::span<float> out_span(m_output_probas->mutable_cpu_data(), output_neuron_count);
 #ifdef MEASURE_TIME
    spdlog::debug("net: copy_gpu_to_cpu lasted {}ms", util::unix_time() - start_copy_gpu_to_cpu);
    auto start_decode_move = util::unix_time();
@@ -75,12 +77,24 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
 }
 
 void Network::train( const std::vector<training::OneGame> &data_set) {
+   caffe::Caffe::SetDevice(0);
    spdlog::info("training network!");
    for (const auto &game : data_set) {
       for (const auto &move: game) {
-         std::copy(move.game_state.begin(), move.game_state.end(), m_input->mutable_cpu_data());
-         std::copy(move.children_visits.begin(), move.children_visits.end(), m_output->mutable_cpu_data());
-         m_net->Backward();
+         auto start_copy = util::unix_time();
+         std::copy(move.game_state.begin(), move.game_state.end(), m_input_data->mutable_cpu_data());
+         std::copy(move.children_visits.begin(), move.children_visits.end(), m_label_probas->mutable_cpu_data());
+         *m_label_value->mutable_cpu_data() = move.reward;
+         spdlog::debug("net: copy lasted {}ms", util::unix_time() - start_copy);
+         
+         auto start_forward = util::unix_time();
+         if (nullptr == m_solver.net()) spdlog::error("nullptr == m_solver.net()");
+         m_solver.net()->Forward();
+         spdlog::debug("net: forward lasted {}ms", util::unix_time() - start_forward);
+         
+         auto start_backward = util::unix_time();
+         m_solver.net()->Backward();
+         spdlog::debug("net: backward lasted {}ms", util::unix_time() - start_backward);
       }
    }
 }

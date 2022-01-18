@@ -98,5 +98,5 @@ find_library(caffe libcaffe ${CMAKE_LIBRARY_PATH})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(GLog REQUIRED)
-
+find_package(gflags REQUIRED)
 find_package(Protobuf REQUIRED)

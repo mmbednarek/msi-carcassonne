@@ -5,14 +5,13 @@ namespace carcassonne::ai::rl {
 std::map<std::thread::id, std::unique_ptr<Network>> g_networks;
 
 mb::result<std::unique_ptr<Network>> load_network(int gpu_id) {
-   // spdlog::debug("thread ok0");
-   spdlog::debug("thread {} ok1", thread_name());
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
    caffe::Caffe::SetDevice(gpu_id);
    spdlog::warn("load_network: device={}", gpu_id);
 
    caffe::SolverParameter solver_param;
    std::string param_file = std::string("./proto/solver") + std::to_string(gpu_id) + std::string(".prototxt");
+   fLI::FLAGS_minloglevel=3;
    caffe::ReadSolverParamsFromTextFileOrDie(param_file, &solver_param);
    caffe::NetParameter net_parameter;
    std::string model_file = std::string("./proto/net_full_alphazero_40_res_blocks") + std::to_string(gpu_id) + std::string(".prototxt");

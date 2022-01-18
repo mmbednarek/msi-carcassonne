@@ -1,12 +1,12 @@
 #include <Carcassonne/Training/Training.h>
+#include <Carcassonne/RL/Concurrency.h>
 
 namespace carcassonne::training {
 
-Training::Training(uint64_t seed, ai::rl::Network &net)
+Training::Training(uint64_t seed)
         : m_seed(seed),
           m_workers_pool(std::make_unique<ai::rl::thread_pool>(m_workers_per_gpu)),
-          m_data_creator_pool(std::make_unique<ai::rl::data_creator_pool>(m_rl_count, m_workers_pool, m_trees_count)),
-          m_network(net) {}
+          m_data_creator_pool(std::make_unique<ai::rl::data_creator_pool>(m_rl_count, m_workers_pool, m_trees_count)) {}
 
 void Training::run() {
    std::vector<uint64_t> seeds{m_games_count};
@@ -31,7 +31,9 @@ void Training::run() {
 }
 
 void Training::train_network() {
-   m_network.train(m_new_training_data);
+   spdlog::debug("m_new_training_data.size={}", m_new_training_data.size());
+   auto tid_net_map_it = ai::rl::g_networks.begin();
+   tid_net_map_it->second->train(m_new_training_data);
 }
 
 }

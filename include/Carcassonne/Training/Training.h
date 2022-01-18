@@ -22,11 +22,10 @@ class Training {
    std::vector<OneGame> m_new_training_data;
    std::unique_ptr<ai::rl::thread_pool> m_workers_pool = nullptr;
    std::unique_ptr<ai::rl::data_creator_pool> m_data_creator_pool = nullptr;
-   ai::rl::Network &m_network;
 
 
  public:
-   Training(uint64_t seed, ai::rl::Network &net);
+   Training(uint64_t seed);
 
    void run();
 
