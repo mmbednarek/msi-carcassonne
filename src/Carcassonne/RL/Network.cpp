@@ -157,6 +157,8 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
    }
    fmt::print("games_count={}\n", data_set.size());
    fmt::print("moves_count={}\n", data_set.size() * data_set[0].size());
+
+   int i_debug = 0;
    for (const auto &game : data_set) {
       for (const auto &move : game) {
          // memcpy(input_data_begin, move.game_state.data(), move.game_state.size() * sizeof(float));
@@ -170,16 +172,19 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
          solver->net()->Forward();
          solver->net()->Backward();
          spdlog::debug("net: loss={:9.5e}, value={:9.3e}, backward lasted {}ms", *loss_value_blob->cpu_data(), *output_value_blob->cpu_data(), util::unix_time() - start_step);
+         ++i_debug;
       }
+      if(i_debug > 140) break;
    }
    solver->Snapshot();
-   int i_debug = 0;
-   for (auto& net_it : g_networks) {
-      spdlog::debug("updating {} network", i_debug);
-      net_it.second->m_solver.net().reset(new caffe::Net<float>("./proto/net_full_alphazero_40_res_blocks.prototxt", caffe::TEST));
-      net_it.second->m_solver.net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
+   if (false) {
+      i_debug = 0;
+      for (auto& net_it : g_networks) {
+         spdlog::debug("updating {} network", i_debug);
+         net_it.second->m_solver.net().reset(new caffe::Net<float>("./proto/net_full_alphazero_40_res_blocks.prototxt", caffe::TEST));
+         net_it.second->m_solver.net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
+      }
    }
-
 
    // spdlog::info("training network!");
    // // m_solver.net() = boost::shared_ptr<caffe::Net<float>>(new caffe::Net<float>(m_net_parameter));

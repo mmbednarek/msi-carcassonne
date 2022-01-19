@@ -13,16 +13,6 @@ Gameplay::Gameplay(
  , m_trees_count(trees_count)
  , m_promise_ptr(promise_ptr)
 {
-   m_game.on_next_move([this](carcassonne::IGame &game, carcassonne::Player player, carcassonne::FullMove move) {
-      m_rollout.register_move(move);
-      auto tile = game.tile_set()[game.move_index()];
-      spdlog::info("game: Player {} places tile {} at location ({}, {}, {}), {} remaining", player_to_string(player), tile, move.x, move.y, move.rotation, game.tile_set().size() - game.move_index() - 2);
-      if (move.ignored_figure) {
-         spdlog::info("game: Player {} did not place any figure", player_to_string(player));
-      } else {
-         spdlog::info("game: Player {} placed figure at direction {}.", player_to_string(player), direction_to_string(move.direction));
-      }
-   });
 }
 
 std::string_view Gameplay::player_to_string(carcassonne::Player player) {

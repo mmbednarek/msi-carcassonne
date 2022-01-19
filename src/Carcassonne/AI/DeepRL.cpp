@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+#include <iterator>
 #include <spdlog/spdlog.h>
 #include <random>
 #include <limits>
@@ -70,6 +71,13 @@ std::tuple<std::span<float>, float> get_probabilities(std::unique_ptr<rl::Contex
 void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    std::unique_ptr<Tree>& tree = ctx_ptr->trees[std::this_thread::get_id()];
    auto &game = node->game();
+   if (std::distance(game.moves().begin(), game.moves().end()) == 0) {
+      spdlog::error("terminal 1!");
+      // backpropagate_state_value(node, -100.0, tree);
+      node->mark_as_terminal();
+      node->mark_as_expanded();
+      return;
+   }
    const auto current_player = game.current_player();
    auto [probabilities, state_value] = get_probabilities(ctx_ptr, node);
    if (node->game().move_index() >= g_max_moves) {
@@ -129,6 +137,15 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
          node->add_child(std::move(game_clone), current_player, full_move, probabilities[probability_index]);
       }
    }
+   if (node->children().size() == 0) {
+      spdlog::error("terminal 2!");
+      // backpropagate_state_value(node, -100.0, tree);
+      node->mark_as_terminal();
+      if (nullptr != node->parent()) {
+         node->parent()->mark_as_terminal();
+      }
+      return;
+   }
    backpropagate_state_value(node, state_value, tree);
    node->mark_as_expanded();
 }
@@ -136,7 +153,7 @@ struct DataWithPromise;
 
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
    auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
-   const auto rollout_count = tree->root()->simulation_count();
+   // const auto rollout_count = tree->root()->simulation_count();
    auto current_node = tree->root();
    for (;;) {
       const auto &children = current_node->children();
@@ -145,13 +162,16 @@ void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
          selected_child_it = std::max_element(
                  children.begin(),
                  children.end(),
-                 [&rollout_count](NodeUPtr lhs, NodeUPtr rhs) -> bool {
-                    return lhs->UCT1(rollout_count) < rhs->UCT1(rollout_count);
+                 [](NodeUPtr lhs, NodeUPtr rhs) -> bool {
+                    if (rhs->is_terminal()) return false;
+                    if (lhs->is_terminal()) return true;
+                    return lhs->PUCT() < rhs->PUCT();
                  });
          assert(selected_child_it != children.end());
          current_node = selected_child_it->get();
          continue;
       }
+      assert(!current_node->is_terminal());
       assert(current_node->children().empty());
       expand(ctx_ptr, current_node);
       // launch_simulations(ctx_ptr, current_node_id);
@@ -162,6 +182,11 @@ void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
 void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit) {
    auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
    tree->lck.lock();
+   if (std::distance(tree->root()->game().moves().begin(), tree->root()->game().moves().end()) == 0) {
+      spdlog::error("terminal 0!");
+      tree->root()->game().mutable_tile_set()[tree->root()->game().move_index()] = 1;
+      ctx_ptr->game.mutable_tile_set()[tree->root()->game().move_index()] = 1;
+   }
    if (!tree->root()->expanded()) {
       expand(ctx_ptr, tree->root());
    }
@@ -175,10 +200,11 @@ void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64
    }
 }
 
-Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
+Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr) {
    Player player = ctx_ptr->player;
    auto root_node = ctx_ptr->trees[std::this_thread::get_id()]->root();
    const auto &children = root_node->children();
+   assert(children.size() != 0);
    // 
    // choose max element
    auto max_sim_count_it = std::max_element(
@@ -200,11 +226,16 @@ Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
               return lhs->player_wins(player) > rhs->player_wins(player);
            });
 
-
    if (selected == children.end()) {
-      spdlog::error("game.seed={}", root_node->game().seed());
+      spdlog::error("game.seed={}", ctx_ptr->game.seed());
+      fmt::print("Tileset:\n");
+      for (int i = 0; i < ctx_ptr->game.tile_set().size(); ++i)
+         fmt::print("{}\n", static_cast<mb::u8>(ctx_ptr->game.tile_set()[i] ) );
+      spdlog::error("game.tile={}", static_cast<mb::u8>(ctx_ptr->game.tile_set()[ctx_ptr->game.move_index() ] ) );
+      spdlog::error("game.move_index={}", ctx_ptr->game.move_index() );
       assert(false);
    }
+   assert(selected != children.end());
    return selected->get();
 }
 

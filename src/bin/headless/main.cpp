@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
    for (int i = 0; i < random_count; ++i) {
       gameplay.add_random_player(generator);
    }
+   gameplay.add_watcher();
 
    gameplay.run();
    gameplay.save("gameplay.proto");

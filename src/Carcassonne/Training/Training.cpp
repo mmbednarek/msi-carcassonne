@@ -10,21 +10,33 @@ Training::Training(uint64_t seed)
 
 void Training::run() {
    std::vector<uint64_t> seeds{m_games_count};
-   uint64_t last_seed = 0;//m_seed;
+   uint64_t last_seed = 501;//m_seed;
    fmt::print("m_data_creator_pool prepared?\n");
-   std::this_thread::sleep_for(std::chrono::seconds(5));
+   // std::this_thread::sleep_for(std::chrono::seconds(5));
    while (m_running) {
       spdlog::warn("seed = {}", last_seed);
-      std::iota(seeds.begin(), seeds.end(), last_seed);
-      std::vector<std::promise<OneGame>> promises{m_games_count};
-      std::vector<util::DataWithPromise<uint64_t, OneGame>> data;
-      for (int i = 0; i < m_games_count; ++i) {
-         data.emplace_back(&promises[i], &seeds[i]);
+      // std::iota(seeds.begin(), seeds.end(), last_seed);
+      for (uint64_t i = 0; i < m_games_count; ++i) {
+         seeds[i] = i + last_seed;
       }
+      std::vector<std::promise<OneGame>> promises{m_games_count};
+      std::vector<util::DataWithPromise<uint64_t, OneGame>> data{m_games_count};
+      for (int i = 0; i < m_games_count; ++i) {
+         data[i] = util::DataWithPromise<uint64_t, OneGame>{
+               .promise = &promises[i],
+               .data_in = &seeds[i]
+            };
+      }
+      // for (int i = 0; i < m_games_count; ++i) {
+      //    data.emplace_back(&promises[i], &seeds[i]);
+      // }
       // std::transform(seeds.begin(), seeds.end(), promises.begin(), data.begin(),
       //                [](uint64_t &s, std::promise<OneGame> &og) { fmt::print("seed_og={}", s); return util::DataWithPromise<uint64_t, OneGame>{&og, &s}; });
+      for (const auto& s : seeds) {
+         fmt::print("og0={}={}\n", fmt::ptr(&s), s);
+      }
       for (const auto& og : data) {
-         fmt::print("og1={}\n", fmt::ptr(og.data_in));
+         fmt::print("og1={}={}\n", fmt::ptr(og.data_in), *og.data_in);
       }
       for (int i = 0; i < m_games_count; ++i) {
          m_data_creator_pool->submit(data[i]);

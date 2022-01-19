@@ -98,7 +98,7 @@ void rl::client_threads::client_work(unsigned cpu_id) {
       bool move_is_illegal = true;
       do {
          rl::run_mcts(m_ctx_ptr, 0, 1600);
-         node_with_best_move = rl::choose_move(m_ctx_ptr, m_ctx_ptr->game.move_index());
+         node_with_best_move = rl::choose_move(m_ctx_ptr);
          best_move = node_with_best_move->move();
          m_ctx_ptr->last_moves[static_cast<int>(m_ctx_ptr->player)] = best_move;
          if (best_move.ignored_figure) {

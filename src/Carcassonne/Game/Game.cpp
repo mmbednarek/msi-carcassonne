@@ -12,6 +12,7 @@ Game::Game(
    mb::u64 seed
 )
  : m_player_count(player_count)
+ , m_seed(seed)
  , m_random_generator(seed)
 {
    m_training_data.reserve(g_max_moves-1);
@@ -33,6 +34,10 @@ mb::u8 Game::move_index() const noexcept {
 }
 
 const TileSet &Game::tile_set() const noexcept {
+   return m_tile_set;
+}
+
+TileSet &Game::mutable_tile_set() noexcept {
    return m_tile_set;
 }
 

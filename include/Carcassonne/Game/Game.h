@@ -47,6 +47,7 @@ class Game : public IGame {
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    [[nodiscard]] const TileSet &tile_set() const noexcept override;
+   [[nodiscard]] TileSet &mutable_tile_set() noexcept override;
    [[nodiscard]] bool can_place(TileType tt) const noexcept;
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
    [[nodiscard]] mb::u8 move_index() const noexcept override;

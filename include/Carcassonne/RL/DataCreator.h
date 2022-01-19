@@ -22,6 +22,7 @@ static void produce_game(
    std::unique_ptr<carcassonne::ai::rl::thread_pool>& workers_pool,
    unsigned trees_count)
 {
+   fmt::print("og2={}={}\n", fmt::ptr(seed), *seed);
    training::Gameplay gameplay(rl_count, *seed, trees_count, promise_ptr);
    std::mt19937 generator(*seed);
    
@@ -29,10 +30,11 @@ static void produce_game(
       gameplay.add_rl_player(generator, workers_pool);
    }
    // gameplay.add_random_player(generator);
+   gameplay.add_watcher();
    spdlog::debug("gameplay started");
    gameplay.run();
    spdlog::debug("gameplay finished");
-   gameplay.save("gameplay.proto");
+   gameplay.save(fmt::format("gameplays/{}.proto", *seed) );
 }
 
 class data_creator_pool {
