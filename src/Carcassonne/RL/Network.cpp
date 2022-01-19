@@ -1,3 +1,4 @@
+#include "Carcassonne/RL/Concurrency.h"
 #include <Carcassonne/Decoder/Decoder.h>
 #include <Carcassonne/RL/Network.h>
 #include <Eden_resources/Ngpus_Ncpus.h>
@@ -17,11 +18,9 @@ constexpr boost::shared_ptr<T> make_shared(ARGS... args) {
 }
 
 Network::Network(
-   const caffe::NetParameter &net_parameter,
    const caffe::SolverParameter &solver_param,
    int gpu_id )
     : m_solver(solver_param)
-    , m_net_parameter(net_parameter)
     , m_input_data(m_solver.net()->blob_by_name("input_data"))
     , m_output_probabs(m_solver.net()->blob_by_name("output_probabs"))
     , m_output_value(m_solver.net()->blob_by_name("output_value"))
@@ -128,18 +127,18 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
    caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver_train.prototxt", &solver_param);
    fmt::print("model: {}\n", solver_param.net());
    caffe::SGDSolver<float>* solver = new caffe::SGDSolver<float>(solver_param);
-
-   caffe::NetParameter net_parameter;
-
-   std::ifstream t("./proto/net_full_alphazero_2_res_blocks.prototxt");
-   std::string model((std::istreambuf_iterator<char>(t)),
-                  std::istreambuf_iterator<char>());
-   bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
-   fmt::print("success={}\n", success);
-   if (success) {
-      net_parameter.mutable_state()->set_phase(caffe::TRAIN);
-      solver->net() = boost::shared_ptr<caffe::Net<float>>(new caffe::Net<float>(net_parameter));
-   }
+   solver->net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
+   
+   // caffe::NetParameter net_parameter;
+   // std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");
+   // std::string model((std::istreambuf_iterator<char>(t)),
+   //                std::istreambuf_iterator<char>());
+   // bool success = google::protobuf::TextFormat::ParseFromString(model, &net_parameter);
+   // fmt::print("success={}\n", success);
+   // if (success) {
+   //    net_parameter.mutable_state()->set_phase(caffe::TRAIN);
+   //    solver->net() = boost::shared_ptr<caffe::Net<float>>(new caffe::Net<float>(net_parameter));
+   // }
    fmt::print("size={}\n", solver->net()->input_blobs().size() );
    for (int i = 0; i < solver->net()->input_blobs().size(); ++i)
       fmt::print("{}: size={}\n", i, solver->net()->input_blob_indices()[i] );
@@ -156,6 +155,8 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
    if (input_data_begin == nullptr || label_probabs_begin == nullptr || label_value_begin == nullptr) {
       fmt::print("empty mutable_cpu_data\n");
    }
+   fmt::print("games_count={}\n", data_set.size());
+   fmt::print("moves_count={}\n", data_set.size() * data_set[0].size());
    for (const auto &game : data_set) {
       for (const auto &move : game) {
          // memcpy(input_data_begin, move.game_state.data(), move.game_state.size() * sizeof(float));
@@ -165,11 +166,18 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
          std::copy(move.children_visits.begin(), move.children_visits.end(), label_probabs_blob->mutable_cpu_data());
          *label_value_blob->mutable_cpu_data() = move.reward;
          auto start_step = util::unix_time();
-         solver->Step(100);
-         fmt::print("done: loss={:9.2e}, value={:9.2e}\n", *loss_value_blob->cpu_data(), *output_value_blob->cpu_data());
-         spdlog::debug("net: 100 Steps lasted {}ms", util::unix_time() - start_step);
-         // }
+         // solver->Step(1);
+         solver->net()->Forward();
+         solver->net()->Backward();
+         spdlog::debug("net: loss={:9.5e}, value={:9.3e}, backward lasted {}ms", *loss_value_blob->cpu_data(), *output_value_blob->cpu_data(), util::unix_time() - start_step);
       }
+   }
+   solver->Snapshot();
+   int i_debug = 0;
+   for (auto& net_it : g_networks) {
+      spdlog::debug("updating {} network", i_debug);
+      net_it.second->m_solver.net().reset(new caffe::Net<float>("./proto/net_full_alphazero_40_res_blocks.prototxt", caffe::TEST));
+      net_it.second->m_solver.net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
    }
 
 

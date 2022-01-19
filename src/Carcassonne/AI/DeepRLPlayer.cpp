@@ -147,7 +147,6 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
       
    m_ctx_ptr->game = game;
    m_ctx_ptr->player = game.current_player();
-   spdlog::debug("Player={}", static_cast<int>(game.current_player()));
    m_ctx_ptr->move_readyness->m_data.dataReady = true;
    m_ctx_ptr->ready_to_move->notify_one();
    std::mutex mut;

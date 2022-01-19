@@ -1,6 +1,6 @@
 net: "proto/net_full_alphazero_40_res_blocks.prototxt"
-base_lr: 0.02
-lr_policy: "step"
+base_lr: 0.001
+lr_policy: "inv"
 gamma: 0.0001
 momentum: 0.9
 weight_decay: 0.0005
@@ -8,7 +8,7 @@ power: 0.75
 stepsize: 50
 display: 2
 max_iter: 5000
-snapshot: 200
+snapshot: 1000
 snapshot_prefix: "msi"
 random_seed: 0
 test_initialization: false

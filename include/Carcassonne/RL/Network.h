@@ -15,7 +15,6 @@ std::string thread_name();
 
 class Network {
    caffe::SGDSolver<float> m_solver;
-   caffe::NetParameter m_net_parameter;
    boost::shared_ptr<caffe::Blob<float>> m_input_data;
    boost::shared_ptr<caffe::Blob<float>> m_output_probabs;
    boost::shared_ptr<caffe::Blob<float>> m_output_value;
@@ -27,7 +26,7 @@ class Network {
    std::string m_pthread_name;
 
  public:
-   Network(const caffe::NetParameter &net_parameter, const caffe::SolverParameter &solver_param, int gpu_id);
+   Network(const caffe::SolverParameter &solver_param, int gpu_id);
    Network(Network &&) noexcept = delete;
    Network &operator=(Network &&) noexcept = delete;
    Network(const Network &other) = delete;

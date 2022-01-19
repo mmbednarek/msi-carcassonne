@@ -11,7 +11,7 @@ namespace carcassonne::training {
 
 class Training {
    mb::size m_workers_per_gpu = 1;
-   mb::size m_games_count = 1;//25000;
+   uint64_t m_games_count = 32;//25000;
    mb::size m_training_set_size = 500'000;
    mb::size m_games_till_training = 350;// 1 game = 5.7 sek
    mb::size m_training_steps_till_checkpoint = 1000;
@@ -30,8 +30,6 @@ class Training {
    void run();
 
    void train_network();
-
-   void create_training_checkpoint() {}
 
    constexpr void stop() {
       m_running = false;

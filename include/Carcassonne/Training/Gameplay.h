@@ -34,7 +34,7 @@ class Gameplay {
    )
    {
       m_rl_players.emplace_back(std::make_unique<carcassonne::ai::DeepRLPlayer>(m_game, m_next_player, generator, workers_pool, m_trees_count));
-      std::this_thread::sleep_for(std::chrono::seconds(5));
+      std::this_thread::sleep_for(std::chrono::milliseconds(5000));
       m_next_player = carcassonne::next_player(m_next_player, 4);
    }
 

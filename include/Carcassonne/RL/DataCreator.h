@@ -61,11 +61,13 @@ class data_creator_pool {
             std::this_thread::sleep_for(std::chrono::microseconds(1));
          }
       }
+      fmt::print("m_data_creator_pool prepared!\n");
    }
    data_creator_pool(
       int rl_count,
       std::unique_ptr<carcassonne::ai::rl::thread_pool> &workers_pool,
-      unsigned trees_count
+      unsigned trees_count,
+      uint64_t pool_size
    )
     : m_rl_count(rl_count)
     , m_workers_pool(workers_pool)
@@ -74,10 +76,10 @@ class data_creator_pool {
     , joiner(threads)
    {
       uint64_t cpus_count = std::thread::hardware_concurrency();
-      cpus_count = 1;
       uint64_t thread_count = cpus_count * games_per_cpu;
+      if (0 == pool_size) pool_size = thread_count;
       try {
-         for (unsigned i = 0; i < thread_count; ++i) {
+         for (uint64_t i = 0; i < pool_size; ++i) {
             threads.push_back(std::thread(
                &data_creator_pool::worker_thread, this, i ));
          }

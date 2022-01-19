@@ -201,7 +201,10 @@ Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index) {
            });
 
 
-   assert(selected != children.end());
+   if (selected == children.end()) {
+      spdlog::error("game.seed={}", root_node->game().seed());
+      assert(false);
+   }
    return selected->get();
 }
 

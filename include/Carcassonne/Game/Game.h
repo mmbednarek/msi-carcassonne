@@ -30,6 +30,7 @@ class Game : public IGame {
    FullMove m_performed_move{};
    FullMove m_last_move{};
    training::OneGame m_training_data;
+   mb::u64 m_seed;
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -81,6 +82,10 @@ class Game : public IGame {
 
    [[nodiscard]] constexpr training::OneGame &training_data() noexcept override {
       return m_training_data;
+   }
+
+   [[nodiscard]] constexpr mb::u64 seed() noexcept override {
+      return m_seed;
    }
 
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {

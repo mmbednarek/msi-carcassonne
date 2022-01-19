@@ -138,11 +138,11 @@ class thread_pool {
       try {
          for (unsigned i = 0; i < networks_count; ++i) {
             unsigned gpu_id = i % gpus_count;
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
             threads.push_back(std::thread(&thread_pool::worker_thread, this, gpu_id));
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
          }
-         std::this_thread::sleep_for(std::chrono::seconds(5));
+         std::this_thread::sleep_for(std::chrono::milliseconds(500));
       } catch (...) {
          done = true;
          throw;
