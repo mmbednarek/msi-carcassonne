@@ -31,15 +31,15 @@ void Training::run() {
       //          .data_in = &seeds[i]
       //       };
       // }
-      for (int i = 0; i < m_games_count; ++i) {
-         data.emplace_back(promises[i], seeds[i]);
-      }
       // for (int i = 0; i < m_games_count; ++i) {
-      //    data.push_back(util::DataWithPromise<uint64_t, OneGame>{
-      //          .promise = &promises[i],
-      //          .data_in = &seeds[i]
-      //       } );
+      //    data.emplace_back(&promises[i], &seeds[i]);
       // }
+      for (int i = 0; i < m_games_count; ++i) {
+         data.push_back(util::DataWithPromise<uint64_t, OneGame>{
+               .promise = &promises[i],
+               .data_in = &seeds[i]
+            } );
+      }
       // std::transform(seeds.begin(), seeds.end(), promises.begin(), data.begin(),
       //                [](uint64_t &s, std::promise<OneGame> &og) { fmt::print("seed_og={}", s); return util::DataWithPromise<uint64_t, OneGame>{&og, &s}; });
       for (int i = 0; i < m_games_count; ++i) {
