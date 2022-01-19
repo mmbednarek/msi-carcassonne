@@ -149,7 +149,6 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
    backpropagate_state_value(node, state_value, tree);
    node->mark_as_expanded();
 }
-struct DataWithPromise;
 
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr) {
    auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
@@ -183,7 +182,7 @@ void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64
    auto &tree = ctx_ptr->trees[std::this_thread::get_id()];
    tree->lck.lock();
    if (std::distance(tree->root()->game().moves().begin(), tree->root()->game().moves().end()) == 0) {
-      spdlog::error("terminal 0!");
+      spdlog::error("terminal 0!, seed={}", ctx_ptr->game.seed());
       tree->root()->game().mutable_tile_set()[tree->root()->game().move_index()] = 1;
       ctx_ptr->game.mutable_tile_set()[tree->root()->game().move_index()] = 1;
    }

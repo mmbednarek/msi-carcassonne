@@ -91,7 +91,7 @@ inline std::tuple<std::span<float>, float> just_forward(std::vector<float> *data
 }
 
 class thread_pool {
-   bool done;
+   bool m_done;
    bool threads_finished = false;
    std::vector<std::thread> threads;
    join_threads joiner;
@@ -112,11 +112,11 @@ class thread_pool {
       // std::cout << "worker Thread " << std::this_thread::get_id() << " run on gpu " << gpu_id << std::endl;
       std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
       spdlog::debug("thread {} waked up", thread_name());
-      while (!done) {
+      while (!m_done) {
          util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> > np;
          if (work_queue.try_pop(np)) {
             try {
-               if (!done) np.promise->set_value(just_forward(np.data_in));
+               if (!m_done) np.promise->set_value(just_forward(np.data_in));
             } catch (std::future_error& err) {
                spdlog::error("thread {} error: {}", thread_name(), err.what());
             }
@@ -130,7 +130,7 @@ class thread_pool {
    
 
  public:
-   thread_pool(mb::size workers_per_gpu) : done(false), joiner(threads) {
+   thread_pool(mb::size workers_per_gpu) : m_done(false), joiner(threads) {
       // unsigned const thread_count = std::thread::hardware_concurrency();
       unsigned gpus_count = Eden_resources::get_gpus_count();
       // gpus_count = 1;
@@ -138,20 +138,20 @@ class thread_pool {
       try {
          for (unsigned i = 0; i < networks_count; ++i) {
             unsigned gpu_id = i % gpus_count;
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1100));
             threads.push_back(std::thread(&thread_pool::worker_thread, this, gpu_id));
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1100));
          }
-         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       } catch (...) {
-         done = true;
+         m_done = true;
          throw;
       }
    }
    thread_pool(const thread_pool&) = delete;
    thread_pool(thread_pool&&) = default;
    ~thread_pool() {
-      done = true;
+      m_done = true;
       while(!threads_finished) {
          spdlog::debug("thread {} waiting for threads_finished", thread_name());
          std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -159,6 +159,9 @@ class thread_pool {
       spdlog::debug("thread {} clearing networks", thread_name());
       g_networks.clear();
       spdlog::debug("thread {} cleared networks", thread_name());
+   }
+   void done() {
+      m_done = true;
    }
 
    void submit(util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> > np) {

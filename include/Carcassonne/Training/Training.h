@@ -11,7 +11,7 @@ namespace carcassonne::training {
 
 class Training {
    mb::size m_workers_per_gpu = 1;
-   uint64_t m_games_count = 1;//25000;
+   uint64_t m_games_count;
    mb::size m_training_set_size = 500'000;
    mb::size m_games_till_training = 350;// 1 game = 5.7 sek
    mb::size m_training_steps_till_checkpoint = 1000;
@@ -26,6 +26,7 @@ class Training {
 
  public:
    Training(uint64_t seed);
+   ~Training();
 
    void run();
 
