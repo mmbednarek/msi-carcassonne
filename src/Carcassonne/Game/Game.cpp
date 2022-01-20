@@ -384,8 +384,6 @@ void Game::notify_tour_finished(FullMove full_move) noexcept {
 
 std::unique_ptr<IGame> Game::clone() const noexcept {
    auto game = std::make_unique<Game>(*this);
-   game->m_next_move_callbacks.clear();
-   game->m_training_data.clear();
    return game;
 }
 
