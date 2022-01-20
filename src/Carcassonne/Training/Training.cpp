@@ -1,49 +1,54 @@
 #include <Carcassonne/Training/Training.h>
 #include <Carcassonne/RL/Concurrency.h>
+#include <Util/Time.h>
 
 namespace carcassonne::training {
 
 Training::Training(uint64_t seed)
-        : m_games_count(5)
+        : m_games_count(10)
         , m_seed(seed)
         , m_workers_pool(std::make_unique<ai::rl::thread_pool>(m_workers_per_gpu))
-        , m_data_creator_pool(std::make_unique<ai::rl::data_creator_pool>(m_rl_count, m_workers_pool, m_trees_count)) {}
+        , m_data_creator_pool(std::make_unique<ai::rl::data_creator_pool>(m_rl_count, m_workers_pool, m_trees_count, 10)) {}
 Training::~Training() {
    m_workers_pool->done();
 }
 
 void Training::run() {
+   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
    spdlog::debug("run_started !!=\n");
    auto start_run = util::unix_time();
    uint64_t last_seed = 1000;//m_seed;
    while (m_running) {
       std::vector<uint64_t> seeds{m_games_count, 0};
       std::vector<std::promise<OneGame>> promises{m_games_count};
-      std::vector<util::DataWithPromise<uint64_t, OneGame>> data;
+      std::vector<util::DataWithPromise<uint64_t, OneGame>> data{m_games_count};
       spdlog::warn("seed = {}", last_seed);
       // std::iota(seeds.begin(), seeds.end(), last_seed);
       for (uint64_t i = 0; i < m_games_count; ++i) {
          seeds[i] = i + last_seed;
       }
-      // for (int i = 0; i < m_games_count; ++i) {
-      //    data[i] = util::DataWithPromise<uint64_t, OneGame>{
-      //          .promise = &promises[i],
-      //          .data_in = &seeds[i]
-      //       };
-      // }
+      for (int i = 0; i < m_games_count; ++i) {
+         data[i] = util::DataWithPromise<uint64_t, OneGame>{
+               .promise = &promises[i],
+               .data_in = &seeds[i]
+            };
+      }
       // for (int i = 0; i < m_games_count; ++i) {
       //    data.emplace_back(&promises[i], &seeds[i]);
       // }
-      for (int i = 0; i < m_games_count; ++i) {
-         data.push_back(util::DataWithPromise<uint64_t, OneGame>{
-               .promise = &promises[i],
-               .data_in = &seeds[i]
-            } );
-      }
+      // for (int i = 0; i < m_games_count; ++i) {
+      //    data.push_back(util::DataWithPromise<uint64_t, OneGame>{
+      //          .promise = &promises[i],
+      //          .data_in = &seeds[i]
+      //       } );
+      // }
       // std::transform(seeds.begin(), seeds.end(), promises.begin(), data.begin(),
       //                [](uint64_t &s, std::promise<OneGame> &og) { fmt::print("seed_og={}", s); return util::DataWithPromise<uint64_t, OneGame>{&og, &s}; });
+      spdlog::warn("Ready for generating...");
+      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+      spdlog::warn("Generating started!");
       for (int i = 0; i < m_games_count; ++i) {
-         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+         std::this_thread::sleep_for(std::chrono::milliseconds(123));
          m_data_creator_pool->submit(data[i]);
       }
       for (int i = 0; i < m_games_count; ++i) {

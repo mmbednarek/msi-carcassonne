@@ -34,8 +34,6 @@ void data_creator_pool::worker_thread(
    uint64_t thread_id
 )
 {
-   std::this_thread::sleep_for(std::chrono::seconds(10));
-   // init
    while (!done) {
       util::DataWithPromise<uint64_t, training::OneGame> np;
       if (simulations_queue.try_pop(np)) {
@@ -51,7 +49,8 @@ void data_creator_pool::worker_thread(
 data_creator_pool::data_creator_pool(
    int rl_count,
    std::unique_ptr<carcassonne::ai::rl::thread_pool> &workers_pool,
-   unsigned trees_count
+   unsigned trees_count,
+   uint64_t n_threads
 )
    : m_rl_count(rl_count)
    , m_workers_pool(workers_pool)
@@ -61,8 +60,8 @@ data_creator_pool::data_creator_pool(
    , games_per_cpu(1)
 {
    uint64_t cpus_count = std::thread::hardware_concurrency();
-   uint64_t thread_count = cpus_count * games_per_cpu;
-   thread_count = 2;
+   uint64_t thread_count = n_threads;
+   if (n_threads == 0) thread_count = cpus_count * games_per_cpu;
    fmt::print("preparing {} data_generators\n", thread_count);
    try {
       for (uint64_t i = 0; i < thread_count; ++i) {

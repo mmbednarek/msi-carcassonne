@@ -24,7 +24,8 @@ class data_creator_pool {
    data_creator_pool(
       int rl_count,
       std::unique_ptr<carcassonne::ai::rl::thread_pool> &workers_pool,
-      unsigned trees_count
+      unsigned trees_count,
+      uint64_t n_threads
    );
    data_creator_pool(const data_creator_pool&) = delete;
    data_creator_pool(data_creator_pool&&) = default;
