@@ -5,6 +5,7 @@
 #include <queue>
 #include <thread>
 #include <condition_variable>
+#include <spdlog/spdlog.h>
 
 
 namespace carcassonne::ai::rl {
@@ -71,6 +72,7 @@ class join_threads {
          // if (threads[i].joinable())
          threads[i].join();
       }
+      spdlog::warn("client_threads all threads joined!");
    }
  public:
    explicit join_threads(std::vector<std::thread> &threads_) : threads(threads_) {}

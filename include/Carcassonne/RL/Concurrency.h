@@ -37,20 +37,20 @@ class thread_pool {
    
    threadsafe_queue<util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> >> work_queue;
    void worker_thread(int gpu_id) {
-      spdlog::debug("thread {} wakes up", thread_name());
+      spdlog::info("gpu thread wakes up");
       auto network_res = load_network(gpu_id);
       if (!network_res.ok()) {
          spdlog::error("could not load network: {}", network_res.msg());
          return;
       }
       auto network = network_res.unwrap();
-      spdlog::debug("thread {} emplaces network, nullptr{}=net", thread_name(), nullptr==network ? "=" : "!");
+      spdlog::info("thread {} emplaces network, nullptr{}=net", thread_name(), nullptr==network ? "=" : "!");
       g_networks.emplace(std::this_thread::get_id(), std::move(network));
-      spdlog::debug("thread {} emplaced network", thread_name());
+      spdlog::info("thread {} emplaced network", thread_name());
       // std::this_thread::sleep_for(std::chrono::microseconds((int) 5e3));
       ++m_workers_up;
       m_cond->notify_one();
-      spdlog::debug("thread {} waked up", thread_name());
+      spdlog::info("thread {} waked up", thread_name());
       while (!m_done) {
          util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> > np;
          if (work_queue.try_pop(np)) {
@@ -75,12 +75,12 @@ class thread_pool {
    ~thread_pool() {
       m_done = true;
       while(!m_threads_finished) {
-         spdlog::debug("thread {} waiting for threads_finished", thread_name());
+         spdlog::info("thread {} waiting for threads_finished", thread_name());
          std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
-      spdlog::debug("thread {} clearing networks", thread_name());
+      spdlog::info("thread {} clearing networks", thread_name());
       g_networks.clear();
-      spdlog::debug("thread {} cleared networks", thread_name());
+      spdlog::info("thread {} cleared networks", thread_name());
    }
    void done() {
       m_done = true;
@@ -110,7 +110,7 @@ class client_threads {
    {
       if (cpus_count == 0)
          cpus_count = Eden_resources::get_cpus_count();
-      spdlog::debug("creating {} client threads", cpus_count);
+      spdlog::info("creating {} client threads", cpus_count);
       try {
          for (unsigned i = 0; i < cpus_count; ++i) {
             m_threads.push_back(std::thread(&client_threads::client_work, this, i));
@@ -122,6 +122,7 @@ class client_threads {
    }
    ~client_threads() {
       m_done = true;
+      spdlog::warn("client_threads destroyed!");
    }
    void join_clients() {
       m_joiner.join_earlier();

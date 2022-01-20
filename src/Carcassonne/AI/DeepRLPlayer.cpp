@@ -1,23 +1,25 @@
 #include <Carcassonne/AI/DeepRLPlayer.h>
 // #define SPDLOG_FMT_EXTERNAL
+#include <pthread.h>
 #include <spdlog/spdlog.h>
 #include <iostream>
 
 namespace carcassonne::ai {
 
 DeepRLPlayer::DeepRLPlayer(
-   IGame &game,
+   std::pair<std::unique_ptr<IGame>, training::OneGame> &game_with_training_data,
    Player player,
    std::mt19937 &generator,
    std::unique_ptr<carcassonne::ai::rl::thread_pool> &workers_pool,
    unsigned trees_count = 1 )
-    : m_player_count(game.player_count())
+    : m_game_with_training_data(game_with_training_data)
+    , m_player_count(game_with_training_data.first->player_count())
     , m_player(player)
     , m_move_readyness(std::make_shared<rl::DataWrapper<rl::MoveReadyness>>())
     , m_ready_to_move(std::make_shared<std::condition_variable>())
     , m_move_found(std::make_shared<std::condition_variable>())
     , m_generator(generator)
-    , m_ctx_ptr(std::make_unique<rl::Context>(  game,
+    , m_ctx_ptr(std::make_unique<rl::Context>(  *game_with_training_data.first,
                                                 player,
                                                 m_last_moves,
                                                 workers_pool,
@@ -30,7 +32,7 @@ DeepRLPlayer::DeepRLPlayer(
    spdlog::info("deep rl: initialising agent");
    // std::this_thread::sleep_for(std::chrono::seconds(5));
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
-   game.on_next_move([this](IGame &game, Player player, FullMove last_move) {
+   game_with_training_data.first->on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
       if (player != m_player)
          return;
@@ -65,6 +67,7 @@ bool prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr, Player m_player) {
 
 void rl::client_threads::client_work(unsigned cpu_id) {
    spdlog::debug("client_work: client run on cpu '{}'", cpu_id);
+   pthread_setname_np(pthread_self(), fmt::format("client_work_{}", cpu_id).c_str());
    // std::this_thread::sleep_for(std::chrono::seconds(1));
    m_ctx_ptr->lck.lock();
    if (!m_ctx_ptr->leading_tread_assigned) {
@@ -130,16 +133,16 @@ void rl::client_threads::client_work(unsigned cpu_id) {
    spdlog::info("client_work: terminated");
 }
 
-void DeepRLPlayer::add_record(IGame &game, Node* node_with_best_move) {
+void DeepRLPlayer::add_record(std::pair<std::unique_ptr<IGame>, training::OneGame> &game_with_training_data, Node* node_with_best_move) {
    // std::vector<float> board_state(board_features_count(game.player_count(), g_max_moves));
    training::MoveNetworkRecord record;
-   game.board_to_caffe_X(record.game_state);
+   game_with_training_data.first->board_to_caffe_X(record.game_state);
    for (const auto& node : node_with_best_move->children()) {
       record.children_visits[encode_move(node->move())] = node->m_simulation_count / static_cast<float>(node_with_best_move->m_simulation_count);
    }
    record.player = m_ctx_ptr->player;
    // spdlog::warn("training_data_size={}, move_index={}, ", game.training_data().size(), game.move_index()-1);
-   game.training_data()[game.move_index()-1] = std::move(record);
+   game_with_training_data.second[game_with_training_data.first->move_index()-1] = std::move(record);
 }
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {   
@@ -169,7 +172,7 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
    }
 
    if (move->phase() == MovePhase::Done) {
-      add_record(game, node_with_best_move);
+      add_record(m_game_with_training_data, node_with_best_move);
       return;
    }
    
@@ -177,14 +180,14 @@ void DeepRLPlayer::make_move(IGame &game) noexcept {
       if (auto res = move->ignore_figure(); !res.ok()) {
          spdlog::error("deep rl: cannot ignore figure at this location: {}", res.msg());
       }
-      add_record(game, node_with_best_move);
+      add_record(m_game_with_training_data, node_with_best_move);
       return;
    }
 
    if (auto res = move->place_figure(best_move.direction); !res.ok()) {
       spdlog::error("deep rl: error placing figure: {}", res.msg());
    }
-   add_record(game, node_with_best_move);
+   add_record(m_game_with_training_data, node_with_best_move);
 }
 
 }// namespace carcassonne::ai

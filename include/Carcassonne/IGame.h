@@ -40,7 +40,6 @@ class IGame {
    virtual ~IGame() = default;
    [[nodiscard]] virtual std::unique_ptr<IGame> clone() const noexcept = 0;
    [[nodiscard]] virtual const IBoard &board() const noexcept = 0;
-   [[nodiscard]] virtual constexpr training::OneGame &training_data() noexcept = 0;
    [[nodiscard]] virtual constexpr mb::u64 seed() noexcept = 0;
    [[nodiscard]] virtual Player current_player() const noexcept = 0;
    [[nodiscard]] virtual constexpr const mb::size &player_count() const noexcept = 0;
