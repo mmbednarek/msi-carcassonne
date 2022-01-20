@@ -15,10 +15,64 @@ Game::Game(
  , m_seed(seed)
  , m_random_generator(seed)
 {
-   m_training_data.reserve(g_max_moves-1);
    std::fill(m_figure_count.begin(), m_figure_count.end(), g_initial_figures_count);
    apply_tile(g_board_center_x, g_board_center_y, 1, 3);
    draw_tiles();
+}
+
+Game::Game(const Game& g) {
+   this->m_board = g.m_board;
+   this->m_current_player = g.m_current_player;
+   this->m_player_count = g.m_player_count;
+   this->m_move_index = g.m_move_index;
+   this->m_figures = g.m_figures;
+   // this->m_next_move_callbacks = g.m_next_move_callbacks;
+   this->m_game_finished = g.m_game_finished;
+   this->m_figure_count = g.m_figure_count;
+   this->m_tour_finished = g.m_tour_finished;
+   this->m_performed_move = g.m_performed_move;
+   this->m_last_move = g.m_last_move;
+   // training::OneGame m_training_data;
+   if (this->m_training_data.size() > 0) {
+      spdlog::warn("shrinking game");
+      this->m_training_data.clear();
+      this->m_training_data.resize(0);
+      this->m_training_data.shrink_to_fit();
+   }
+   this->m_seed = g.m_seed;
+   this->m_towns = g.m_towns;
+   this->m_groups = g.m_groups;
+   this->m_scores = g.m_scores;
+   this->m_tile_set = g.m_tile_set;
+   // this->m_random_generator = g.m_random_generator;
+}
+
+Game::Game(Game& g) {
+   spdlog::warn("game_copy");
+   this->m_board = g.m_board;
+   this->m_current_player = g.m_current_player;
+   this->m_player_count = g.m_player_count;
+   this->m_move_index = g.m_move_index;
+   this->m_figures = g.m_figures;
+   // this->m_next_move_callbacks = g.m_next_move_callbacks;
+   this->m_game_finished = g.m_game_finished;
+   this->m_figure_count = g.m_figure_count;
+   this->m_tour_finished = g.m_tour_finished;
+   this->m_performed_move = g.m_performed_move;
+   this->m_last_move = g.m_last_move;
+   // training::OneGame m_training_data;
+   if (this->m_training_data.size() > 0) {
+      spdlog::warn("shrinking game");
+      this->m_training_data.clear();
+      this->m_training_data.resize(0);
+      this->m_training_data.shrink_to_fit();
+   }
+   this->m_seed = g.m_seed;
+   this->m_towns = g.m_towns;
+   this->m_groups = g.m_groups;
+   this->m_scores = g.m_scores;
+   this->m_tile_set = g.m_tile_set;
+   // this->m_random_generator = g.m_random_generator;
 }
 
 const IBoard &Game::board() const noexcept {
@@ -384,7 +438,7 @@ void Game::notify_tour_finished(FullMove full_move) noexcept {
 
 std::unique_ptr<IGame> Game::clone() const noexcept {
    auto game = std::make_unique<Game>(*this);
-   game->m_next_move_callbacks.clear();
+   // game->m_next_move_callbacks.clear();
    return game;
 }
 

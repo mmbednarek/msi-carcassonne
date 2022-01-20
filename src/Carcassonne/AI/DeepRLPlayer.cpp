@@ -138,7 +138,8 @@ void DeepRLPlayer::add_record(IGame &game, Node* node_with_best_move) {
       record.children_visits[encode_move(node->move())] = node->m_simulation_count / static_cast<float>(node_with_best_move->m_simulation_count);
    }
    record.player = m_ctx_ptr->player;
-   game.training_data().emplace_back(std::move(record));
+   // spdlog::warn("training_data_size={}, move_index={}, ", game.training_data().size(), game.move_index()-1);
+   game.training_data()[game.move_index()-1] = std::move(record);
 }
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {   

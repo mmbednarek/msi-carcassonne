@@ -4,6 +4,7 @@
 #include <Eden_resources/Ngpus_Ncpus.h>
 #include <Util/Time.h>
 #include <fmt/core.h>
+#include <future>
 #include <span>
 #include <google/protobuf/text_format.h>
 // #define SPDLOG_FMT_EXTERNAL
@@ -113,6 +114,19 @@ FullMove Network::do_move(const std::unique_ptr<IGame> &g, float prob) {
 //    }
 // }
 
+static bool update_networks(uint64_t net_id) {
+   try {
+      auto net_it = g_networks.begin();
+      std::advance(net_it, net_id);
+      net_it->second->solver().net().reset(new caffe::Net<float>("./proto/net_full_alphazero_40_res_blocks.prototxt", caffe::TEST));
+      net_it->second->solver().net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
+   } catch (const std::exception& e) {
+      spdlog::error("{}", e.what());
+      return -1;
+   }
+   spdlog::info("network {} updated", net_id);
+   return 0;
+}
 
 
 void Network::train( const std::vector<training::OneGame> &data_set) {
@@ -174,13 +188,11 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
       }
    }
    solver->Snapshot();
-   int i_debug = 0;
-   for (auto& net_it : g_networks) {
-      spdlog::info("updating {} network", i_debug);
-      net_it.second->m_solver.net().reset(new caffe::Net<float>("./proto/net_full_alphazero_40_res_blocks.prototxt", caffe::TEST));
-      net_it.second->m_solver.net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
-      ++i_debug;
-   }
+   std::vector<std::future<bool>> futures{g_networks.size()};
+   for (uint64_t net_id = 0; net_id < g_networks.size(); ++net_id)
+      futures[net_id] = std::async(std::launch::async, update_networks, net_id);
+   for (uint64_t net_id = 0; net_id < g_networks.size(); ++net_id)
+      if (futures[net_id].get()) spdlog::error("Network::train");
 
    // spdlog::info("training network!");
    // // m_solver.net() = boost::shared_ptr<caffe::Net<float>>(new caffe::Net<float>(m_net_parameter));

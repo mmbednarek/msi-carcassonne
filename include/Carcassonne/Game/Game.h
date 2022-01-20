@@ -10,6 +10,7 @@
 #include <memory>
 #include <memory_resource>
 #include <random>
+#include <spdlog/spdlog.h>
 
 namespace carcassonne::game {
 
@@ -29,7 +30,7 @@ class Game : public IGame {
    bool m_tour_finished = false;
    FullMove m_performed_move{};
    FullMove m_last_move{};
-   training::OneGame m_training_data;
+   training::OneGame m_training_data{g_max_moves-1};
    mb::u64 m_seed;
 
    Towns m_towns;
@@ -41,26 +42,8 @@ class Game : public IGame {
 
  public:
    Game(int player_count, mb::u64 seed);
-   // Game(const Game& g) {
-   //    this->m_board = g.m_board;
-   //    this->m_current_player = g.m_current_player;
-   //    this->m_player_count = g.m_player_count;
-   //    this->m_move_index = g.m_move_index;
-   //    this->m_figures = g.m_figures;
-   //    // this->m_next_move_callbacks = g.m_next_move_callbacks;
-   //    this->m_game_finished = g.m_game_finished;
-   //    this->m_figure_count = g.m_figure_count;
-   //    this->m_tour_finished = g.m_tour_finished;
-   //    this->m_performed_move = g.m_performed_move;
-   //    this->m_last_move = g.m_last_move;
-   //    training::OneGame m_training_data;
-   //    this->m_seed = g.m_seed;
-   //    this->m_towns = g.m_towns;
-   //    this->m_groups = g.m_groups;
-   //    this->m_scores = g.m_scores;
-   //    this->m_tile_set = g.m_tile_set;
-   //    // this->m_random_generator = g.m_random_generator;
-   // }
+   Game(const Game& g);
+   Game(Game& g);
    [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override;
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
