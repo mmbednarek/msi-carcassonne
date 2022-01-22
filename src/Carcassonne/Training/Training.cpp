@@ -5,7 +5,7 @@
 namespace carcassonne::training {
 
 Training::Training(uint64_t seed)
-        : m_games_count(10)
+        : m_games_count(1000)
         , m_seed(seed)
         , m_workers_pool(std::make_unique<ai::rl::thread_pool>(m_workers_per_gpu))
         , m_data_creator_pool(std::make_unique<ai::rl::data_creator_pool>(m_rl_count, m_workers_pool, m_trees_count, 10)) {}

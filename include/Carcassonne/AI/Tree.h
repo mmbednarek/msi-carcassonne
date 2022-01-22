@@ -15,12 +15,12 @@ class Tree {
    std::mutex m_tree_mutex;
    std::unique_lock<std::mutex> lck;
    
-   Tree(const IGame &game, const Player &player);
+   Tree(IGame &game, const Player &player);
    Tree(Tree&&) noexcept;
    void change_root(NodePtr new_root_id);
    NodePtr find_node_by_move(NodePtr base_id, const FullMove &move);
-   NodePtr add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, float P, NodePtr parent_id);
-   void reset(const IGame &game, Player player);
+   NodePtr add_node(rl::PoolGame &&game, Player player, FullMove move, float P, NodePtr parent_id);
+   void reset(IGame &game, Player player);
 
    [[nodiscard]] inline mb::size node_count() {
       lck.lock();

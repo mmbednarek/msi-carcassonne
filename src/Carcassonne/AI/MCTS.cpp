@@ -2,6 +2,7 @@
 #include <Carcassonne/AI/MCTS.h>
 #include <Carcassonne/AI/RandomPlayer.h>
 #include <Carcassonne/AI/Tree.h>
+#include <Carcassonne/Game/Game.h>
 #include <Util/Time.h>
 #include <cassert>
 #include <chrono>
@@ -37,7 +38,7 @@ void simulate_random(Tree &tree, NodePtr node_id) {
       auto current_player = simulated_game->current_player();
       auto full_move = g_random_players[static_cast<mb::size>(current_player)].make_move(*simulated_game);
       simulated_game->update(0);
-      parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, 0.0, parent_id);
+      parent_id = tree.add_node(rl::PoolGame(*simulated_game), current_player, full_move, 0.0, parent_id);
    }
 
    auto winner = parent_id->find_winner();
@@ -53,7 +54,7 @@ void simulate(Tree &tree, NodePtr node_id) {
       auto full_move = g_heuristic_players[static_cast<mb::size>(current_player)].make_move(*simulated_game).unwrap();
       simulated_game->update(0);
 
-      parent_id = tree.add_node(simulated_game->clone(), current_player, full_move, 0.0, parent_id);
+      parent_id = tree.add_node(rl::PoolGame(*simulated_game), current_player, full_move, 0.0, parent_id);
    }
 
    auto winner = parent_id->find_winner();
@@ -99,7 +100,7 @@ void expand(Tree &tree, NodePtr node_id, SimulationType simulation_type) {
          simulated_tile = true;
       }
 
-      auto game_clone = game.clone();
+      rl::PoolGame game_clone(game);
       auto move = game_clone->new_move(current_player);
       move->place_tile(tile_location);
 
@@ -107,7 +108,7 @@ void expand(Tree &tree, NodePtr node_id, SimulationType simulation_type) {
          if (simulated_tile && figure_move == simulation_move.direction && !simulation_move.ignored_figure) [[unlikely]]
             continue;
 
-         auto game_clone_clone = game_clone->clone();
+         rl::PoolGame game_clone_clone(game_clone);
 
          {
             auto move_clone = move->clone(*game_clone_clone);

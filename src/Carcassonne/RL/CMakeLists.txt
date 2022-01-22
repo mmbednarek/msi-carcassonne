@@ -1,2 +1,2 @@
-add_library(carcassonne_rl Network.cpp Concurrency.cpp DataCreator.cpp)
+add_library(carcassonne_rl Network.cpp Concurrency.cpp DataCreator.cpp GamePool.cpp)
 target_link_libraries(carcassonne_rl carcassonne_encoder carcassonne_decoder eden_resources carcassonne_rl_training msi_carcassonne_ai caffe gflags protobuf glog)

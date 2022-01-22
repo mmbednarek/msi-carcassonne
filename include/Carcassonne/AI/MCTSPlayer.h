@@ -17,7 +17,7 @@ class MCTSPlayer {
  public:
    explicit MCTSPlayer(IGame &game, Player player, SimulationType sim_type);
 
-   void prepare_tree(const IGame &game);
+   void prepare_tree(IGame &game);
    void make_move(IGame &game) noexcept;
 };
 

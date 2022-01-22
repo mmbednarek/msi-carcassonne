@@ -41,8 +41,6 @@ class Game : public IGame {
 
  public:
    Game(int player_count, mb::u64 seed);
-   Game(const Game& g);
-   Game(Game& g);
    [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override;
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
@@ -91,6 +89,10 @@ class Game : public IGame {
       return m_player_count;
    }
    void board_to_caffe_X(std::vector<float> &output) const override;
+
+   inline void clear_callbacks() {
+      m_next_move_callbacks.clear();
+   }
 
  private:
    int score_grass(Player player, Edge edge, const Parameters &params) const noexcept;

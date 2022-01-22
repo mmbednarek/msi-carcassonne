@@ -1,4 +1,5 @@
 #include <Carcassonne/AI/Tree.h>
+#include <Carcassonne/RL/GamePool.h>
 #include <cassert>
 #include <cmath>
 #include <fmt/core.h>
@@ -6,7 +7,7 @@
 
 namespace carcassonne::ai {
 
-Tree::Tree(const IGame &game, const Player &player) : m_root(std::make_unique<Node>(game.clone(), player, FullMove{})) {
+Tree::Tree(IGame &game, const Player &player) : m_root(std::make_unique<Node>(rl::PoolGame(game), player, FullMove{})) {
    lck = std::unique_lock<std::mutex>{m_tree_mutex, std::defer_lock};
 }
 
@@ -34,7 +35,7 @@ void Tree::change_root(NodePtr new_root_id) {
    m_root->mark_as_root();
 }
 
-NodePtr Tree::add_node(std::unique_ptr<IGame> &&game, Player player, FullMove move, float P, NodePtr parent_id) {
+NodePtr Tree::add_node(ai::rl::PoolGame &&game, Player player, FullMove move, float P, NodePtr parent_id) {
    return parent_id->add_child(std::move(game), player, move, P);
 }
 
@@ -50,8 +51,8 @@ NodePtr Tree::find_node_by_move(NodePtr base_id, const FullMove &move) {
    return node_it->get();
 }
 
-void Tree::reset(const IGame &game, Player player) {
-   m_root = std::make_unique<Node>(game.clone(), player, FullMove{});
+void Tree::reset(IGame &game, Player player) {
+   m_root = std::make_unique<Node>(rl::PoolGame(game), player, FullMove{});
 }
 
 

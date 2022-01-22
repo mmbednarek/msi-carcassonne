@@ -13,7 +13,7 @@ MCTSPlayer::MCTSPlayer(IGame &game, Player player, SimulationType sim_type) : m_
    });
 }
 
-void MCTSPlayer::prepare_tree(const IGame &game) {
+void MCTSPlayer::prepare_tree(IGame &game) {
    auto player = m_player;
    NodePtr node = m_tree.root();
    do {

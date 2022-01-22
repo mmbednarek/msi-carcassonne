@@ -133,7 +133,7 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
    
    
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
-   caffe::Caffe::set_multiprocess(true);
+//   caffe::Caffe::set_multiprocess(true);
    caffe::Caffe::set_solver_count(Eden_resources::get_gpus_count());
 
    fmt::print("Training preparation\n");
@@ -141,7 +141,7 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
    caffe::ReadSolverParamsFromTextFileOrDie("./proto/solver_train.prototxt", &solver_param);
    fmt::print("model: {}\n", solver_param.net());
    caffe::SGDSolver<float>* solver = new caffe::SGDSolver<float>(solver_param);
-   solver->net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
+//   solver->net()->CopyTrainedLayersFrom("./msi_iter_0.caffemodel");
    
    // caffe::NetParameter net_parameter;
    // std::ifstream t("./proto/net_full_alphazero_40_res_blocks.prototxt");

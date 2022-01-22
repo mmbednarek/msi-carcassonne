@@ -2,7 +2,9 @@
 #include <Carcassonne/AI/HeuristicPlayer.h>
 #include <Carcassonne/AI/RandomPlayer.h>
 #include <Carcassonne/AI/Tree.h>
+#include <Carcassonne/RL/GamePool.h>
 #include <Carcassonne/Decoder/Decoder.h>
+#include <Carcassonne/Game/Game.h>
 #include <Util/CSVLogger.h>
 #include <Util/Time.h>
 #include <algorithm>
@@ -94,7 +96,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
             feasible_dirs[i] = true;
          }
       }
-      auto game_clone = game.clone();
+      PoolGame game_clone(game);
       auto move = game_clone->new_move(current_player);
       move->place_tile(tile_location);
       if (game.player_figure_count(game.current_player()) > 0) {
@@ -103,7 +105,7 @@ void expand(std::unique_ptr<rl::Context> &ctx_ptr, NodePtr node) {
             //    spdlog::info("deep rl: INCORRECT MOVE 139!!!");
             //    continue;
             // }
-            auto game_clone_clone = game_clone->clone();
+            PoolGame game_clone_clone(game_clone);
             {
                auto move_clone = move->clone(*game_clone_clone);
                move_clone->place_figure(figure_move);

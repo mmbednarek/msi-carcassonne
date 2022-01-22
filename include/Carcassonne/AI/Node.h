@@ -4,6 +4,7 @@
 #include <Carcassonne/IGame.h>
 #include <Carcassonne/Move.h>
 #include <Carcassonne/Player.h>
+#include <Carcassonne/RL/GamePool.h>
 #include <functional>
 #include <mb/int.h>
 #include <memory>
@@ -18,7 +19,7 @@ constexpr double g_C = 0.3;
 class Tree;
 
 class Node {
-   std::unique_ptr<IGame> m_game;
+   rl::PoolGame m_game;
    std::unique_ptr<std::mutex> m_mutex;
    Player m_player;
    NodePtr m_parent = nullptr;
@@ -34,8 +35,8 @@ class Node {
    std::array<float, 4> m_Q{};             // mean action values (for DeepRL)
    float m_P = 0.0;                        // prior probability of selecting the Node (for DeepRL)
 
-   Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move);
-   Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P, NodePtr parent_ptr);
+   Node(rl::PoolGame &&game, const Player &player, FullMove move);
+   Node(rl::PoolGame &&game, const Player &player, FullMove move, float P, NodePtr parent_ptr);
 
    Node(Node &&) noexcept = default;
    Node &operator=(Node &&) noexcept = default;
@@ -146,7 +147,7 @@ class Node {
       m_parent = nullptr;
    }
 
-   NodePtr add_child(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P) noexcept;
+   NodePtr add_child(rl::PoolGame &&game, const Player &player, FullMove move, float P) noexcept;
 
    [[nodiscard]] std::size_t count_children() const;
 };

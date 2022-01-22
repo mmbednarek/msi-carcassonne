@@ -1,5 +1,6 @@
 #include <Carcassonne/AI/Node.h>
 #include <Carcassonne/ScoreBoard.h>
+#include <Carcassonne/Game/Game.h>
 #include <cmath>
 #include <utility>
 #include <vector>
@@ -7,10 +8,10 @@
 
 namespace carcassonne::ai {
 
-Node::Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move)
+Node::Node(rl::PoolGame &&game, const Player &player, FullMove move)
     : m_game(std::move(game)), m_mutex(std::make_unique<std::mutex>()), m_player(player), m_move(move) {}
 
-Node::Node(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P, NodePtr parent_ptr)
+Node::Node(rl::PoolGame &&game, const Player &player, FullMove move, float P, NodePtr parent_ptr)
     : m_game(std::move(game)), m_mutex(std::make_unique<std::mutex>()), m_player(player), m_parent(parent_ptr), m_move(move), m_P(P) {}
 
 double Node::UCT1(mb::size rollout_count) const noexcept {
@@ -28,7 +29,7 @@ double Node::PUCT() const noexcept {
    return g_C * m_P * std::sqrt(static_cast<double>(m_parent->simulation_count()) / (1 + static_cast<double>(m_simulation_count)));
 }
 
-NodePtr Node::add_child(std::unique_ptr<IGame> &&game, const Player &player, FullMove move, float P) noexcept {
+NodePtr Node::add_child(rl::PoolGame &&game, const Player &player, FullMove move, float P) noexcept {
    std::lock_guard<std::mutex> lock(*m_mutex);
    m_children.push_back(std::make_unique<Node>(std::move(game), player, move, P, this));
    return m_children.back().get();
