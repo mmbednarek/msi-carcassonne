@@ -6,7 +6,7 @@ namespace carcassonne::training {
 
 Training::Training(mb::u64 seed, std::mt19937& generator)
   : m_workers_per_gpu(1)
-  , m_games_count(512)
+  , m_games_count(2048 * 2)
   , m_training_set_size(100'000)
   , m_seed(seed)
   , m_promises(std::make_unique<std::vector<std::promise<OneGame>>>(m_games_count))
@@ -71,7 +71,7 @@ void Training::run() {
       spdlog::warn("run_finished {}-{}{}{}?\n", last_seed, first_seed, last_seed - first_seed == m_games_count ? "==" : "!=", m_games_count);
       if (last_seed - first_seed == m_games_count) {
          spdlog::warn("run_finished !!\n");
-         m_running = false;
+         // m_running = false;
       }
    }
    data_creator_pool->done();

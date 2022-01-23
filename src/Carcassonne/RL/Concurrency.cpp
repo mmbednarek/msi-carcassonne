@@ -26,6 +26,7 @@ thread_pool::thread_pool(mb::size workers_per_gpu)
          unsigned gpu_id = i % gpus_count;
          m_threads.push_back(std::thread(&thread_pool::worker_thread, this, gpu_id));
          m_threads[i].detach();
+         // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       }
       std::mutex mut;
       std::unique_lock<std::mutex> lck(mut);

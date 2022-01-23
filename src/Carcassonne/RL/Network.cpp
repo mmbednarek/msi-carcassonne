@@ -186,7 +186,7 @@ void Network::train( const std::array<training::OneGame*, g_batch_size> &data_se
    fmt::print("games_count={}\n", g_batch_size);
    fmt::print("moves_count={}\n", g_batch_size * data_set[0]->size());
 
-   int i_debug = 0;
+   // int i_debug = 0;
    for (const auto &game : data_set) {
       for (const auto &move : *game) {
          // memcpy(input_data_begin, move.game_state.data(), move.game_state.size() * sizeof(float));
@@ -200,7 +200,7 @@ void Network::train( const std::array<training::OneGame*, g_batch_size> &data_se
          solver->net()->Forward();
          solver->net()->Backward();
          spdlog::error("net: loss={:9.5e}, value={:9.3e}, backward lasted {}ms", *loss_value_blob->cpu_data(), *output_value_blob->cpu_data(), util::unix_time() - start_step);
-         if (++i_debug > 76) return;
+         // if (++i_debug > 76) return;
       }
    }
    solver->Snapshot();
