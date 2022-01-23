@@ -4,66 +4,62 @@
 
 namespace carcassonne::training {
 
-Training::Training(uint64_t seed)
-        : m_games_count(10)
-        , m_seed(seed)
-        , m_workers_pool(std::make_unique<ai::rl::thread_pool>(m_workers_per_gpu))
-        , m_data_creator_pool(std::make_unique<ai::rl::data_creator_pool>(m_rl_count, m_workers_pool, m_trees_count, 10)) {}
+Training::Training(mb::u64 seed)
+  : m_workers_per_gpu(1)
+  , m_games_count(1024*54)
+  , m_seed(seed)
+  , m_promises(std::make_unique<std::vector<std::promise<OneGame>>>(m_games_count))
+  , m_data(std::make_unique<std::vector<util::DataWithPromise<mb::u64, OneGame>>>(m_games_count))
+  , m_rl_count(2) {}
 Training::~Training() {
-   m_workers_pool->done();
+   spdlog::warn("~Training exits");
 }
 
 void Training::run() {
-   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-   spdlog::debug("run_started !!=\n");
+   std::unique_ptr<ai::rl::thread_pool> workers_pool{std::make_unique<ai::rl::thread_pool>(m_workers_per_gpu)};
+   std::unique_ptr<ai::rl::data_creator_pool> data_creator_pool{std::make_unique<ai::rl::data_creator_pool>(m_rl_count, workers_pool, m_trees_count, 128)};
+   // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+   spdlog::warn("run_started !!\n");
    auto start_run = util::unix_time();
-   uint64_t last_seed = 1000;//m_seed;
+   mb::u64 first_seed = 1000000;//m_seed;
+   mb::u64 last_seed = first_seed;//m_seed;
    while (m_running) {
-      std::vector<uint64_t> seeds{m_games_count, 0};
-      std::vector<std::promise<OneGame>> promises{m_games_count};
-      std::vector<util::DataWithPromise<uint64_t, OneGame>> data{m_games_count};
       spdlog::warn("seed = {}", last_seed);
+      std::vector<mb::u64> seeds{m_games_count, 0};
       // std::iota(seeds.begin(), seeds.end(), last_seed);
-      for (uint64_t i = 0; i < m_games_count; ++i) {
+      for (mb::u64 i = 0; i < m_games_count; ++i) {
          seeds[i] = i + last_seed;
       }
       for (int i = 0; i < m_games_count; ++i) {
-         data[i] = util::DataWithPromise<uint64_t, OneGame>{
-               .promise = &promises[i],
+         m_data->at(i) = util::DataWithPromise<mb::u64, OneGame>{
+               .promise = &m_promises->at(i),
                .data_in = &seeds[i]
             };
       }
-      // for (int i = 0; i < m_games_count; ++i) {
-      //    data.emplace_back(&promises[i], &seeds[i]);
-      // }
-      // for (int i = 0; i < m_games_count; ++i) {
-      //    data.push_back(util::DataWithPromise<uint64_t, OneGame>{
-      //          .promise = &promises[i],
-      //          .data_in = &seeds[i]
-      //       } );
-      // }
-      // std::transform(seeds.begin(), seeds.end(), promises.begin(), data.begin(),
-      //                [](uint64_t &s, std::promise<OneGame> &og) { fmt::print("seed_og={}", s); return util::DataWithPromise<uint64_t, OneGame>{&og, &s}; });
-      spdlog::warn("Ready for generating...");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       spdlog::warn("Generating started!");
       for (int i = 0; i < m_games_count; ++i) {
-         std::this_thread::sleep_for(std::chrono::milliseconds(123));
-         m_data_creator_pool->submit(data[i]);
+         // std::this_thread::sleep_for(std::chrono::milliseconds(123));
+         data_creator_pool->submit(m_data->at(i));
       }
       for (int i = 0; i < m_games_count; ++i) {
-         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-         m_new_training_data.emplace_back(data[i].promise->get_future().get());
-         // data[i].promise->get_future().get();
-         spdlog::warn("Seed {}={} finished !!!", *data[i].data_in, seeds[i]);
+         // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+         // m_new_training_data.emplace_back(m_data->at(i).promise->get_future().get());
+         m_data->at(i).promise->get_future().get();
+         spdlog::warn("Seed {}={} finished !!!", *m_data->at(i).data_in, seeds[i]);
       }
       spdlog::warn("Generating finished !!!");
-      train_network();
+      // train_network();
       last_seed += m_games_count;
-      spdlog::debug("last_seed={}\n", last_seed);
-      spdlog::debug("Training: run lasted {}ms", util::unix_time() - start_run);
-      spdlog::debug("run_finished !!=\n");
+      spdlog::warn("last_seed={}\n", last_seed);
+      spdlog::warn("Training: run lasted {}ms", util::unix_time() - start_run);
+      spdlog::warn("run_finished {}-{}{}{}?\n", last_seed, first_seed, last_seed - first_seed == m_games_count ? "==" : "!=", m_games_count);
+      if (last_seed - first_seed == m_games_count) {
+         spdlog::warn("run_finished !!\n");
+         m_running = false;
+      }
    }
+   data_creator_pool->done();
+   workers_pool->done();
 }
 
 void Training::train_network() {

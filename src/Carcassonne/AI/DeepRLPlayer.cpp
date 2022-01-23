@@ -30,7 +30,7 @@ DeepRLPlayer::DeepRLPlayer(
     , m_clients_pool(std::make_unique<rl::client_threads>(m_trees_count, m_ctx_ptr, m_player) )
 {
    spdlog::info("deep rl: initialising agent");
-   // std::this_thread::sleep_for(std::chrono::seconds(5));
+   std::this_thread::sleep_for(std::chrono::seconds(1));
    std::cout << "cpus=" << std::thread::hardware_concurrency() << std::endl;
    game_with_training_data.first->on_next_move([this](IGame &game, Player player, FullMove last_move) {
       m_last_moves[static_cast<mb::size>(last_player(player, m_player_count))] = last_move;
@@ -39,6 +39,19 @@ DeepRLPlayer::DeepRLPlayer(
       make_move(game);
    });
    spdlog::info("deep rl: initialised agent");
+}
+
+DeepRLPlayer::~DeepRLPlayer() {
+   spdlog::info("~DeepRLPlayer: terminating threads");
+   if (m_ctx_ptr != nullptr) {
+      m_ctx_ptr->move_readyness->terminate = true;
+      m_ctx_ptr->ready_to_move->notify_one();
+      await_for_termination(m_ctx_ptr->move_readyness, m_ctx_ptr->move_found);
+   }
+   // if (m_clients_pool != nullptr) {
+   //    m_clients_pool->join_clients();
+   // }
+   spdlog::info("~DeepRLPlayer: terminated threads");
 }
 
 bool prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr, Player m_player) {
@@ -68,7 +81,7 @@ bool prepare_tree(std::unique_ptr<rl::Context> &ctx_ptr, Player m_player) {
 void rl::client_threads::client_work(unsigned cpu_id) {
    spdlog::debug("client_work: client run on cpu '{}'", cpu_id);
    pthread_setname_np(pthread_self(), fmt::format("client_work_{}", cpu_id).c_str());
-   // std::this_thread::sleep_for(std::chrono::seconds(1));
+   std::this_thread::sleep_for(std::chrono::seconds(1));
    m_ctx_ptr->lck.lock();
    if (!m_ctx_ptr->leading_tread_assigned) {
       m_ctx_ptr->leading_tread_id = std::this_thread::get_id();
@@ -93,7 +106,6 @@ void rl::client_threads::client_work(unsigned cpu_id) {
          spdlog::info("client_work: terminate");
          break;
       }
-      // spdlog::info("client_work: client '{}' Running !!!");
       if (prepare_tree(m_ctx_ptr, m_player)) {
          spdlog::debug("nullptr == tree");
          return;
@@ -128,27 +140,23 @@ void rl::client_threads::client_work(unsigned cpu_id) {
          // ctx_ptr->lck.unlock(); // no need for lock
       }
    }
+   spdlog::info("client_work: terminated");
    m_ctx_ptr->move_readyness->terminated = true;
    m_ctx_ptr->move_found->notify_one();
-   spdlog::info("client_work: terminated");
 }
 
 void DeepRLPlayer::add_record(std::pair<std::unique_ptr<IGame>, training::OneGame> &game_with_training_data, Node* node_with_best_move) {
-   // std::vector<float> board_state(board_features_count(game.player_count(), g_max_moves));
    training::MoveNetworkRecord record;
    game_with_training_data.first->board_to_caffe_X(record.game_state);
    for (const auto& node : node_with_best_move->children()) {
       record.children_visits[encode_move(node->move())] = node->m_simulation_count / static_cast<float>(node_with_best_move->m_simulation_count);
    }
    record.player = m_ctx_ptr->player;
-   // spdlog::warn("training_data_size={}, move_index={}, ", game.training_data().size(), game.move_index()-1);
    game_with_training_data.second[game_with_training_data.first->move_index()-1] = std::move(record);
 }
 
 void DeepRLPlayer::make_move(IGame &game) noexcept {   
    // spdlog::info("deep rl: preparing move");
-   // rl::DataWrapper<rl::MoveReadyness> mrw{rl::MoveReadyness{false, false}};
-      
    m_ctx_ptr->game = game;
    m_ctx_ptr->player = game.current_player();
    m_ctx_ptr->move_readyness->m_data.dataReady = true;

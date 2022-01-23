@@ -8,7 +8,7 @@ unsigned Eden_resources::get_gpus_count() {
     
     cudaGetDeviceCount(&count);
     if(count == 0) {
-        spdlog::error("There is no device.");
+        spdlog::error("There is no device :O.");
         return cuda_count;
     }
     for(int i = 0; i < count; ++i) {
@@ -21,7 +21,7 @@ unsigned Eden_resources::get_gpus_count() {
         }
     }
     if(cuda_count == 0) {
-        spdlog::error("There is no device supporting CUDA.");
+        spdlog::error("There is no device supporting CUDA D:");
     }
     return cuda_count;
 }

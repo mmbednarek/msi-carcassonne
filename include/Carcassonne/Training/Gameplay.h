@@ -37,7 +37,7 @@ void add_rl_player(
 )
 {
    m_rl_players.emplace_back(std::make_unique<::carcassonne::ai::DeepRLPlayer>(m_game_with_training_data, m_next_player, generator, workers_pool, m_trees_count));
-   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+   // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
    m_next_player = ::carcassonne::next_player(m_next_player, 4);
 }
    void add_random_player(std::mt19937 &generator);

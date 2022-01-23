@@ -22,7 +22,9 @@ static void produce_game(
    for (int i = 0; i < rl_count; ++i) {
       gameplay.add_rl_player(generator, workers_pool);
    }
-   // gameplay.add_random_player(generator);
+   for (int i = 0; i < 2 - rl_count; ++i) {
+      gameplay.add_random_player(generator);
+   }
    gameplay.add_watcher();
    spdlog::debug("gameplay started");
    gameplay.run();
@@ -34,9 +36,10 @@ void data_creator_pool::worker_thread(
    uint64_t thread_id
 )
 {
-   while (!done) {
+   ++m_workers_up;
+   while (!m_done) {
       util::DataWithPromise<uint64_t, training::OneGame> np;
-      if (simulations_queue.try_pop(np)) {
+      if (m_simulations_queue.try_pop(np)) {
          fmt::print("POP!\n");
          produce_game(np.data_in, np.promise, m_rl_count, m_workers_pool, m_trees_count);
          // np.promise->set_value(just_forward(np.data_in));
@@ -45,6 +48,10 @@ void data_creator_pool::worker_thread(
          std::this_thread::sleep_for(std::chrono::microseconds(500));
       }
    }
+   spdlog::warn("data_creator_pool exits");
+   --m_workers_up;
+   std::unique_lock<std::mutex> lck(m_mut);
+   m_cond->notify_one();
 }
 data_creator_pool::data_creator_pool(
    int rl_count,
@@ -52,31 +59,32 @@ data_creator_pool::data_creator_pool(
    unsigned trees_count,
    uint64_t n_threads
 )
-   : m_rl_count(rl_count)
-   , m_workers_pool(workers_pool)
-   , m_trees_count(trees_count)
-   , done(false)
-   , joiner(threads)
-   , games_per_cpu(1)
+ : m_rl_count(rl_count)
+ , m_workers_pool(workers_pool)
+ , m_trees_count(trees_count)
+ , m_done(false)
+ , m_cond(std::make_unique<std::condition_variable>())
+ , m_joiner(m_threads, m_workers_up)
+ , m_games_per_cpu(1)
 {
    uint64_t cpus_count = std::thread::hardware_concurrency();
    uint64_t thread_count = n_threads;
-   if (n_threads == 0) thread_count = cpus_count * games_per_cpu;
+   if (n_threads == 0) thread_count = cpus_count * m_games_per_cpu;
    fmt::print("preparing {} data_generators\n", thread_count);
    try {
       for (uint64_t i = 0; i < thread_count; ++i) {
-         threads.push_back(std::thread(
+         m_threads.push_back(std::thread(
             &data_creator_pool::worker_thread, this, i ));
       }
       fmt::print("m_data_creator_pool prepared!\n");
    } catch (...) {
-      done = true;
+      m_done = true;
       throw;
    }
 }
 
 void data_creator_pool::submit(util::DataWithPromise< uint64_t, training::OneGame > np) {
-   simulations_queue.push(np);
+   m_simulations_queue.push(np);
 }
 
 }// namespace carcassonne::ai::rl

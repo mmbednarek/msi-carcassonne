@@ -18,22 +18,21 @@ mb::result<std::unique_ptr<Network>> load_network(int gpu_id);
 inline std::tuple<std::span<float>, float> just_forward(std::vector<float> *data_in) {
    auto &neuron_inputs = data_in;
    std::unique_ptr<Network> &network = g_networks[std::this_thread::get_id()];
-   boost::shared_ptr<caffe::Blob<float>> input_data{network->solver().net()->blob_by_name("input_data")};
-   boost::shared_ptr<caffe::Blob<float>> output_probabs{network->solver().net()->blob_by_name("output_probabs")};
-   boost::shared_ptr<caffe::Blob<float>> output_value{network->solver().net()->blob_by_name("output_value")};
+   boost::shared_ptr<caffe::Blob<float>> input_data{network->solver()->net()->blob_by_name("input_data")};
+   boost::shared_ptr<caffe::Blob<float>> output_probabs{network->solver()->net()->blob_by_name("output_probabs")};
+   boost::shared_ptr<caffe::Blob<float>> output_value{network->solver()->net()->blob_by_name("output_value")};
    std::copy(neuron_inputs->begin(), neuron_inputs->end(), input_data->mutable_cpu_data());
-   network->solver().net()->Forward();
+   network->solver()->net()->Forward();
    static constexpr auto output_neuron_count =  g_board_width * g_board_height * 4 * 10;
    return std::make_tuple(std::span<float>(output_probabs->mutable_cpu_data(), output_neuron_count), *output_value->mutable_cpu_data());
 }
 
 class thread_pool {
+   unsigned m_networks_count;
    bool m_done;
-   bool m_threads_finished = false;
    std::vector<std::thread> m_threads;
-   join_threads m_joiner;
+   std::atomic<int> m_workers_up = 0;
    std::shared_ptr<std::condition_variable> m_cond = nullptr;
-   int m_workers_up = 0;
    
    threadsafe_queue<util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> >> work_queue;
    void worker_thread(int gpu_id) {
@@ -64,7 +63,13 @@ class thread_pool {
             std::this_thread::sleep_for(std::chrono::microseconds(1));
          }
       }
-      m_threads_finished = true;
+      spdlog::info("thread {} erasing network", thread_name());
+      g_networks[std::this_thread::get_id()]->free_network();
+      spdlog::info("thread {} erased network 1of2", thread_name());
+      g_networks.erase( std::this_thread::get_id() );
+      spdlog::info("thread {} erased network 2of2", thread_name());
+      --m_workers_up;
+      m_cond->notify_one();
    }
    
 
@@ -74,16 +79,20 @@ class thread_pool {
    thread_pool(thread_pool&&) = default;
    ~thread_pool() {
       m_done = true;
-      while(!m_threads_finished) {
-         spdlog::info("thread {} waiting for threads_finished", thread_name());
-         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
+   }
+   
+   void done() {
+      m_done = true;
+      std::mutex mut;
+      std::unique_lock<std::mutex> lck(mut);
+      m_cond->wait(lck, [this] {
+         spdlog::info("all_{}_networks_down={}, left {}", m_networks_count,
+                        (m_workers_up == 0 ? "true" : "false"), m_workers_up);
+         return m_workers_up == 0;
+      });
       spdlog::info("thread {} clearing networks", thread_name());
       g_networks.clear();
       spdlog::info("thread {} cleared networks", thread_name());
-   }
-   void done() {
-      m_done = true;
    }
 
    void submit(util::DataWithPromise< std::vector<float>, std::tuple<std::span<float>, float> > np) {
@@ -96,7 +105,8 @@ struct Context;
 class client_threads {
    std::atomic_bool m_done;
    std::vector<std::thread> m_threads;
-   join_threads m_joiner;
+   std::atomic<int> m_workers_up = 0;
+   // join_threads m_joiner;
    std::unique_ptr<Context>& m_ctx_ptr;
    Player m_player;
    void client_work(unsigned cpu_id);
@@ -106,7 +116,10 @@ class client_threads {
       unsigned cpus_count, 
       std::unique_ptr<Context> &_ctx_ptr,
       Player _player )
-       : m_done(false), m_joiner(m_threads), m_ctx_ptr(_ctx_ptr), m_player(_player)
+       : m_done(false)
+      //  , m_joiner(m_threads, m_workers_up)
+       , m_ctx_ptr(_ctx_ptr)
+       , m_player(_player)
    {
       if (cpus_count == 0)
          cpus_count = Eden_resources::get_cpus_count();
@@ -114,6 +127,7 @@ class client_threads {
       try {
          for (unsigned i = 0; i < cpus_count; ++i) {
             m_threads.push_back(std::thread(&client_threads::client_work, this, i));
+            m_threads[i].detach();
          }
       } catch (...) {
          m_done = true;
@@ -124,9 +138,9 @@ class client_threads {
       m_done = true;
       spdlog::warn("client_threads destroyed!");
    }
-   void join_clients() {
-      m_joiner.join_earlier();
-   }
+   // void join_clients() {
+   //    m_joiner.join_earlier();
+   // }
 };
 
 template<typename T>

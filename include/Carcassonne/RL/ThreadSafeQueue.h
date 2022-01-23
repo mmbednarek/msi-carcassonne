@@ -66,16 +66,27 @@ class threadsafe_queue {
 
 class join_threads {
    std::vector<std::thread> &threads;
+   std::atomic<int>& m_workers_up;
    bool joined_earlier = false;
+   
    void join_all() {
+      spdlog::warn("join_all: m_workers_up={}", m_workers_up);
       for (unsigned long i = 0; i < threads.size(); ++i) {
-         // if (threads[i].joinable())
-         threads[i].join();
+         while (true) {
+            if (threads[i].joinable()){
+               threads[i].join();
+               break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            spdlog::warn("join_all: m_workers_up={}", m_workers_up);
+         }
       }
       spdlog::warn("client_threads all threads joined!");
    }
  public:
-   explicit join_threads(std::vector<std::thread> &threads_) : threads(threads_) {}
+   explicit join_threads(std::vector<std::thread> &threads_, std::atomic<int>& workers_up)
+    : threads(threads_)
+    , m_workers_up(workers_up) {}
    ~join_threads() {
       if (joined_earlier) return;
       join_all();
