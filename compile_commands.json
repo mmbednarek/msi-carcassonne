@@ -1,1 +1,212 @@
-out/build/compile_commands.json
+[
+{
+  "directory": "/workspace/msi-carcassonne/out/build/deps/mb",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++17 -o CMakeFiles/libmb.dir/src/error.cpp.o -c /workspace/msi-carcassonne/deps/mb/src/error.cpp",
+  "file": "/workspace/msi-carcassonne/deps/mb/src/error.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/deps/mb",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++17 -o CMakeFiles/libmb.dir/src/core.cpp.o -c /workspace/msi-carcassonne/deps/mb/src/core.cpp",
+  "file": "/workspace/msi-carcassonne/deps/mb/src/core.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Proto",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/carcassonne_proto.dir/Carcassonne.pb.cc.o -c /workspace/msi-carcassonne/src/Proto/Carcassonne.pb.cc",
+  "file": "/workspace/msi-carcassonne/src/Proto/Carcassonne.pb.cc"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Surface.cpp.o -c /workspace/msi-carcassonne/src/Graphics/Surface.cpp",
+  "file": "/workspace/msi-carcassonne/src/Graphics/Surface.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Context.cpp.o -c /workspace/msi-carcassonne/src/Graphics/Context.cpp",
+  "file": "/workspace/msi-carcassonne/src/Graphics/Context.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Texture.cpp.o -c /workspace/msi-carcassonne/src/Graphics/Texture.cpp",
+  "file": "/workspace/msi-carcassonne/src/Graphics/Texture.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_graphics.dir/TextCache.cpp.o -c /workspace/msi-carcassonne/src/Graphics/TextCache.cpp",
+  "file": "/workspace/msi-carcassonne/src/Graphics/TextCache.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Graphics",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_graphics.dir/Font.cpp.o -c /workspace/msi-carcassonne/src/Graphics/Font.cpp",
+  "file": "/workspace/msi-carcassonne/src/Graphics/Font.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Input",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_input.dir/Input.cpp.o -c /workspace/msi-carcassonne/src/Input/Input.cpp",
+  "file": "/workspace/msi-carcassonne/src/Input/Input.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Game",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_game.dir/Game.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Game/Game.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Game/Game.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Game",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_game.dir/Board.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Game/Board.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Game/Board.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Game",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_game.dir/Move.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Game/Move.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Game/Move.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Decoder",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/carcassonne_decoder.dir/Decoder.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Decoder/Decoder.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Decoder/Decoder.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Encoder",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/carcassonne_encoder.dir/GameState.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Encoder/GameState.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Encoder/GameState.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Encoder",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/carcassonne_encoder.dir/Rollout.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Encoder/Rollout.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Encoder/Rollout.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/RL",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/carcassonne_rl.dir/Network.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/RL/Network.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/RL/Network.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/RandomPlayer.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/RandomPlayer.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/RandomPlayer.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/MCTSPlayer.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/MCTSPlayer.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/MCTSPlayer.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/Tree.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/Tree.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/Tree.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/Node.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/Node.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/Node.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/HeuristicPlayer.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/HeuristicPlayer.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/HeuristicPlayer.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/MCTS.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/MCTS.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/MCTS.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/DeepRL.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/DeepRL.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/DeepRL.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/AI",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_ai.dir/DeepRLPlayer.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/AI/DeepRLPlayer.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/AI/DeepRLPlayer.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/GameView.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/GameView.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/GameView.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/Resource.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/Resource.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/Resource.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/BoardView.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/BoardView.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/BoardView.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/Object.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/Object.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/Object.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/PlaceTileView.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/PlaceTileView.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/PlaceTileView.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/PlaceFigureView.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/PlaceFigureView.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/PlaceFigureView.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/FiguresView.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/FiguresView.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/FiguresView.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Carcassonne/Frontend",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_frontend.dir/ScoreBoardView.cpp.o -c /workspace/msi-carcassonne/src/Carcassonne/Frontend/ScoreBoardView.cpp",
+  "file": "/workspace/msi-carcassonne/src/Carcassonne/Frontend/ScoreBoardView.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/bin/carcassonne",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_carcassonne_bin.dir/main.cpp.o -c /workspace/msi-carcassonne/src/bin/carcassonne/main.cpp",
+  "file": "/workspace/msi-carcassonne/src/bin/carcassonne/main.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/bin/evolution",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_evolution_bin.dir/mainEvol.cpp.o -c /workspace/msi-carcassonne/src/bin/evolution/mainEvol.cpp",
+  "file": "/workspace/msi-carcassonne/src/bin/evolution/mainEvol.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/bin/headless",
+  "command": "/bin/x86_64-linux-gnu-g++-10 -DBOOST_ALL_NO_LIB -DBOOST_PROGRAM_OPTIONS_DYN_LINK -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/carcassonne_headless.dir/main.cpp.o -c /workspace/msi-carcassonne/src/bin/headless/main.cpp",
+  "file": "/workspace/msi-carcassonne/src/bin/headless/main.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Evolution",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_evolution.dir/DiffEvol.cpp.o -c /workspace/msi-carcassonne/src/Evolution/DiffEvol.cpp",
+  "file": "/workspace/msi-carcassonne/src/Evolution/DiffEvol.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -I/workspace/msi-carcassonne/src/Test/proto -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/caffe_test.dir/CaffeTest.cpp.o -c /workspace/msi-carcassonne/src/Test/CaffeTest.cpp",
+  "file": "/workspace/msi-carcassonne/src/Test/CaffeTest.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_test.dir/TileTest.cpp.o -c /workspace/msi-carcassonne/src/Test/TileTest.cpp",
+  "file": "/workspace/msi-carcassonne/src/Test/TileTest.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_test.dir/UtilTest.cpp.o -c /workspace/msi-carcassonne/src/Test/UtilTest.cpp",
+  "file": "/workspace/msi-carcassonne/src/Test/UtilTest.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_test.dir/BoardTest.cpp.o -c /workspace/msi-carcassonne/src/Test/BoardTest.cpp",
+  "file": "/workspace/msi-carcassonne/src/Test/BoardTest.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_test.dir/EvolutionTest.cpp.o -c /workspace/msi-carcassonne/src/Test/EvolutionTest.cpp",
+  "file": "/workspace/msi-carcassonne/src/Test/EvolutionTest.cpp"
+},
+{
+  "directory": "/workspace/msi-carcassonne/out/build/src/Test",
+  "command": "/bin/x86_64-linux-gnu-g++-10  -I/workspace/msi-carcassonne/include -I/workspace/msi-carcassonne/deps/mb/include -I/workspace/msi-carcassonne/deps/ecuda/include -I/usr/include/SDL2 -I/usr/local/cuda-11.5/targets/x86_64-linux/include -O0 -Wall -g -g  -std=gnu++2a -o CMakeFiles/msi_test.dir/Rollout.cpp.o -c /workspace/msi-carcassonne/src/Test/Rollout.cpp",
+  "file": "/workspace/msi-carcassonne/src/Test/Rollout.cpp"
+}
+]

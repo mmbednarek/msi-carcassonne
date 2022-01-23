@@ -14,54 +14,58 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-
-PROTOBUF_PRAGMA_INIT_SEG
+extern PROTOBUF_INTERNAL_EXPORT_Carcassonne_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Move_Carcassonne_2eproto;
 namespace carcassonne {
 namespace proto {
-constexpr Move::Move(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : x_(0)
-  , y_(0)
-  , rotation_(0)
-  , skip_figure_(false)
-  , direction_(0)
-{}
-struct MoveDefaultTypeInternal {
-  constexpr MoveDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~MoveDefaultTypeInternal() {}
-  union {
-    Move _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MoveDefaultTypeInternal _Move_default_instance_;
-constexpr Rollout::Rollout(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : moves_()
-  , seed_(uint64_t{0u})
-  , player_count_(0){}
-struct RolloutDefaultTypeInternal {
-  constexpr RolloutDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~RolloutDefaultTypeInternal() {}
-  union {
-    Rollout _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RolloutDefaultTypeInternal _Rollout_default_instance_;
+class MoveDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Move> _instance;
+} _Move_default_instance_;
+class RolloutDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Rollout> _instance;
+} _Rollout_default_instance_;
 }  // namespace proto
 }  // namespace carcassonne
+static void InitDefaultsscc_info_Move_Carcassonne_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::carcassonne::proto::_Move_default_instance_;
+    new (ptr) ::carcassonne::proto::Move();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::carcassonne::proto::Move::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Move_Carcassonne_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Move_Carcassonne_2eproto}, {}};
+
+static void InitDefaultsscc_info_Rollout_Carcassonne_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::carcassonne::proto::_Rollout_default_instance_;
+    new (ptr) ::carcassonne::proto::Rollout();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::carcassonne::proto::Rollout::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Rollout_Carcassonne_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Rollout_Carcassonne_2eproto}, {
+      &scc_info_Move_Carcassonne_2eproto.base,}};
+
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_Carcassonne_2eproto[2];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_Carcassonne_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_Carcassonne_2eproto = nullptr;
 
-const uint32_t TableStruct_Carcassonne_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_Carcassonne_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Move, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Move, x_),
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Move, y_),
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Move, rotation_),
@@ -72,14 +76,13 @@ const uint32_t TableStruct_Carcassonne_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Rollout, player_count_),
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Rollout, seed_),
   PROTOBUF_FIELD_OFFSET(::carcassonne::proto::Rollout, moves_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::carcassonne::proto::Move)},
-  { 11, -1, -1, sizeof(::carcassonne::proto::Rollout)},
+  { 0, -1, sizeof(::carcassonne::proto::Move)},
+  { 10, -1, sizeof(::carcassonne::proto::Rollout)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -100,19 +103,22 @@ const char descriptor_table_protodef_Carcassonne_2eproto[] PROTOBUF_SECTION_VARI
   "SouthEast\020\010\022\r\n\tSouthWest\020\t\022\r\n\tWestSouth\020"
   "\n\022\r\n\tWestNorth\020\013\022\r\n\tNorthWest\020\014b\006proto3"
   ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_Carcassonne_2eproto_deps[1] = {
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Carcassonne_2eproto_sccs[2] = {
+  &scc_info_Move_Carcassonne_2eproto.base,
+  &scc_info_Rollout_Carcassonne_2eproto.base,
+};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Carcassonne_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Carcassonne_2eproto = {
-  false, false, 439, descriptor_table_protodef_Carcassonne_2eproto, "Carcassonne.proto", 
-  &descriptor_table_Carcassonne_2eproto_once, nullptr, 0, 2,
+  false, false, descriptor_table_protodef_Carcassonne_2eproto, "Carcassonne.proto", 439,
+  &descriptor_table_Carcassonne_2eproto_once, descriptor_table_Carcassonne_2eproto_sccs, descriptor_table_Carcassonne_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_Carcassonne_2eproto::offsets,
-  file_level_metadata_Carcassonne_2eproto, file_level_enum_descriptors_Carcassonne_2eproto, file_level_service_descriptors_Carcassonne_2eproto,
+  file_level_metadata_Carcassonne_2eproto, 2, file_level_enum_descriptors_Carcassonne_2eproto, file_level_service_descriptors_Carcassonne_2eproto,
 };
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_Carcassonne_2eproto_getter() {
-  return &descriptor_table_Carcassonne_2eproto;
-}
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_Carcassonne_2eproto(&descriptor_table_Carcassonne_2eproto);
+static bool dynamic_init_dummy_Carcassonne_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_Carcassonne_2eproto)), true);
 namespace carcassonne {
 namespace proto {
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Direction_descriptor() {
@@ -143,17 +149,16 @@ bool Direction_IsValid(int value) {
 
 // ===================================================================
 
+void Move::InitAsDefaultInstance() {
+}
 class Move::_Internal {
  public:
 };
 
-Move::Move(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+Move::Move(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:carcassonne.proto.Move)
 }
 Move::Move(const Move& from)
@@ -165,22 +170,20 @@ Move::Move(const Move& from)
   // @@protoc_insertion_point(copy_constructor:carcassonne.proto.Move)
 }
 
-inline void Move::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&x_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&direction_) -
-    reinterpret_cast<char*>(&x_)) + sizeof(direction_));
+void Move::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&direction_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(direction_));
 }
 
 Move::~Move() {
   // @@protoc_insertion_point(destructor:carcassonne.proto.Move)
-  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-inline void Move::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+void Move::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
 void Move::ArenaDtor(void* object) {
@@ -192,10 +195,15 @@ void Move::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void Move::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const Move& Move::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Move_Carcassonne_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void Move::Clear() {
 // @@protoc_insertion_point(message_clear_start:carcassonne.proto.Move)
-  uint32_t cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -207,106 +215,102 @@ void Move::Clear() {
 
 const char* Move::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
-    uint32_t tag;
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
     switch (tag >> 3) {
       // int32 x = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
       // int32 y = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
       // int32 rotation = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
-          rotation_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          rotation_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
       // bool skip_figure = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           skip_figure_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
       // .carcassonne.proto.Direction direction = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
-          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_direction(static_cast<::carcassonne::proto::Direction>(val));
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
     }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
   }  // while
-message_done:
+success:
   return ptr;
 failure:
   ptr = nullptr;
-  goto message_done;
+  goto success;
 #undef CHK_
 }
 
-uint8_t* Move::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+::PROTOBUF_NAMESPACE_ID::uint8* Move::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:carcassonne.proto.Move)
-  uint32_t cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 x = 1;
-  if (this->_internal_x() != 0) {
+  if (this->x() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_x(), target);
   }
 
   // int32 y = 2;
-  if (this->_internal_y() != 0) {
+  if (this->y() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_y(), target);
   }
 
   // int32 rotation = 3;
-  if (this->_internal_rotation() != 0) {
+  if (this->rotation() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_rotation(), target);
   }
 
   // bool skip_figure = 4;
-  if (this->_internal_skip_figure() != 0) {
+  if (this->skip_figure() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(4, this->_internal_skip_figure(), target);
   }
 
   // .carcassonne.proto.Direction direction = 5;
-  if (this->_internal_direction() != 0) {
+  if (this->direction() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
       5, this->_internal_direction(), target);
@@ -324,74 +328,95 @@ size_t Move::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:carcassonne.proto.Move)
   size_t total_size = 0;
 
-  uint32_t cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // int32 x = 1;
-  if (this->_internal_x() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_x());
+  if (this->x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_x());
   }
 
   // int32 y = 2;
-  if (this->_internal_y() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_y());
+  if (this->y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_y());
   }
 
   // int32 rotation = 3;
-  if (this->_internal_rotation() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_rotation());
+  if (this->rotation() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_rotation());
   }
 
   // bool skip_figure = 4;
-  if (this->_internal_skip_figure() != 0) {
+  if (this->skip_figure() != 0) {
     total_size += 1 + 1;
   }
 
   // .carcassonne.proto.Direction direction = 5;
-  if (this->_internal_direction() != 0) {
+  if (this->direction() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_direction());
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Move::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    Move::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Move::GetClassData() const { return &_class_data_; }
-
-void Move::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Move *>(to)->MergeFrom(
-      static_cast<const Move &>(from));
+void Move::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:carcassonne.proto.Move)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Move* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Move>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:carcassonne.proto.Move)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:carcassonne.proto.Move)
+    MergeFrom(*source);
+  }
 }
-
 
 void Move::MergeFrom(const Move& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:carcassonne.proto.Move)
   GOOGLE_DCHECK_NE(&from, this);
-  uint32_t cached_has_bits = 0;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_x() != 0) {
+  if (from.x() != 0) {
     _internal_set_x(from._internal_x());
   }
-  if (from._internal_y() != 0) {
+  if (from.y() != 0) {
     _internal_set_y(from._internal_y());
   }
-  if (from._internal_rotation() != 0) {
+  if (from.rotation() != 0) {
     _internal_set_rotation(from._internal_rotation());
   }
-  if (from._internal_skip_figure() != 0) {
+  if (from.skip_figure() != 0) {
     _internal_set_skip_figure(from._internal_skip_figure());
   }
-  if (from._internal_direction() != 0) {
+  if (from.direction() != 0) {
     _internal_set_direction(from._internal_direction());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void Move::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:carcassonne.proto.Move)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Move::CopyFrom(const Move& from) {
@@ -407,7 +432,7 @@ bool Move::IsInitialized() const {
 
 void Move::InternalSwap(Move* other) {
   using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Move, direction_)
       + sizeof(Move::direction_)
@@ -417,25 +442,23 @@ void Move::InternalSwap(Move* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Move::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_Carcassonne_2eproto_getter, &descriptor_table_Carcassonne_2eproto_once,
-      file_level_metadata_Carcassonne_2eproto[0]);
+  return GetMetadataStatic();
 }
+
 
 // ===================================================================
 
+void Rollout::InitAsDefaultInstance() {
+}
 class Rollout::_Internal {
  public:
 };
 
-Rollout::Rollout(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
+Rollout::Rollout(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
   moves_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:carcassonne.proto.Rollout)
 }
 Rollout::Rollout(const Rollout& from)
@@ -448,22 +471,21 @@ Rollout::Rollout(const Rollout& from)
   // @@protoc_insertion_point(copy_constructor:carcassonne.proto.Rollout)
 }
 
-inline void Rollout::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&seed_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&player_count_) -
-    reinterpret_cast<char*>(&seed_)) + sizeof(player_count_));
+void Rollout::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Rollout_Carcassonne_2eproto.base);
+  ::memset(&seed_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&player_count_) -
+      reinterpret_cast<char*>(&seed_)) + sizeof(player_count_));
 }
 
 Rollout::~Rollout() {
   // @@protoc_insertion_point(destructor:carcassonne.proto.Rollout)
-  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-inline void Rollout::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+void Rollout::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
 void Rollout::ArenaDtor(void* object) {
@@ -475,10 +497,15 @@ void Rollout::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void Rollout::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const Rollout& Rollout::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Rollout_Carcassonne_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void Rollout::Clear() {
 // @@protoc_insertion_point(message_clear_start:carcassonne.proto.Rollout)
-  uint32_t cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -491,29 +518,29 @@ void Rollout::Clear() {
 
 const char* Rollout::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
-    uint32_t tag;
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
     switch (tag >> 3) {
       // int32 player_count = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          player_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          player_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
       // uint64 seed = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           seed_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
       // repeated .carcassonne.proto.Move moves = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -521,46 +548,44 @@ const char* Rollout::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
-        } else
-          goto handle_unusual;
+        } else goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
     }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
   }  // while
-message_done:
+success:
   return ptr;
 failure:
   ptr = nullptr;
-  goto message_done;
+  goto success;
 #undef CHK_
 }
 
-uint8_t* Rollout::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+::PROTOBUF_NAMESPACE_ID::uint8* Rollout::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:carcassonne.proto.Rollout)
-  uint32_t cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 player_count = 1;
-  if (this->_internal_player_count() != 0) {
+  if (this->player_count() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_player_count(), target);
   }
 
   // uint64 seed = 2;
-  if (this->_internal_seed() != 0) {
+  if (this->seed() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_seed(), target);
   }
@@ -585,7 +610,7 @@ size_t Rollout::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:carcassonne.proto.Rollout)
   size_t total_size = 0;
 
-  uint32_t cached_has_bits = 0;
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -597,45 +622,64 @@ size_t Rollout::ByteSizeLong() const {
   }
 
   // uint64 seed = 2;
-  if (this->_internal_seed() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_seed());
+  if (this->seed() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_seed());
   }
 
   // int32 player_count = 1;
-  if (this->_internal_player_count() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_player_count());
+  if (this->player_count() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_player_count());
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Rollout::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    Rollout::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Rollout::GetClassData() const { return &_class_data_; }
-
-void Rollout::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Rollout *>(to)->MergeFrom(
-      static_cast<const Rollout &>(from));
+void Rollout::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:carcassonne.proto.Rollout)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Rollout* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Rollout>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:carcassonne.proto.Rollout)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:carcassonne.proto.Rollout)
+    MergeFrom(*source);
+  }
 }
-
 
 void Rollout::MergeFrom(const Rollout& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:carcassonne.proto.Rollout)
   GOOGLE_DCHECK_NE(&from, this);
-  uint32_t cached_has_bits = 0;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   moves_.MergeFrom(from.moves_);
-  if (from._internal_seed() != 0) {
+  if (from.seed() != 0) {
     _internal_set_seed(from._internal_seed());
   }
-  if (from._internal_player_count() != 0) {
+  if (from.player_count() != 0) {
     _internal_set_player_count(from._internal_player_count());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void Rollout::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:carcassonne.proto.Rollout)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
 }
 
 void Rollout::CopyFrom(const Rollout& from) {
@@ -651,7 +695,7 @@ bool Rollout::IsInitialized() const {
 
 void Rollout::InternalSwap(Rollout* other) {
   using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   moves_.InternalSwap(&other->moves_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Rollout, player_count_)
@@ -662,10 +706,9 @@ void Rollout::InternalSwap(Rollout* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Rollout::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_Carcassonne_2eproto_getter, &descriptor_table_Carcassonne_2eproto_once,
-      file_level_metadata_Carcassonne_2eproto[1]);
+  return GetMetadataStatic();
 }
+
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto

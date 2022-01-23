@@ -10,6 +10,7 @@
 #include <memory>
 #include <memory_resource>
 #include <random>
+#include <spdlog/spdlog.h>
 
 namespace carcassonne::game {
 
@@ -29,7 +30,7 @@ class Game : public IGame {
    bool m_tour_finished = false;
    FullMove m_performed_move{};
    FullMove m_last_move{};
-   training::OneGame m_training_data;
+   mb::u64 m_seed;
 
    Towns m_towns;
    EdgeGroups m_groups;
@@ -40,12 +41,15 @@ class Game : public IGame {
 
  public:
    Game(int player_count, mb::u64 seed);
+   Game(const Game& g);
+   Game(Game& g);
    [[nodiscard]] std::unique_ptr<IGame> clone() const noexcept override;
    [[nodiscard]] const IBoard &board() const noexcept override;
    [[nodiscard]] Player current_player() const noexcept override;
    [[nodiscard]] std::unique_ptr<IMove> new_move(Player p) noexcept override;
    [[nodiscard]] mb::view<Figure> figures() const noexcept override;
    [[nodiscard]] const TileSet &tile_set() const noexcept override;
+   [[nodiscard]] TileSet &mutable_tile_set() noexcept override;
    [[nodiscard]] bool can_place(TileType tt) const noexcept;
    [[nodiscard]] const ScoreBoard &scores() const noexcept override;
    [[nodiscard]] mb::u8 move_index() const noexcept override;
@@ -79,8 +83,8 @@ class Game : public IGame {
       return m_groups;
    }
 
-   [[nodiscard]] constexpr training::OneGame &training_data() noexcept override {
-      return m_training_data;
+   [[nodiscard]] constexpr mb::u64 seed() noexcept override {
+      return m_seed;
    }
 
    [[nodiscard]] constexpr const mb::size &player_count() const noexcept override {

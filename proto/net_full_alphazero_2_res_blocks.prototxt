@@ -4,8 +4,8 @@ layer {
 	top: "input_data"
 	input_param {
 		shape {
-			dim: 7 #batch_size
-			dim: 86
+			dim: 1 #batch_size
+			dim: 100
             dim: 41
             dim: 41
 		}
@@ -18,7 +18,7 @@ layer {
 	top: "label_value"
 	input_param {
 		shape {
-			dim: 7 #batch_size
+			dim: 1 #batch_size
 			dim: 1
 		}
 	}
@@ -28,12 +28,12 @@ layer {
 }
 
 layer {
-	name: "Input_probas"
+	name: "Input_probabs"
 	type: "Input"
-	top: "label_probas"
+	top: "label_probabs"
 	input_param {
 		shape {
-			dim: 7 #batch_size
+			dim: 1 #batch_size
 			dim: 67240
 		}
 	}
@@ -48,7 +48,7 @@ layer {
     bottom: "input_data"
     top: "conv1"
     convolution_param {
-        num_output: 64
+        num_output: 256
         kernel_size: 3
         stride: 1
         pad: 1
@@ -80,7 +80,7 @@ layer {
     bottom: "conv1"
     top: "res1_conv1"
     convolution_param {
-        num_output: 64
+        num_output: 256
         kernel_size: 3
         stride: 1
         pad: 1
@@ -111,7 +111,7 @@ layer {
     bottom: "res1_conv1"
     top: "res1_conv2"
     convolution_param {
-        num_output: 64
+        num_output: 256
         kernel_size: 3
         stride: 1
         pad: 1
@@ -147,14 +147,14 @@ layer {
     }
 }
 
-#Start of residual block 2
+#Start of residual block 40
 layer {
-    name: "res2_conv1"
+    name: "res40_conv1"
     type: "Convolution"
     bottom: "res1"
-    top: "res2_conv1"
+    top: "res40_conv1"
     convolution_param {
-        num_output: 64
+        num_output: 256
         kernel_size: 3
         stride: 1
         pad: 1
@@ -170,22 +170,22 @@ layer {
 }
 
 layer {
-	name: "res1_relu1"
-	type: "ReLU"
-	bottom: "res2_conv1"
-	top: "res2_conv1"
+        name: "res40_relu1"
+        type: "ReLU"
+        bottom: "res40_conv1"
+        top: "res40_conv1"
     relu_param {
         negative_slope: 0.02
     }
 }
 
 layer {
-    name: "res2_conv2"
+    name: "res40_conv2"
     type: "Convolution"
-    bottom: "res2_conv1"
-    top: "res2_conv2"
+    bottom: "res40_conv1"
+    top: "res40_conv2"
     convolution_param {
-        num_output: 64
+        num_output: 256
         kernel_size: 3
         stride: 1
         pad: 1
@@ -201,32 +201,33 @@ layer {
 }
 
 layer {
-	name: "res2_sum"
-	type: "Eltwise"
-	bottom: "res1"
-	bottom: "res2_conv2"
-	top: "res2"
-	eltwise_param {
-		operation: SUM
-	}
+        name: "res40_sum"
+        type: "Eltwise"
+        bottom: "res1"
+        bottom: "res40_conv2"
+        top: "res40"
+        eltwise_param {
+                operation: SUM
+        }
 }
 
 layer {
-	name: "res2_relu2"
-	type: "ReLU"
-	bottom: "res2"
-	top: "res2"
+        name: "res40_relu2"
+        type: "ReLU"
+        bottom: "res40"
+        top: "res40"
     relu_param {
         negative_slope: 0.02
     }
 }
+
 
 ### Value head ###
 
 layer {
     name: "Value_conv1"
     type: "Convolution"
-    bottom: "res2"
+    bottom: "res40"
     top: "value_conv1"
     convolution_param {
         num_output: 2
@@ -260,7 +261,7 @@ layer {
 	bottom: "value_conv1"
 	top: "value_fc1"
 	inner_product_param {
-		num_output: 256
+		num_output: 8
 		weight_filler {
             type: "gaussian"
             std: 0.01
@@ -318,13 +319,13 @@ layer {
 	}
 }
 
-############## Probas head ################
+############## probabs head ################
 
 layer {
-    name: "Probas_conv1"
+    name: "probabs_conv1"
     type: "Convolution"
-    bottom: "res2"
-    top: "probas_conv1"
+    bottom: "res40"
+    top: "probabs_conv1"
     convolution_param {
         num_output: 2
         kernel_size: 1
@@ -342,20 +343,20 @@ layer {
 }
 
 layer {
-	name: "probas_relu1"
+	name: "probabs_relu1"
 	type: "ReLU"
-	bottom: "probas_conv1"
-	top: "probas_conv1"
+	bottom: "probabs_conv1"
+	top: "probabs_conv1"
     relu_param {
         negative_slope: 0.02
     }
 }
 
 layer {
-	name: "Probas_Output"
+	name: "probabs_Output"
 	type: "InnerProduct"
-	bottom: "probas_conv1"
-	top: "raw_output_probas"
+	bottom: "probabs_conv1"
+	top: "raw_output_probabs"
 	inner_product_param {
 		num_output: 67240
 		weight_filler {
@@ -370,28 +371,28 @@ layer {
 }
 
 layer {
-	name: "Probas_Softmax"
+	name: "probabs_Softmax"
 	type: "Softmax"
-	bottom: "raw_output_probas"
-	top: "output_probas"
+	bottom: "raw_output_probabs"
+	top: "output_probabs"
 }
 
 ### As Caffe doesn't have a cross entropy loss layer, we create it from existing layers ###
 layer {
-	name: "Log_Probas"
+	name: "Log_probabs"
 	type: "Log"
-	bottom: "output_probas"
-	top: "log_output_probas"
+	bottom: "output_probabs"
+	top: "log_output_probabs"
 	include {
 		phase: TRAIN
 	}
 }
 
 layer {
-	name: "Minus_Log_Probas"
+	name: "Minus_Log_probabs"
 	type: "Scale"
-	bottom: "log_output_probas"
-	top: "minus_log_probas"
+	bottom: "log_output_probabs"
+	top: "minus_log_probabs"
 	param {
 		lr_mult: 0
 		decay_mult: 0
@@ -413,8 +414,8 @@ layer {
 layer {
 	name: "Cross_Entropy_Mult"
 	type: "Eltwise"
-	bottom: "minus_log_probas"
-	bottom: "label_probas"
+	bottom: "minus_log_probabs"
+	bottom: "label_probabs"
 	top: "eltwise_prod"
 	eltwise_param {
 		operation: PROD
@@ -465,7 +466,7 @@ layer {
 	name: "Cross_entropy_loss"
 	type: "Reduction"
 	bottom: "cross_entropy_scaled"
-	top: "probas_loss"
+	top: "probabs_loss"
 	reduction_param {
 		operation: SUM
 		axis: 0

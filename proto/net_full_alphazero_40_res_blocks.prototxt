@@ -28,9 +28,9 @@ layer {
 }
 
 layer {
-	name: "Input_probas"
+	name: "Input_probabs"
 	type: "Input"
-	top: "label_probas"
+	top: "label_probabs"
 	input_param {
 		shape {
 			dim: 1 #batch_size
@@ -3133,13 +3133,13 @@ layer {
 	}
 }
 
-############## Probas head ################
+############## probabs head ################
 
 layer {
-    name: "Probas_conv1"
+    name: "probabs_conv1"
     type: "Convolution"
     bottom: "res40"
-    top: "probas_conv1"
+    top: "probabs_conv1"
     convolution_param {
         num_output: 2
         kernel_size: 1
@@ -3157,20 +3157,20 @@ layer {
 }
 
 layer {
-	name: "probas_relu1"
+	name: "probabs_relu1"
 	type: "ReLU"
-	bottom: "probas_conv1"
-	top: "probas_conv1"
+	bottom: "probabs_conv1"
+	top: "probabs_conv1"
     relu_param {
         negative_slope: 0.02
     }
 }
 
 layer {
-	name: "Probas_Output"
+	name: "probabs_Output"
 	type: "InnerProduct"
-	bottom: "probas_conv1"
-	top: "raw_output_probas"
+	bottom: "probabs_conv1"
+	top: "raw_output_probabs"
 	inner_product_param {
 		num_output: 67240
 		weight_filler {
@@ -3185,28 +3185,28 @@ layer {
 }
 
 layer {
-	name: "Probas_Softmax"
+	name: "probabs_Softmax"
 	type: "Softmax"
-	bottom: "raw_output_probas"
-	top: "output_probas"
+	bottom: "raw_output_probabs"
+	top: "output_probabs"
 }
 
 ### As Caffe doesn't have a cross entropy loss layer, we create it from existing layers ###
 layer {
-	name: "Log_Probas"
+	name: "Log_probabs"
 	type: "Log"
-	bottom: "output_probas"
-	top: "log_output_probas"
+	bottom: "output_probabs"
+	top: "log_output_probabs"
 	include {
 		phase: TRAIN
 	}
 }
 
 layer {
-	name: "Minus_Log_Probas"
+	name: "Minus_Log_probabs"
 	type: "Scale"
-	bottom: "log_output_probas"
-	top: "minus_log_probas"
+	bottom: "log_output_probabs"
+	top: "minus_log_probabs"
 	param {
 		lr_mult: 0
 		decay_mult: 0
@@ -3228,8 +3228,8 @@ layer {
 layer {
 	name: "Cross_Entropy_Mult"
 	type: "Eltwise"
-	bottom: "minus_log_probas"
-	bottom: "label_probas"
+	bottom: "minus_log_probabs"
+	bottom: "label_probabs"
 	top: "eltwise_prod"
 	eltwise_param {
 		operation: PROD
@@ -3280,7 +3280,7 @@ layer {
 	name: "Cross_entropy_loss"
 	type: "Reduction"
 	bottom: "cross_entropy_scaled"
-	top: "probas_loss"
+	top: "probabs_loss"
 	reduction_param {
 		operation: SUM
 		axis: 0

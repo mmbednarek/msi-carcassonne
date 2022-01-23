@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 project(carcassonne)
 
-set(CMAKE_CXX_FLAGS "-O0 -Wall -g -Wno-sign-compare -Wno-macro-redefined")
+set(CMAKE_CXX_FLAGS "-O3 -Wall -g -Wno-sign-compare -Wno-macro-redefined")
 set(CMAKE_CXX_STANDARD 20)
+
 option(HIP_PLATFORM_AMD "should be built for AMD" OFF)
 option(SPDLOG_EXTERNAL_FMT "bulding spdlog with external fmt" ON)
 option(MEASURE_TIME "measure time too?" OFF)
@@ -86,17 +87,18 @@ add_subdirectory(src/bin/training)
 add_subdirectory(src/bin/evolution)
 
 if (NOT ${HIP_PLATFORM_AMD})
-add_subdirectory(src/Eden_resources)
-add_subdirectory(src/cudatest)
+    add_subdirectory(src/Eden_resources)
+    add_subdirectory(src/cudatest)
 else()
-add_subdirectory(src/HipEdenResources)
+    add_subdirectory(src/HipEdenResources)
 endif()
 add_subdirectory(src/Evolution)
 add_subdirectory(src/Test)
 
 find_library(caffe libcaffe ${CMAKE_LIBRARY_PATH})
 
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(GLog REQUIRED)
-
+find_package(gflags REQUIRED)
 find_package(Protobuf REQUIRED)

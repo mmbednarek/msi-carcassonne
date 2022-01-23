@@ -65,7 +65,7 @@ void backpropagate(
         std::unique_ptr<Tree> &tree);
 void run_selection(std::unique_ptr<rl::Context> &ctx_ptr);
 void run_mcts(std::unique_ptr<rl::Context> &ctx_ptr, mb::i64 time_limit, mb::i64 runs_limit);
-Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr, int move_index);
+Node* choose_move(std::unique_ptr<rl::Context> &ctx_ptr);
 
 }
 

@@ -40,7 +40,7 @@ class IGame {
    virtual ~IGame() = default;
    [[nodiscard]] virtual std::unique_ptr<IGame> clone() const noexcept = 0;
    [[nodiscard]] virtual const IBoard &board() const noexcept = 0;
-   [[nodiscard]] virtual constexpr training::OneGame &training_data() noexcept = 0;
+   [[nodiscard]] virtual constexpr mb::u64 seed() noexcept = 0;
    [[nodiscard]] virtual Player current_player() const noexcept = 0;
    [[nodiscard]] virtual constexpr const mb::size &player_count() const noexcept = 0;
    [[nodiscard]] virtual std::unique_ptr<IMove> new_move(Player p) noexcept = 0;
@@ -49,6 +49,7 @@ class IGame {
    [[nodiscard]] virtual const ScoreBoard &scores() const noexcept = 0;
    [[nodiscard]] virtual mb::u8 move_index() const noexcept = 0;
    [[nodiscard]] virtual const std::vector<TileType> &tile_set() const noexcept = 0;
+   [[nodiscard]] virtual std::vector<TileType> &mutable_tile_set() noexcept = 0;
    [[nodiscard]] virtual std::vector<Direction> figure_placements(int x, int y) const noexcept = 0;
    [[nodiscard]] virtual std::pair<Direction, int> move_score(Player player, TileType tile_type, TileMove move, const Parameters &parameters) const noexcept = 0;
    [[nodiscard]] virtual bool can_place_figure(int x, int y, Direction d) const = 0;

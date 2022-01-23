@@ -15,3 +15,5 @@ build
 build-debug
 build-release
 .cache
+*.caffemodel
+*.solverstate

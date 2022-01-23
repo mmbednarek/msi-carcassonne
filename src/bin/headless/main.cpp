@@ -15,8 +15,8 @@ int main(int argc, char **argv) {
    desc.add_options()
    ("help", "")
    ("seed,s", po::value<int>()->default_value(10), "seed of a game")
-   ("rl-ai-count,l", po::value<int>()->default_value(1), "number of rl agents")
-   ("random-ai-count,r", po::value<int>()->default_value(1), "number of random agents")
+   ("rl-ai-count,l", po::value<int>()->default_value(2), "number of rl agents")
+   ("random-ai-count,r", po::value<int>()->default_value(0), "number of random agents")
    ("verbose,v", "verbose output");
    unsigned trees_count = 1;
    unsigned workers_per_gpu = 1;
@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
    for (int i = 0; i < random_count; ++i) {
       gameplay.add_random_player(generator);
    }
+   gameplay.add_watcher();
 
    gameplay.run();
    gameplay.save("gameplay.proto");
