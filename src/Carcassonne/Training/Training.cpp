@@ -57,12 +57,13 @@ void Training::run() {
          m_full_training_data.resize(m_training_set_size);
          spdlog::warn("Training: training_data.size {}", m_full_training_data.size() );
       }
-      ;
 
+      spdlog::warn("Sampling batch of size {}", ai::rl::g_batch_size);
       std::array<double,4> intervals {0.0, 0.40, 0.50, 1.0};
-      for (auto &interval : intervals) interval *= static_cast<double>(m_training_set_size);
+      for (auto &interval : intervals) interval *= static_cast<double>(m_full_training_data.size());
       std::array<double,4> weights {100.0, 75.0, 25.0, 0.0};
       auto sampled_training_data = util::choose_n_picewise<OneGame, ai::rl::g_batch_size>(m_generator, m_full_training_data, intervals, weights);
+      spdlog::warn("Sampled batch");
       train_network(sampled_training_data);
       last_seed += m_games_count;
       spdlog::warn("last_seed={}\n", last_seed);
@@ -77,7 +78,7 @@ void Training::run() {
    workers_pool->done();
 }
 
-void Training::train_network(const std::array<OneGame, ai::rl::g_batch_size>& batch) {
+void Training::train_network(const std::array<OneGame*, ai::rl::g_batch_size>& batch) {
    auto tid_net_map_it = ai::rl::g_networks.begin();
    tid_net_map_it->second->train(batch);
 }

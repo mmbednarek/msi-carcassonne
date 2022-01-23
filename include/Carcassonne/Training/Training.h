@@ -32,7 +32,7 @@ class Training {
 
    void run();
 
-   void train_network(const std::array<OneGame, ai::rl::g_batch_size>& batch);
+   void train_network(const std::array<OneGame*, ai::rl::g_batch_size>& batch);
 
    constexpr void stop() {
       m_running = false;

@@ -35,7 +35,7 @@ class Network {
    std::unique_ptr<caffe::SGDSolver<float>>& solver() { return m_solver; }
    int get_gpu_id() { return m_gpu_id; }
    
-   void train(const std::array<training::OneGame, g_batch_size> &data_set);
+   void train(const std::array<training::OneGame*, g_batch_size> &data_set);
    void free_network();
 
 };
