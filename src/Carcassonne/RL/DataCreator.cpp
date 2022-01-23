@@ -25,7 +25,7 @@ static void produce_game(
    for (int i = 0; i < 2 - rl_count; ++i) {
       gameplay.add_random_player(generator);
    }
-   gameplay.add_watcher();
+   // gameplay.add_watcher();
    spdlog::debug("gameplay started");
    gameplay.run();
    spdlog::debug("gameplay finished");

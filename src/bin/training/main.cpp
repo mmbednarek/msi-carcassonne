@@ -25,7 +25,8 @@ int main(int argc, char **argv) {
       spdlog::set_level(spdlog::level::debug);
    }
 
-   carcassonne::training::Training training(seed);
+   std::mt19937 generator(seed);
+   carcassonne::training::Training training(seed, generator);
 
    training.run();
 }

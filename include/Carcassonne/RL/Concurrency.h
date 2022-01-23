@@ -60,7 +60,7 @@ class thread_pool {
             }
          } else {
             std::this_thread::yield();
-            std::this_thread::sleep_for(std::chrono::microseconds(1));
+            // std::this_thread::sleep_for(std::chrono::microseconds(1));
          }
       }
       spdlog::info("thread {} erasing network", thread_name());

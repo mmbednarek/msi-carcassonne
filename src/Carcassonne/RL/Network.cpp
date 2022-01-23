@@ -143,9 +143,7 @@ static bool update_networks(uint64_t net_id) {
    return 0;
 }
 
-
-void Network::train( const std::vector<training::OneGame> &data_set) {
-   
+void Network::train( const std::array<training::OneGame, g_batch_size> &data_set) {
    
    caffe::Caffe::set_mode(caffe::Caffe::GPU);
    caffe::Caffe::set_multiprocess(true);
@@ -185,8 +183,8 @@ void Network::train( const std::vector<training::OneGame> &data_set) {
    if (input_data_begin == nullptr || label_probabs_begin == nullptr || label_value_begin == nullptr) {
       fmt::print("empty mutable_cpu_data\n");
    }
-   fmt::print("games_count={}\n", data_set.size());
-   fmt::print("moves_count={}\n", data_set.size() * data_set[0].size());
+   fmt::print("games_count={}\n", g_batch_size);
+   fmt::print("moves_count={}\n", g_batch_size * data_set[0].size());
 
    int i_debug = 0;
    for (const auto &game : data_set) {

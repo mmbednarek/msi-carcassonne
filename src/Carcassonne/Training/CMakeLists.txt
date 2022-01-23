@@ -1,2 +1,2 @@
 add_library(carcassonne_rl_training Training.cpp Gameplay.cpp)
-target_link_libraries(carcassonne_rl_training carcassonne_encoder)
+target_link_libraries(carcassonne_rl_training carcassonne_encoder carcassonne_rl)

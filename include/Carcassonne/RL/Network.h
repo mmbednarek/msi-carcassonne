@@ -11,6 +11,8 @@
 
 namespace carcassonne::ai::rl {
 
+static constexpr const mb::u64 g_batch_size = 2048;
+
 std::string thread_name();
 
 class Network {
@@ -32,7 +34,8 @@ class Network {
    std::string get_thread_name() { return m_pthread_name; }
    std::unique_ptr<caffe::SGDSolver<float>>& solver() { return m_solver; }
    int get_gpu_id() { return m_gpu_id; }
-   void train(const std::vector<training::OneGame> &data_set);
+   
+   void train(const std::array<training::OneGame, g_batch_size> &data_set);
    void free_network();
 
 };

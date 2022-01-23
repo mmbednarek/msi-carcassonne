@@ -54,6 +54,7 @@ void Gameplay::submit_game_data() {
          record.reward = 1.0;
          continue;
       }
+      spdlog::info("record.reward = -1.0");
       record.reward = -1.0;
    }
    if (nullptr == m_promise_ptr) spdlog::error("nullptr == m_promise_ptr");
